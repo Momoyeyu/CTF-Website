@@ -1,0 +1,7 @@
+id,name,sort,redirect,component,path,meta_icon,meta_title,meta_no_cache,meta_bread_crumb,hidden,always_show,parent_id,udp_menu,description,editable_udp_roles,create_time
+1,Dashboard,-1,,Layout,/dashboard,dashboard,首页,t,t,f,f,,t,Dashboard,"10,3",2022-09-10 11:09:11
+2,Setting,999,/setting/user,Layout,/setting,setting,设置,t,t,f,f,,f,,,2022-09-10 11:09:11
+3,User,1,,@/views/user/index,user,user,用户管理,t,t,f,f,2,f,,,2022-09-10 11:09:11
+4,Group,2,,@/views/group/index,group,group,角色管理,t,t,f,f,2,f,,,2022-09-10 11:09:11
+5,Menu,4,,@/views/menu/index,menu,menu,菜单管理,t,t,f,f,2,f,保存测试,,2022-09-10 11:09:11
+6,Domain,3,,@/views/domain/index,domain,domain,域管理,t,t,f,f,2,f,,,2022-09-10 11:09:11
