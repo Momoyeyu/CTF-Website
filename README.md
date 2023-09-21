@@ -1,6 +1,9 @@
 # CTF-Website
 网安实践CTF网站开发
 
+## 前置学习
+- @reference 参考资料
+
 ## 项目需求
 
 ### CTF网站开发
@@ -15,9 +18,11 @@
 - 基于docker部署题目到网站
 
 ### 报告要求
-- 设计文档、测试文档、展示文档
+- @design 项目设计文档、@test 项目测试文档、@presentation 项目展示文档
 - 可编译的代码
-- 演示视频（<5min）
-- 进展ppt
+- @presentation 演示视频，不超过5min
+- @presentation 进展ppt
 - 分工表
- 
+
+## 评分标准
+
