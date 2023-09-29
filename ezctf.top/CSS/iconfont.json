@@ -1,0 +1,37 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1440",
+      "name": "微软",
+      "font_class": "weiruan",
+      "unicode": "f01ff",
+      "unicode_decimal": 983551
+    },
+    {
+      "icon_id": "1098543",
+      "name": "排行榜",
+      "font_class": "paixingbang",
+      "unicode": "e64b",
+      "unicode_decimal": 58955
+    },
+    {
+      "icon_id": "4933375",
+      "name": "人物-人",
+      "font_class": "renwu-ren",
+      "unicode": "e749",
+      "unicode_decimal": 59209
+    },
+    {
+      "icon_id": "25332581",
+      "name": "习题库",
+      "font_class": "xitiku",
+      "unicode": "e644",
+      "unicode_decimal": 58948
+    }
+  ]
+}

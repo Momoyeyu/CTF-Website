@@ -1,4 +1,0 @@
-id,username,password,nickname,email,avatar,platform,source,sharer_id,client_platform,client_brand,client_model,client_system,unionid,mp_openid,ma_openid,booksn,description,create_time,update_time,motto,height,weight,gender,birthday,phone,removed
-1,root,$2a$10$FgN6KfUKQjydpACY6ypqQ.SBL9E/EuXEQFZkJOM59rIwKNjYQIuu2,root,,,system,,,,,,,,,,111,,2022-09-10 22:00:00,,,,,,,,
-2,admin,$2a$10$nYVgKmcmG5YesW2p3CaZjOwgD9zxqJt4Y9qfvolo/ewhShkTdSPBq,admin,,,system,,,,,,,,,,222,,2022-09-10 22:00:00,,,,,,,,
-3,yan,$2a$10$JVUAJDaZlbpeEC5VLSZb0.HcKRXoHNa0A/JO95hy0Q/xvdfO5ikby,yan,1220041986@qq.com,,system,,,,,,,,,,333,,2022-09-10 22:00:00,,,,,,,,
