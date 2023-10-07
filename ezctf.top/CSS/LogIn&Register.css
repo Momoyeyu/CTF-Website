@@ -1,0 +1,38 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: black;
+}
+Login{
+    color: black;
+}
+.overlay {
+    display: none;
+    margin-top:200px;
+    margin-left:500px;
+    position: fixed;
+    top: auto;
+    left: auto;
+    width: 30%;
+    height: 30%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+.popup {
+    background-color: #0d1117;
+    padding: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color:white;
+    border-width: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color:white;
+}
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
