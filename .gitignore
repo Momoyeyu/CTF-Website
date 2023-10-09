@@ -40,3 +40,7 @@ __MACOSX
 *.iws
 *.iml
 *.ipr
+
+# backup
+
+backup/*
