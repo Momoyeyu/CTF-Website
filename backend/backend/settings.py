@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     # 自设计库表
     'tasks.apps.TasksConfig',
+    'rank.apps.RankConfig',
 ]
 
 MIDDLEWARE = [
