@@ -24,7 +24,7 @@
   - views:
     - get_user_rank() 返回用户排名显示需要的数据
     - get_team_rank() 返回队伍排名显示需要的数据
-    - get_ann
+    - get_first_kill() 
 - tasks
   - model:
     - task
