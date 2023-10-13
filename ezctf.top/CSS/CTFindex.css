@@ -1,8 +1,9 @@
+/* 导航栏 */
 .topborder{
     background-color:#0d1117;
     width:100%;
-    height: 60px;
-    line-height: 10px;
+    height: 80px;
+    line-height: 25px;
     color: #b0b0b0;
     font-size: 24px;
     border-radius: 20px;
@@ -10,15 +11,6 @@
 .wrap{
   width: 1300px;
   margin: 0 auto;
-}
-
-.iconfont {
-  font-family: "iconfont" !important;
-  font-size: 16px;/* bug1：字体图标调整无法生效 */
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  margin-right: 5px;
 }
 .header-left{
   padding-left: 0px;
@@ -44,35 +36,75 @@
 .topborder a:hover{
     color: #fff;
 }
-.bank{
-  background-color: #0d1117;
-  width: 120px;
-  height: 0px;
-  box-shadow: 0 1px 5px #444;
-  border-radius: 20px;
-  position:absolute;
-  top: 100px;
-  left: 40%;
-  margin: -60px;
-  overflow: hidden;
-  transition: all .3s;
+/* 背景轮播图 */
+.banner{
+  width: 100%;
+  height: 400px;
+  margin-bottom: 5px;
 }
-.Questionbank:hover>.bank{
-  height: 220px;
+.banner-box{
+  width: 800px;
+  height: 400px;
+  margin: 10px auto;
+  background-image: url(../IMG/1.jpg);
+  background-size: 100%;
+  animation: banner 6s linear infinite;
+} 
+.banner-box:hover{
+  animation-play-state: paused;
 }
-.bank li{
-  float: none;
+/* 背景图轮换动画实现,后面用js优化动画效果 */
+@keyframes banner {
+  0%{
+    background-image: url(../IMG/1.jpg);
+  }
+  33%{
+    background-image: url(../IMG/2.jpg);
+  }
+  67%{
+    background-image: url(../IMG/3.jpg);
+  }
 }
-.bank a{
-  font-size: 18px;
-  color: #2f81f7;
+/* 题目和公告栏 */
+.container{
+  width: 100%;
+  padding: 4px 0 12px;
 }
-.select{
-  list-style: none;
-  padding-left: 0px;
+/* 题目 */
+.container-left{
+  border:1px solid transparent;
+  color: #fff;
+  float: left;
+}
+.topbar{
+  height: 80px;
+  border-bottom: 1px solid transparent;
+}
+.topbar a{
+  color: #bbb;
+  text-decoration:none
+}
+.topbar a:hover{
+  color: #fff;
+}
+.block{
+  background-color:#0d1117; 
+  position: relative;
+  float: left;
+  width: 200px;
+  height: 80px;
+  border-left: 1px solid #2f81f7;
+  border-right: 1px solid #2f81f7;
+  font-size: 24px;
   text-align: center;
-  line-height: 40px;
+  line-height: 80px;
 }
+.content{
+  width: 1006.65px;
+  background-color:antiquewhite;
+  padding-bottom: 30px;
+}
+/* 点击切换题库内容 */
 .triangle{
   width: 0;
   height: 0;
@@ -80,11 +112,45 @@
   border-left: 8px solid transparent;  
   border-right:8px solid transparent ;  
   position: absolute;
-  bottom: -150%;
-  left: 40%;
-  margin-left: -8px;
+  top: 80%;
+  left: 47%;
+  display: none;
+} 
+.page{
   display: none;
 }
-.Questionbank:hover>.triangle{
+.topbar .current{
   display: block;
+}
+.content .current{
+  display: block;
+}
+/* 题目容器 */
+.question{
+  margin-left:38px;
+  margin-top:30px;
+  border: 1px solid #2f81f7;
+  width: 438px;
+  height: 180px;
+  /* border-radius: 10px; */
+  display: inline-block;
+}
+/* 公告栏 */
+.container-right{
+  width: 200px;
+  border:1px solid #2f81f7;
+  color: #fff;
+  float: right;
+}
+.outline{
+  text-align: center;
+  height: 60px;
+  border-bottom: 1px solid #2f81f7;
+  font-size: 18px;
+  line-height: 60px;
+}
+.notice ul{
+  list-style: none;
+  padding-left: 10px;
+  line-height: 40px;
 }

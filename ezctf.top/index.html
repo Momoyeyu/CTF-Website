@@ -5,27 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CTF</title>
     <!-- 自己的样式 -->
-    <link rel="stylesheet" href="CSS/CTFindex.css">
+    <link rel="stylesheet" href="./CSS/CTFindex.css">
     <!-- 字体图标 -->
-    <link rel="stylesheet" href="CSS/iconfont.css">
+    <link rel="stylesheet" href="./CSS/iconfont.css">
 </head>
 <body style="background-color: #010409;">
+    <!-- 导航栏 -->
     <div class="topborder">
         <div class="wrap">
         <ul class="header-left">
             <li><a href="#"><i class="iconfont">&#xf01ff;</i>Logo</a><span>|</span></li>
-            <li class="Questionbank"><a href="#"><i class="iconfont">&#xe644;</i>Questionbank</a><span>|</span>
-                <div class="bank">
-                    <ul class="select">
-                        <li><a href="#">Misc</a></li>
-                        <li><a href="#">Pwn</a></li>
-                        <li><a href="#">Web</a></li>
-                        <li><a href="#">Reverse</a></li>
-                        <li><a href="#">Crypto</a></li>
-                    </ul>
-                </div>
-                <div class="triangle"></div>
-            </li>
             <li><a href="#"><i class="iconfont">&#xe64b;</i>Ranking</a></li>
         </ul>
         <ul class="header-right">
@@ -33,5 +22,61 @@
         </ul>
         </div>
     </div>
+    <!-- 背景图 -->
+    <div class="banner">
+        <div class="wrap">
+            <div class="banner-box"></div>
+        </div>
+    </div>
+    <!-- 题目和公告栏 -->
+    <div class="container">
+        <div class="wrap">
+            <div class="container-left">
+                <div class="topbar">
+                    <div class="block current"><a href="#">Misc</a><div class="triangle current"></div></div>
+                    <div class="block"><a href="#">Pwn</a><div class="triangle"></div></div>
+                    <div class="block"><a href="#">Web</a><div class="triangle"></div></div>
+                    <div class="block"><a href="#">Reverse</a><div class="triangle"></div></div>
+                    <div class="block"><a href="#">Crypto</a><div class="triangle"></div></div>
+                </div>
+                <div class="content">
+                    <div class="page current">
+                        <div class="question"></div>
+                        <div class="question"></div>
+                        <div class="question"></div>
+                        <div class="question"></div>
+                        <div class="question"></div></div>
+                    <div class="page">
+                        <div class="question"></div>
+                        <div class="question"></div>
+                        <div class="question"></div>
+                        <div class="question"></div></div>
+                    <div class="page">
+                        <div class="question"></div>
+                        <div class="question"></div>
+                        <div class="question"></div></div>
+                    <div class="page">
+                        <div class="question"></div>
+                        <div class="question"></div></div>
+                    <div class="page">
+                        <div class="question"></div></div>
+                </div>
+            </div>
+            <div class="container-right">
+                <div class="outline">Notice</div>
+                <div class="notice">
+                    <ul>
+                        <li>1.THis</li>
+                        <li>2.is</li>
+                        <li>3.my</li>
+                        <li>4.first</li>
+                        <li>5.Web</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- JS文件 -->
+        <script src="./JS/indexJS.js"></script>
 </body>
 </html>
