@@ -1,9 +1,10 @@
 from django.urls import path
 
-from rank import user
+from rank.controller import user, team
 
 urlpatterns = [
 
-    path('customers', user.add_user),
+    path('user', user.dispatcher),
+    path('team', team.dispatcher),
 
 ]
