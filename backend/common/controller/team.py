@@ -28,13 +28,14 @@ def dispatcher(request):
 
 def create_team(request):
     """
+    队长创建战队
     POST 获取数据样例：
     {
         "action":"create_team",
         "data":{
             "leader_id":"1",
             "team_name":"ezctf",
-            "allow_join":"True"
+            "allow_join":"true"
         }
     }
     注意 allow_join 的格式，我不知道 json 可不可以自动解析
@@ -45,8 +46,8 @@ def create_team(request):
     leader = User.objects.get(pk=info['leader_id'])
     if leader.team_id is not None:
         return JsonResponse({
-            'ret': 1,
-            'msg': '用户已有战队！'
+            'return': 1,
+            "message": "用户已有战队！"
         })
 
     #
@@ -65,16 +66,46 @@ def create_team(request):
 
 def del_team(request):
     """
-        DELETE 获取数据样例：
-        {
-            "action":"del_team",
-            "data":{
-                "leader_id":"1",
-                "team_name":"ezctf",
-            }
+    队长删除战队
+    DELETE 获取数据样例：
+    {
+        "action":"del_team",
+        "data":{
+            "leader_id":"1",
+            "team_name":"ezctf",
         }
-        注意 allow_join 的格式，我不知道 json 可不可以自动解析
-        """
+    }
+    if team_name in team.team_name.all() and leader_id == team.leader_id
+        del team
+    """
+    info = request.params['data']
+    leader_id = info['leader_id']
+    team_name = info['team_name']
+    # 查询团队是否存在
+    try:
+        team = Team.objects.get(team_name=team_name)
+    except Team.DoesNotExist:
+        # 团队不存在，返回错误响应
+        return JsonResponse({
+            'return': 1,
+            "message": "团队" + team_name + "不存在!"
+        }, status=404)
+
+    # 验证 leader_id 是否匹配
+    if team.leader_id.id != leader_id:
+        # leader_id 不匹配，无法删除团队，返回错误响应
+        return JsonResponse({
+            'return': 1,
+            "message": "无法删除团队，权限不足!"
+        }, status=403)
+
+    # 删除团队
+    team.delete()
+
+    # 返回成功响应
+    return JsonResponse({
+        'return': 0,
+        "message": "成功删除团队"}, status=204)
 
     return HttpResponse()
 

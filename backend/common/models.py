@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from common.models import Team
 from django.db import models
 
 """
@@ -25,16 +24,6 @@ posts = user.posts.all()
 """
 
 
-class CustomUser(models.Model):
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
-    team_id = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, related_name='user_group')
-    total_points = models.IntegerField(default=0)
-    last_answer_time = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return self.user_id.username
-
-
 class Team(models.Model):
     team_name = models.CharField(max_length=255, unique=True)
     leader_id = models.ForeignKey(User, on_delete=models.PROTECT, related_name='team_leader')
@@ -44,3 +33,15 @@ class Team(models.Model):
 
     def __str__(self):
         return self.team_name
+
+
+class CustomUser(models.Model):
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
+    team_id = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, related_name='user_group', blank=True)
+    total_points = models.IntegerField(default=0)
+    last_answer_time = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.user_id.username
+
+
