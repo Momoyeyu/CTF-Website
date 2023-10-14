@@ -1,16 +1,19 @@
+body{
+  background-color: #010409;
+}
 /* 导航栏 */
 .topborder{
-    background-color:#0d1117;
+    background-color:#1e1e1e;
     width:100%;
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;
-    font-size: 24px;
+    font-size: 26px;
     border-radius: 20px;
 }
 .topborder .iconfont{
   font-family: "iconfont" !important;
-  font-size: 24px;
+  font-size: 26px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -106,6 +109,15 @@
   text-align: center;
   line-height: 80px;
 }
+.block button{
+  width: 200px;
+  height: 80px;
+  border: 0px;
+  font-size: 24px;
+  color: #b0b0b0;
+  background-color: transparent;
+  cursor: pointer;
+}
 .content{
   width: 1006.65px;
   background-color:antiquewhite;
@@ -139,8 +151,12 @@
   border: 1px solid #2f81f7;
   width: 438px;
   height: 180px;
-  /* border-radius: 10px; */
   display: inline-block;
+}
+.question button{
+  border: 0px;
+  padding: 0px;
+  cursor: pointer;
 }
 .question-left{
 float: left;
@@ -171,14 +187,14 @@ border-right: 1px solid red;
 }
 .question-message{
   width: 300px;
-  height: 44px;
-  border-bottom: 1px solid red;
+  height: 43px;
+  border-bottom: 1px solid transparent;
   color: #242e3b;
 }
 .question-score{
   float: left;
   width: 149px;
-  height:44px;
+  /* height:44px; */
   border-right: 1px solid red;
   text-align: center;
   line-height: 44px;
@@ -187,7 +203,7 @@ border-right: 1px solid red;
 .question-amount{
   float: left;
   width: 150px;
-  height:44px;
+  /* height:44px; */
   text-align: center;
   line-height: 44px;
   /* padding-left: 16px; */
@@ -219,6 +235,7 @@ line-height: 180px;
   border-bottom: 1px solid #2f81f7;
   font-size: 18px;
   line-height: 60px;
+  letter-spacing: 0.1em;
 }
 .notice ul{
   list-style: none;
