@@ -20,6 +20,13 @@
       "unicode_decimal": 58955
     },
     {
+      "icon_id": "3640203",
+      "name": "已完成",
+      "font_class": "yiwancheng",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
       "icon_id": "4933375",
       "name": "人物-人",
       "font_class": "renwu-ren",
@@ -27,11 +34,11 @@
       "unicode_decimal": 59209
     },
     {
-      "icon_id": "25332581",
-      "name": "习题库",
-      "font_class": "xitiku",
-      "unicode": "e644",
-      "unicode_decimal": 58948
+      "icon_id": "5743181",
+      "name": "未完成",
+      "font_class": "weiwancheng",
+      "unicode": "e817",
+      "unicode_decimal": 59415
     }
   ]
 }
