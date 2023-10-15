@@ -17,3 +17,7 @@ def get_request_params(request):
         params = json.loads(request.body)
 
     return params
+
+
+def log_test(api_name):
+    print("[INFO] Testing " + api_name)
