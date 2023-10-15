@@ -20,6 +20,6 @@ from django.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
+    path('api/task/', include('tasks.urls')),
     path('api/rank/', include('rank.urls')),
 ]
