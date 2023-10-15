@@ -26,7 +26,7 @@ posts = user.posts.all()
 
 class Team(models.Model):
     team_name = models.CharField(max_length=255, unique=True)
-    leader_id = models.ForeignKey(User, on_delete=models.PROTECT, related_name='team_leader')
+    leader = models.ForeignKey(User, on_delete=models.PROTECT, related_name='leader')
     member_count = models.IntegerField(default=1)
     allow_join = models.BooleanField(default=True)
     create_time = models.DateTimeField(auto_now_add=True)
@@ -36,12 +36,12 @@ class Team(models.Model):
 
 
 class CustomUser(models.Model):
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
-    team_id = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, related_name='user_group', blank=True)
-    total_points = models.IntegerField(default=0)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, related_name='user_group', blank=True)
+    score = models.IntegerField(default=0)
     last_answer_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return self.user_id.username
+        return self.user.username
 
 
