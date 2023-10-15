@@ -19,7 +19,7 @@ class Task(models.Model):
 
     task_name = models.CharField(max_length=100)
     content = models.TextField()
-  #  src = models.TextField()
+    src = models.TextField(blank=True,null=True)
     annex = models.FileField(upload_to='task_annex/', blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     flag = models.CharField(max_length=100)
