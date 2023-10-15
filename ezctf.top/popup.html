@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>popup</title>
+    <style>
+        body{
+            /* background-color: #010409; */
+        }
+        .popup-wrap{
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            overflow: auto;
+            margin: 0;
+        }
+        .popup{
+            margin:8% auto;
+            width: 700px;
+            background-color: #bbb;
+            border-radius: 15px;
+            padding: 24px;
+        }
+        .popup-header{
+            width: 700px;
+            height: 22px;
+            padding-top: 19px;
+            padding-bottom: 14px;
+            background-color: red;
+        }
+        .popup-content{
+            width: 652px;
+            height: 400px;
+            padding: 24px;
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-wrap">
+        <div class="popup">
+            <div class="popup-header"></div>
+            <div class="popup-content"></div>
+        </div>
+    </div>
+</body>
+</html>

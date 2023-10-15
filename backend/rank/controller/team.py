@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.http import JsonResponse
-from common.controller.util import get_request_params
+from utils import get_request_params
 import json
 
 

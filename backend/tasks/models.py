@@ -35,8 +35,8 @@ class Task(models.Model):
 
 
 class AnswerRecord(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    task = models.ForeignKey(Task, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='all_answer')
+    task = models.ForeignKey(Task, on_delete=models.PROTECT, related_name='answer_time')
     points = models.IntegerField()
     answer_time = models.DateTimeField(auto_now_add=True)
 

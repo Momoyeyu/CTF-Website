@@ -1,24 +1,47 @@
-from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db import models
 
+"""
+related_name 在Django的模型中用于指定反向关联名称，它对于创建更直观的关联查询和可读性非常有用。
+当你在一个模型中定义外键或多对多字段时，Django会自动生成一个默认的反向关联名称，
+通常是小写的模型名加 _set，例如 modelname_set
+使用 related_name 可以自定义反向关联的名称，这对于让你的代码更易于理解和维护很重要。
 
-class CustomUser(models.Model):
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
-    group_id = models.OneToOneField(Group, on_delete=models.CASCADE, null=True, related_name='user_group')
-    total_points = models.IntegerField(default=0)
-    last_answer_time = models.DateTimeField(null=True, blank=True)
+# 假设有如下 models
+class Comment(models.Model):
+    text = models.TextField()
+    user = models.ForeignKey(User, related_name='comments')
 
-    def __str__(self):
-        return self.user_id.username
+class Post(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(User, related_name='posts')
+
+# 查询数据
+user = User.objects.get(pk=1)
+comments = user.comments.all()  # 使用 related_name，更容易理解
+posts = user.posts.all()
+
+"""
 
 
 class Team(models.Model):
-    group = models.OneToOneField(Group, on_delete=models.CASCADE)
     team_name = models.CharField(max_length=255, unique=True)
-    leader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team_leader')
-    team_member_count = models.IntegerField(default=1)
+    leader = models.ForeignKey(User, on_delete=models.PROTECT, related_name='leader')
+    member_count = models.IntegerField(default=1)
     allow_join = models.BooleanField(default=True)
+    create_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.team_name
+
+
+class CustomUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, related_name='user_group', blank=True)
+    score = models.IntegerField(default=0)
+    last_answer_time = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+
