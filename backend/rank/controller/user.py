@@ -6,10 +6,6 @@ from common.models import CustomUser
 import json
 import traceback
 
-"""
-此文件仅处理 user表 数据
-"""
-
 
 def dispatcher(request):
 
