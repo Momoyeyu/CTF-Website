@@ -20,6 +20,12 @@ def dispatcher(request):
 
 
 def list_task(request):
+    if request.method != 'GET':
+        return JsonResponse({
+            'ret': 1,
+            'msg': 'Unsupported request method.',
+        })
+
     try:
         task_type = request.GET.get('type')
         user_id = request.GET.get('user_id')
@@ -31,12 +37,15 @@ def list_task(request):
         if task_type:
             qs = qs.filter(type=int(task_type))
 
+        # user = User.objects.get(id=int(user_id))
+
         task_data = []
         for task in qs:
             is_solved = False
             if is_login == '1':
                 # print(is_login)
-                user = User.objects.get(id=int(user_id))
+                # print(user_id)
+
                 # print(user)
                 # print(task)
                 is_solved = AnswerRecord.objects.filter(user_id=user_id,task=task).exists()
@@ -44,19 +53,26 @@ def list_task(request):
             task_data.append({
                 'task_id' : task.id,
                 'task_name': task.task_name,
-             #   'src': task.src,
+                'src': task.src,
                 'difficulty': task.difficulty,
                 'points':task.points,
                 'solve_count': task.solve_count,
                 'is_solved': is_solved,
             })
 
-        return JsonResponse({'ret': 1, 'retlist': task_data, 'total':len(task_data)})
-
+        return JsonResponse({'ret': 0, 'retlist': task_data, 'total':len(task_data)})
+    except Task.DoesNotExist:
+        return JsonResponse({'ret': 1, 'msg': 'Unsupported request method.'})
     except:
-        return JsonResponse({'ret': 2,  'msg': f'未知错误\n{traceback.format_exc()}'})
+        return JsonResponse({'ret': 1,  'msg': f'未知错误\n{traceback.format_exc()}'})
 
 def query(request):
+    if request.method != 'GET':
+        return JsonResponse({
+            'ret': 'error',
+            'msg': 'Unsupported request method.',
+        })
+
     try:
         task_id = request.GET.get('task_id')
         task = Task.objects.get(id=task_id)
@@ -65,14 +81,10 @@ def query(request):
         task_data = {
             'task_id': task.id,
             'task_name': task.task_name,
-            #   'src': task.src,
-            'difficulty': task.difficulty,
-            'points': task.points,
-            'solve_count': task.solve_count,
-            'is_solved': is_solved,
+            'content':task.content,
         }
-
-        return JsonResponse({'ret': 1, 'data': task_data})
-
+        return JsonResponse({'ret': 0, 'data': task_data})
+    except Task.DoesNotExist:
+        return JsonResponse({'ret': 1, 'msg': 'Unsupported request method.'})
     except:
-        return JsonResponse({'ret': 2,  'msg': f'未知错误\n{traceback.format_exc()}'})
+        return JsonResponse({'ret': 1,  'msg': f'未知错误\n{traceback.format_exc()}'})

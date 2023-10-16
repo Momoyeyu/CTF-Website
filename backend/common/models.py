@@ -31,6 +31,8 @@ class Team(models.Model):
     allow_join = models.BooleanField(default=True)
     create_time = models.DateTimeField(auto_now_add=True)
 
+    objects = models.Manager() # Ninedream Modified.
+
     def __str__(self):
         return self.team_name
 
@@ -40,6 +42,8 @@ class CustomUser(models.Model):
     team = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, related_name='user_group', blank=True)
     score = models.IntegerField(default=0)
     last_answer_time = models.DateTimeField(null=True, blank=True)
+
+    objects = models.Manager() # Ninedream Modified.
 
     def __str__(self):
         return self.user.username

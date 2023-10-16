@@ -1,51 +1,102 @@
 from django.http import HttpResponse
 from django.http import JsonResponse
-from common.controller.util import get_request_params
-from tasks.models import Task,AnswerRecord
+from utils import get_request_params
+from tasks.models import Task, AnswerRecord
+from common.models import CustomUser
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from django.http import FileResponse
+import backend.settings as settings
+import os
 import traceback
 
 def dispatcher(request):
 
-    request.params = get_request_params(request)
+    if request.method == 'POST':
+        request.params = get_request_params(request)
+        action = request.params['action']
+    else:
+        action = request.GET.get('action')
 
-    action = request.params['action']
-    if action == 'list_all':
-        return list_task(request)
-    elif action == 'query_one':
-        return query(request)
+    if action == 'commit_flag':
+        return commit_flag(request)
+    elif action == 'download_attachment':
+        return download_attachment(request)
     else:
         return JsonResponse({'ret': 1, 'msg': 'Unsupported request!'})
 
 
-def list_task(request,type):
+def commit_flag(request):
+    """
+    Need info:
+    {
+        "action" : "commit_flag",
+        "data" : {
+            "task_id" : 0,
+            "user_id" : 1,
+            "flag" : "Flag:abcdefg"
+        }
+    }
+    """
+    if request.method != 'POST':
+        return JsonResponse({
+            'ret': 'error',
+            'msg': 'Unsupported request method.',
+        })
     try:
-        data=request.GET.get('data')
-        task_type = data['type']
-        user_id = data['user_id']
+        info = request.params['data']
+        task_id = info['task_id']
+        user_id = info['user_id']
+        flag = info['flag']
 
-        qs = Task.objects.all()
+        task = Task.objects.get(id=task_id)
+        cuser = CustomUser.objects.get(user_id=user_id)
 
+        if task.flag != flag:
+            return JsonResponse({'ret': 1,  'msg': 'Wrong!'})
+        elif AnswerRecord.objects.filter(user_id=user_id,task=task).exists():
+            return JsonResponse({'ret': 1, 'msg': '重复答题!'})
+        else:
+            cuser.score += task.points
+            cuser.save()
+            record = AnswerRecord.objects.create(task_id=task_id, user_id=user_id, points=task.points)
 
-        if task_type:
-            qs = qs.filter(task_type)
-
-        task_data = []
-        for task in qs:
-            user = User.objects.get(id=user_id)
-            is_solved = AnswerRecord.objects.filter(user=user, task=task).exists()
-            task_data.append({
-                'task_name': task.task_name,
-                'src': task.src,
-                'difficulty': task.difficulty,
-                'is_solved': is_solved,
-            })
-
-        return JsonResponse({'ret': 1, 'retlist': task_data, 'total':len(task_data)})
-
+            return JsonResponse({'ret': 0, 'msg':f'Accepted! Add a new record {record.id}.'})
+    except Task.DoesNotExist:
+        return JsonResponse({'ret': 1, 'msg' : 'Question not found.'}, status=404)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'ret':1, 'msg': 'User not found.'}, status=404)
     except:
-        return JsonResponse({'ret': 2,  'msg': f'未知错误\n{traceback.format_exc()}'})
+        return JsonResponse({'ret': 1,  'msg': f'未知错误\n{traceback.format_exc()}'},status=404)
 
-def query(request):
+def download_attachment(request):
+    """
+    need info:task_id
+    """
+    if request.method != 'GET':
+        return JsonResponse({
+            'ret': 'error',
+            'msg': 'Unsupported request method.',
+        })
+    try:
+        task_id = request.GET.get('task_id')
 
-    return JsonResponse()
+        # print(task_id)
+        task = Task.objects.get(id=int(task_id))
+
+        attach_path = str(task.annex)
+        file_path = os.path.join(settings.MEDIA_ROOT, attach_path)
+
+        if os.path.exists(file_path):
+            file = open(file_path, 'rb')
+            response = FileResponse(file)
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = f'filename="{os.path.basename(file_path)}"'
+            # TODO 关闭文件尚未解决
+            return response
+        else:
+            return HttpResponse('File not found', status=404)
+    except Task.DoesNotExist:
+        return HttpResponse('Task not found', status=404)
+    except:
+        return HttpResponse(f'未知错误\n{traceback.format_exc()}', status=404)
