@@ -31,6 +31,8 @@ class Team(models.Model):
     allow_join = models.BooleanField(default=True)
     create_time = models.DateTimeField(auto_now_add=True)
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.team_name
 
@@ -41,15 +43,8 @@ class CustomUser(models.Model):
     score = models.IntegerField(default=0)
     last_answer_time = models.DateTimeField(null=True, blank=True)
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.user.username
 
-
-from django import forms
-from captcha.fields import CaptchaField
-
-class RegistrationForm(forms.Form):
-    username = forms.CharField(max_length=30)
-    password = forms.CharField(widget=forms.PasswordInput())
-    email = forms.EmailField()
-    captcha = CaptchaField()
