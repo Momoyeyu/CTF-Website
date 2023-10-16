@@ -52,8 +52,8 @@ def user_login(request):
     }
     @return:
     {
-        'return'
-        'message'
+        'ret'
+        'msg'
         'data': {
             "user_id"
             "username"
@@ -62,8 +62,8 @@ def user_login(request):
     """
     if request.method != 'POST':
         return JsonResponse({
-            'return': 'error',
-            'message': 'Unsupported request method.',
+            'ret': 'error',
+            'msg': 'Unsupported request method.',
         })
 
     try:
@@ -83,8 +83,8 @@ def user_login(request):
             login(request, user)
             # 用户已成功登录
             return JsonResponse({
-                'return': 'success',
-                'message': '登录成功',
+                'ret': 'success',
+                'msg': '登录成功',
                 'data': {
                     'user_id': user.id,
                     'username': user.username,
@@ -93,15 +93,15 @@ def user_login(request):
         else:
             # 登录失败
             return JsonResponse({
-                'return': 'error',
-                'message': '！登陆失败，请检查你的信息',
+                'ret': 'error',
+                'msg': '！登陆失败，请检查你的信息',
             })
 
     except json.JSONDecodeError:
         # 请求数据无法解析
         return JsonResponse({
-            'return': 'error',
-            'message': 'Invalid JSON data in the request.',
+            'ret': 'error',
+            'msg': 'Invalid JSON data in the request.',
         })
 
 
@@ -114,15 +114,15 @@ def user_register(request):
         "data":{
             "username": "momoyeyu",
             "password": "123",
-            "email": "momoyeyu@outlookcom"
+            "email": "momoyeyu@outlookcom",
+            "valid": "123456"
         }
     }
     """
-    # TODO
     if request.method != 'POST':
         return JsonResponse({
-            'return': 'error',
-            'message': 'Invalid request method.',
+            'ret': 'error',
+            'msg': 'Invalid request method.',
             'data': None
         })
 
@@ -131,26 +131,29 @@ def user_register(request):
     password = info['password']
     email = info['email']
 
+    # 验证用户输入
+    if not username or not password or not email:
+        return JsonResponse({
+            'ret': 'error',
+            'msg': '请输入完整信息',
+            'data': None
+        }, status=400)
+
     if User.objects.filter(username=username).exists():
         return JsonResponse({
-            'return': 'error',
-            'message': '用户名已被使用',
+            'ret': 'error',
+            'msg': '用户名已被使用',
             'data': None
         })
 
     if User.objects.filter(email=email).exists():
         return JsonResponse({
-            'return': 'error',
-            'message': '邮箱已被使用',
+            'ret': 'error',
+            'msg': '邮箱已被使用',
             'data': None
         })
 
-    # 验证用户输入
-    if not username or not password or not email:
-        return JsonResponse({
-            'return': 'error',
-            'message': '请输入完整信息',
-        }, status=400)
+    # TODO 验证码
 
     # 创建 User，create_user() 会自动处理密码的加密
     user = User.objects.create_user(username=username, password=password, email=email)
@@ -160,8 +163,8 @@ def user_register(request):
     custom_user.save()
 
     return JsonResponse({
-        'return': 'success',
-        'message': '注册成功',
+        'ret': 'success',
+        'msg': '注册成功',
         'data': {
             'username': user.username,
             'user_id': user.id
@@ -183,4 +186,6 @@ def del_user(request):
     # TODO
 
     return HttpResponse()
+
+
 
