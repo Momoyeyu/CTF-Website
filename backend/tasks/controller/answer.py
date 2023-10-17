@@ -6,6 +6,7 @@ from common.models import CustomUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.http import FileResponse
+from rank.models import FirstKill
 import backend.settings as settings
 import os
 import traceback
@@ -60,7 +61,9 @@ def commit_flag(request):
             cuser.score += task.points
             cuser.save()
             record = AnswerRecord.objects.create(task_id=task_id, user_id=user_id, points=task.points)
-
+            if FirstKill.objects.filter(task_id=task_id).exists() == False:
+                FirstKill.objects.create(task_id=task_id,user_id=user_id)
+                return JsonResponse({'ret': 0, 'msg': f'First Killed! Add a new record {record.id}.'})
             return JsonResponse({'ret': 0, 'msg':f'Accepted! Add a new record {record.id}.'})
     except Task.DoesNotExist:
         return JsonResponse({'ret': 1, 'msg' : 'Question not found.'}, status=404)

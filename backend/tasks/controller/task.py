@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.http import JsonResponse
 from utils import get_request_params
-from tasks.models import Task,AnswerRecord
+from tasks.models import Task, AnswerRecord
 from django.contrib.auth.models import User
 import traceback
 

@@ -49,7 +49,7 @@ def test_commit_flag():
 
 def test_download_attachment():
 
-    response = requests.get('http://localhost/api/task/answer?action=download_attachment&task_id=1')
+    response = requests.get('http://localhost/api/task/answer?action=download_attachment&task_id=3')
 
     pprint.pprint(response.headers)
     pprint.pprint(response.text)
