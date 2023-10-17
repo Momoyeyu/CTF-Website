@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>EZCTF</title>
     <!-- 自己的样式 -->
     <link rel="stylesheet" href="./CSS/CTFindex.css">
@@ -10,6 +11,67 @@
     <link rel="stylesheet" href="./CSS/iconfont.css">
 </head>
 <body>
+    <!-- 题目详细页面弹窗 -->
+    <div class="popup-wrap" id="popup-wrap" onclick="hidepopup()">
+        <div class="popup">
+            <div class="popup-header">
+                <div class="TITLE">MeowMeowMeow</div>
+                <button class="close" onclick="hidepopup()">X</button>
+            </div>
+            <div class="popup-content">
+                <table class="popup-table">  
+                    <tr>  
+                      <td>来源：CATCTF</td>  
+                      <td>分数：2</td>  
+                    </tr>  
+                    <tr>  
+                      <td>解出人数：1009</td>  
+                      <td>状态：未解决</td>  
+                    </tr>  
+                  </table>  
+                  <p class="popup-description">
+                    题目描述：你说的对，但是Cat_Jump是由CatCTF自主研发的一款Linux小游戏。
+                    游戏发生在一个被称作「虚拟机」的幻想世界，
+                    在这里，被神选中的人将被授予「cat_jump」，导引进入系统。
+                    你将扮演一只名为「OpenCore」的神秘角色，
+                    在自由的旅行中邂逅性格各异、能力独特的出题人，
+                    和他们一起击败强敌，找回失散的Flag——同时，逐步发掘「Cat_Jump」的真相。
+                </p>
+                <div class="popup-download">  
+                    <a href="#" download>附件点击这里下载</a>  
+                  </div>  
+            </div>
+        </div>
+    </div>
+    <div class="popup-wrap" id="popup-wrap2" onclick="hidepopup()">
+        <div class="popup">
+            <div class="popup-header">
+                <div class="TITLE">Peekaboo</div>
+                <button class="close" onclick="hidepopup()">X</button>
+            </div>
+            <div class="popup-content">
+                <table class="popup-table">  
+                    <tr>  
+                      <td>来源：CATCTF</td>  
+                      <td>分数：2</td>  
+                    </tr>  
+                    <tr>  
+                      <td>解出人数：327</td>  
+                      <td>状态：已解决</td>  
+                    </tr>  
+                  </table>  
+                  <p class="popup-description">
+                    题目描述：躲猫猫，找不到了，但是留下了一点信息，你能帮我找到flag吗
+                    提问：最后一次使用的英雄是？
+                    注意使用拼音全拼并小写
+                    flag格式为CatCTF{***}
+                </p>
+                <div class="popup-download">  
+                    <a href="#" download>附件点击这里下载</a>  
+                  </div>  
+            </div>
+        </div>
+    </div>
     <!-- 导航栏 -->
     <div class="topborder">
         <div class="wrap">
@@ -41,7 +103,7 @@
                 </div>
                 <div class="content">
                     <div class="page current">
-                        <div class="question"><button type="button">
+                        <div class="question"><button class="trigger" onclick="showpopup()">
                             <div class="question-left">
                                 <div class="question-name">MeowMeowMeow</div>
                                 <div class="question-source">CATCTF</div>
@@ -53,7 +115,7 @@
                             <div class="question-right">
                                 <i class="iconfont">&#xe817;</i></div>
                         </button></div>
-                        <div class="question"><button type="button">
+                        <div class="question"><button class="trigger" onclick="showpopup()">
                             <div class="question-left">
                                 <div class="question-name">Peekaboo</div>
                                 <div class="question-source">CATCTF</div>
@@ -99,5 +161,6 @@
     </div>
         <!-- JS文件 -->
         <script src="./JS/indexJS.js"></script>
+        <script src="./JS/indexpopup.js"></script>
 </body>
 </html>
