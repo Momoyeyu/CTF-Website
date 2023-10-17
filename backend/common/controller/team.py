@@ -4,7 +4,6 @@ from utils import get_request_params
 from common.models import Team
 from django.contrib.auth.models import User
 from common.models import CustomUser
-from django.core.exceptions import ObjectDoesNotExist
 
 
 def dispatcher(request):

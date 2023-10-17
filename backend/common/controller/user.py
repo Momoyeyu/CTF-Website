@@ -2,8 +2,9 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from utils import get_request_params
 from django.contrib.auth.models import User
-from common.models import CustomUser
+from common.models import CustomUser, Team
 from django.contrib.auth import authenticate, login
+from django.core.exceptions import ObjectDoesNotExist
 import json
 
 """
@@ -34,6 +35,8 @@ def dispatcher(request):
         return modify_user(request)
     elif action == 'del_user':
         return del_user(request)
+    elif action == 'user_profile':
+        return get_user_profile(request)
 
     else:
         return JsonResponse({'ret': 1, 'msg': 'Unsupported request!'})
@@ -42,6 +45,7 @@ def dispatcher(request):
 def user_login(request):
     """
     用户登录，返回用户数据
+    POST
     @payload:
     {
         "action":"login",
@@ -108,6 +112,7 @@ def user_login(request):
 def user_register(request):
     """
     用户注册，创建新的User，CustomUser，并将CustomUser的user_id设置为User的id
+    POST
     @payload:
     {
         "action":"register",
@@ -175,17 +180,70 @@ def user_register(request):
 def modify_user(request):
     """
     处理用户更新信息
+
     """
     # TODO
 
-    return HttpResponse()
+    return
 
 
 def del_user(request):
     """ 用户注销账号，删除数据库中与该用户有关的所有数据 """
     # TODO
 
-    return HttpResponse()
+    return
 
 
+def get_user_profile(request):
+    """
+    获取用户数据
+    GET
+    {
+        "action": "user_profile",
+        "user_id": 1
+    }
+    """
+    user_id = request.params['user_id']
 
+    user = None
+    custom_user = None
+    try:
+        user = User.objects.get(pk=user_id)
+        custom_user = CustomUser.objects.get(user_id=user_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户不存在"
+        }, status=404)
+
+    team = None
+    if custom_user.team_id is not None:
+        team = Team.objects.get(pk=custom_user.team_id)
+        is_leader = False
+        if team.leader_id == user_id:
+            is_leader = True
+            return JsonResponse({
+                "ret": "success",
+                "msg": "查询成功",
+                "data": {
+                    "username": user.username,
+                    "score": custom_user.score,
+                    "teamname": team.team_name,
+                    "is_leader": is_leader
+                }
+            }, status=200)
+
+
+    return JsonResponse({
+        "ret": "success",
+        "msg": "查询成功",
+        "data": {
+            "username": user.username,
+            "score": custom_user.score,
+            "teamname": None,
+            "is_leader": None
+        }
+    }, status=200)
+
+
+    return

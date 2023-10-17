@@ -39,7 +39,7 @@ class Team(models.Model):
 
 class CustomUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
-    team = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, related_name='user_group', blank=True)
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, blank=True, related_name='user_group')
     score = models.IntegerField(default=0)
     last_answer_time = models.DateTimeField(null=True, blank=True)
 
