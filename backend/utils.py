@@ -1,4 +1,5 @@
 import json
+import re
 
 
 def get_request_params(request):
@@ -21,3 +22,12 @@ def get_request_params(request):
 
 def log_test(api_name):
     print("[INFO] Testing " + api_name)
+
+
+def is_valid_username(username):
+    # 使用正则表达式检查用户名是否只包含字母、数字和下划线
+    pattern = r'^\w+$'
+    if re.match(pattern, username):
+        return True
+    else:
+        return False
