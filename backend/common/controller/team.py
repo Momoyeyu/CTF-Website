@@ -49,6 +49,17 @@ def create_team(request):
         }
     }
     """
+    if request.method != "POST":
+        return JsonResponse({
+            "ret": "error",
+            "msg": "Invalid request method"
+        }, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
     data = request.params["data"]
 
     # 检查用户是否在战队里
@@ -120,6 +131,12 @@ def del_team(request):
             "msg": "Invalid request method"
         }, status=405)
 
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
+
     data = request.params["data"]
     username = data["username"]
     password = data["password"]
@@ -180,6 +197,12 @@ def join_team(request):
             "ret": "error",
             "msg": "Invalid request method"
         }, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
 
     data = request.params["data"]
     username = data["username"]
@@ -265,6 +288,12 @@ def quit_team(request):
             "msg": "Invalid request method"
         }, status=405)
 
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
+
     data = request.params["data"]
     username = data["username"]
     team_name = data["team_name"]
@@ -316,6 +345,12 @@ def search_team(request):
         }
     }
     """
+    if request.method != "GET":
+        return JsonResponse({
+            "ret": "error",
+            "msg": "Invalid request method"
+        }, status=405)
+
     data= request.params["data"]
     keyword = data["keyword"]
 
@@ -363,6 +398,18 @@ def change_team_name(request):
         }
     }
     """
+    if request.method != "PUT":
+        return JsonResponse({
+            "ret": "error",
+            "msg": "Invalid request method"
+        }, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
+
     data = request.params["data"]
     username = data["username"]
     old = data["old_team_name"]

@@ -137,8 +137,13 @@ def user_logout(request):
     """
     用户退出登录
     GET
-
     """
+    if request.method != "GET":
+        return JsonResponse({
+            "ret": "error",
+            "msg": "Invalid request method"
+        }, status=405)
+
     if request.user.is_authenticated:
         logout(request)
         return JsonResponse({
@@ -240,6 +245,18 @@ def modify_user_info(request):
         }
     }
     """
+    if request.method != "PUT":
+        return JsonResponse({
+            "ret": "error",
+            "msg": "Invalid request method"
+        }, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
+
     # 获取请求中的数据
     data = request.params["data"]
 
@@ -285,7 +302,13 @@ def del_account(request):
         return JsonResponse({
             "ret": "error",
             "msg": "Invalid request method.",
-        })
+        }, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
 
     data = request.params["data"]
     username = data["username"]
