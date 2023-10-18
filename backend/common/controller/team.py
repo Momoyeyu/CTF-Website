@@ -26,6 +26,8 @@ def dispatcher(request):
         return quit_team(request)
     elif action == "search_team":
         return search_team(request)
+    elif action == "change_team_name":
+        return change_team_name(request)
 
     else:
         return JsonResponse({
@@ -303,23 +305,6 @@ def quit_team(request):
         }, status=404)
 
 
-def is_user_in_team(user_id, team_id):
-    """
-    if user in team
-        return true
-    else
-        return false
-    """
-    try:
-        user = CustomUser.objects.get(user_id=user_id)
-        if user.team_id == team_id:  # 检查用户的team_id是否与给定的团队ID相匹配
-            return True
-        else:
-            return False
-    except User.DoesNotExist:
-        return False
-
-
 def search_team(request):
     """
     搜索队伍
@@ -331,7 +316,8 @@ def search_team(request):
         }
     }
     """
-    keyword = request.params["keyword"]
+    data= request.params["data"]
+    keyword = data["keyword"]
 
     if keyword:
         # 直接查询 team_name 包含关键字且 allow_join 为 True 的队伍
@@ -362,4 +348,52 @@ def search_team(request):
         "msg": "匹配的队伍信息",
         "data": team_list
     }, status=200)
+
+
+def change_team_name(request):
+    """
+    队长更改战队名称
+    PUT /api/common/team?action=change_team_name HTTP/1.1
+    {
+        "action": "change_team_name",
+        "data": {
+            "username": "momoyeyu",
+            "old_team_name": "ezctf",
+            "new_team_name": "Ezctf",
+        }
+    }
+    """
+    data = request.params["data"]
+    username = data["username"]
+    old = data["old_team_name"]
+    new = data["new_team_name"]
+    try:
+        team = Team.objects.get(team_name=old)
+        if team.leader.username == username:
+            if Team.objects.filter(team_name=new):
+                return JsonResponse({
+                    "ret": "error",
+                    "msg": "队名已被使用",
+                }, status=409)
+
+            team.team_name = new
+            team.save()
+            return JsonResponse({
+                "ret": "success",
+                "msg": "成功修改队伍名称",
+                "data": {
+                    "team_name": new
+                }
+            }, status=200)
+        else:
+            return JsonResponse({
+                "ret": "error",
+                "msg": "权限不足",
+            }, status=403)
+
+    except ObjectDoesNotExist:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "队伍不存在"
+        }, status=404)
 
