@@ -270,7 +270,6 @@ line-height: 180px;
 }
 .describe{
   width: 100%;
-  height: 120px;
 }
 .popup-table {  
   width: 100%;  
@@ -280,6 +279,8 @@ line-height: 180px;
   padding: 20px;
   border-bottom: 1px solid #ccc;
 } 
+.popup-flag{
+}
 .popup-download {  
   text-align: center;  
   margin-top: 100px;  
