@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.http import FileResponse
 from rank.models import FirstKill
 import backend.settings as settings
+from django.utils import timezone
 import os
 import traceback
 
@@ -61,6 +62,8 @@ def commit_flag(request):
             cuser.save()
             task.solve_count += 1
             task.save()
+            cuser.last_answer_time = timezone.now()
+            cuser.save()
             record = AnswerRecord.objects.create(task_id=task_id, user_id=user_id, points=task.points)
             if FirstKill.objects.filter(task_id=task_id).exists() == False:
                 FirstKill.objects.create(task_id=task_id,user_id=user_id)
