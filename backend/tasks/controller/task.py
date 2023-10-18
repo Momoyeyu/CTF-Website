@@ -26,14 +26,20 @@ def list_task(request):
             'msg': 'Unsupported request method.',
         })
 
+    task_type = request.GET.get('type')
+    # print("task_type: "+str(task_type))
+    # user_id = request.GET.get('user_id')
+  #  user_id = request.session.get('_auth_user_id')
+    # is_login = request.GET.get('is_login')
+    is_login = True
     try:
-        task_type = request.GET.get('type')
-        user_id = request.GET.get('user_id')
-        is_login = request.GET.get('is_login')
-
+        user_id = request.session.get('_auth_user_id')
+        # print("user_id: "+str(user_id))
+    except User.DoesNotExist:
+        is_login = False
+    try:
         qs = Task.objects.all()
-
-
+        # print("qs_len:"+str(len(qs)))
         if task_type:
             qs = qs.filter(type=int(task_type))
 
@@ -42,14 +48,11 @@ def list_task(request):
         task_data = []
         for task in qs:
             is_solved = False
-            if is_login == '1':
-                # print(is_login)
-                # print(user_id)
-
-                # print(user)
-                # print(task)
+            if is_login == True:
                 is_solved = AnswerRecord.objects.filter(user_id=user_id,task=task).exists()
-            print(is_solved)
+
+            # print("is_solved:", is_solved)
+
             task_data.append({
                 'task_id' : task.id,
                 'task_name': task.task_name,

@@ -27,7 +27,6 @@ def get_rank(request):
         user_data = []
         for user in users:
             user_data.append({
-                'user_id': user.user_id,
                 'user_name': user.user.username,
                 'score':user.score,
                 'last_commit': user.last_answer_time,

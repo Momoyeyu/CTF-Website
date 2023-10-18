@@ -29,7 +29,6 @@ def get_rank(request):
             for member in members:
                 total_score += member.score
             team_data.append({
-                'team_id': team.id,
                 'team_name': team.team_name,
                 'score': total_score,
                 'member_count': team.member_count,
