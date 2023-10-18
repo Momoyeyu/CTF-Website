@@ -80,7 +80,7 @@ def user_login(request):
         password = info["password"]
 
         user = None
-        if ""@"" in username_or_email:
+        if "@" in username_or_email:
             # 如果输入包含 "@"，则尝试使用电子邮件进行身份验证
             user = authenticate(request, email=username_or_email, password=password)
         else:
