@@ -17,31 +17,31 @@ def dispatcher(request):
 
     request.params = get_request_params(request)
     """# GET请求 参数在url中，同过request 对象的 GET属性获取
-    if request.method == 'GET':
+    if request.method == "GET":
         request.params = request.GET
 
     # POST/PUT/DELETE 请求 参数 从 request 对象的 body 属性中获取
-    elif request.method in ['POST', 'PUT', 'DELETE']:
+    elif request.method in ["POST", "PUT", "DELETE"]:
         # 根据接口，POST/PUT/DELETE 请求的消息体都是 json格式
         request.params = json.loads(request.body)"""
 
     # 根据不同的action分派给不同的函数进行处理
-    action = request.params['action']
-    if action == 'login':
+    action = request.params["action"]
+    if action == "login":
         return user_login(request)
-    elif action == 'logout':
+    elif action == "logout":
         return user_logout(request)
-    elif action == 'register':
+    elif action == "register":
         return user_register(request)
-    elif action == 'modify_user_info':
+    elif action == "modify_user_info":
         return modify_user_info(request)
-    elif action == 'del_user':
+    elif action == "del_account":
         return del_account(request)
-    # elif action == 'user_profile':
+    # elif action == "user_profile":
     #     return get_user_profile(request)
 
     else:
-        return JsonResponse({'ret': 1, 'msg': 'Unsupported request!'})
+        return JsonResponse({"ret": 1, "msg": "Unsupported request!"})
 
 
 def user_login(request):
@@ -58,9 +58,9 @@ def user_login(request):
     }
     @return:
     {
-        'ret': "success" / "error",
+        "ret": "success" / "error",
         "msg": "注册成功" / "报错信息"
-        'data': {
+        "data": {
             "username": "momoyeyu",
             "score": "100",
             "team_name": "ezctf",
@@ -68,20 +68,20 @@ def user_login(request):
         }
     }
     """
-    if request.method != 'POST':
+    if request.method != "POST":
         return JsonResponse({
-            'ret': 'error',
-            'msg': 'Unsupported request method.',
+            "ret": "error",
+            "msg": "Unsupported request method.",
         }, status=405)
 
     try:
-        info = request.params['data']
-        username_or_email = info['username_or_email']
-        password = info['password']
+        info = request.params["data"]
+        username_or_email = info["username_or_email"]
+        password = info["password"]
 
         user = None
-        if '@' in username_or_email:
-            # 如果输入包含 '@'，则尝试使用电子邮件进行身份验证
+        if ""@"" in username_or_email:
+            # 如果输入包含 "@"，则尝试使用电子邮件进行身份验证
             user = authenticate(request, email=username_or_email, password=password)
         else:
             # 否则，尝试使用用户名进行身份验证
@@ -109,10 +109,10 @@ def user_login(request):
                 }, status=200)
 
             return JsonResponse({
-                'ret': 'success',
-                'msg': '登录成功',
-                'data': {
-                    'username': user.username,
+                "ret": "success",
+                "msg": "登录成功",
+                "data": {
+                    "username": user.username,
                     "score": custom_user.score,
                     "team_name": None,
                     "is_leader": None
@@ -121,15 +121,15 @@ def user_login(request):
         else:
             # 登录失败
             return JsonResponse({
-                'ret': 'error',
-                'msg': '！登陆失败，请检查你的信息',
+                "ret": "error",
+                "msg": "登陆失败！请检查你的信息"
             }, status=400)
 
     except json.JSONDecodeError:
         # 请求数据无法解析
         return JsonResponse({
-            'ret': 'error',
-            'msg': 'Invalid JSON data in the request.',
+            "ret": "error",
+            "msg": "Invalid JSON data in the request.",
         }, status=400)
 
 
@@ -142,13 +142,13 @@ def user_logout(request):
     if request.user.is_authenticated:
         logout(request)
         return JsonResponse({
-            'ret': 'success',
-            'msg': '已退出登录'
+            "ret": "success",
+            "msg": "已退出登录",
         }, status=200)
     else:
         return JsonResponse({
-            'ret': 'error',
-            'msg': '您没有登录.',
+            "ret": "error",
+            "msg": "您没有登录",
         }, status=400)
 
 
@@ -173,41 +173,41 @@ def user_register(request):
         "msg": "注册成功" / "报错信息"
     }
     """
-    if request.method != 'POST':
+    if request.method != "POST":
         return JsonResponse({
-            'ret': 'error',
-            'msg': 'Invalid request method.',
-            'data': None
+            "ret": "error",
+            "msg": "Invalid request method.",
+            "data": {}
         }, status=405)
 
-    info = request.params['data']
-    username = info['username']
-    password = info['password']
-    email = info['email']
+    info = request.params["data"]
+    username = info["username"]
+    password = info["password"]
+    email = info["email"]
 
     # 验证用户输入
     if not username or not password or not email:
         return JsonResponse({
-            'ret': 'error',
-            'msg': '请输入完整信息',
+            "ret": "error",
+            "msg": "请输入完整信息",
         }, status=400)
 
     if not is_valid_username(username):
         return JsonResponse({
-            'ret': 'error',
-            'msg': '用户名不合法',
+            "ret": "error",
+            "msg": "用户名不合法",
         }, status=400)
 
     if User.objects.filter(username=username).exists():
         return JsonResponse({
-            'ret': 'error',
-            'msg': '用户名已被使用',
+            "ret": "error",
+            "msg": "用户名已被使用",
         }, status=400)
 
     if User.objects.filter(email=email).exists():
         return JsonResponse({
-            'ret': 'error',
-            'msg': '邮箱已被使用',
+            "ret": "error",
+            "msg": "邮箱已被使用",
         }, status=400)
 
     # TODO 验证码
@@ -220,8 +220,8 @@ def user_register(request):
     custom_user.save()
 
     return JsonResponse({
-        'ret': 'success',
-        'msg': '注册成功',
+        "ret": "success",
+        "msg": "注册成功",
     }, status=200)
 
 
@@ -241,18 +241,18 @@ def modify_user_info(request):
     }
     """
     # 获取请求中的数据
-    data = request.params['data']
+    data = request.params["data"]
 
     # 获取用户
-    user = authenticate(request, username=data['old_username'], password=data['password'])
+    user = authenticate(request, username=data["old_username"], password=data["password"])
 
     if user is not None:
         # 用户验证成功
-        if data.get('new_username') is not None:
-            user.username = data['new_username']
+        if data.get("new_username") is not None:
+            user.username = data["new_username"]
 
-        if data.get('new_email') is not None:
-            user.email = data['new_email']
+        if data.get("new_email") is not None:
+            user.email = data["new_email"]
 
         user.save()
 
@@ -270,26 +270,26 @@ def modify_user_info(request):
 
 def del_account(request):
     """
-      用户注销账号，删除数据库中与该用户有关的所有数据
-      DELETE
-      @payload:
-      {
-          "action":"del_account",
-          "data":{
-              "username": "momoyeyu",
-              "password": "123",
-          }
-      }
-      """
-    if request.method != 'DELETE':
+    用户注销账号，删除数据库中与该用户有关的所有数据
+    DELETE
+    @payload:
+    {
+        "action":"del_account",
+        "data":{
+            "username": "momoyeyu",
+            "password": "123",
+        }
+    }
+    """
+    if request.method != "DELETE":
         return JsonResponse({
-            'ret': 'error',
-            'msg': 'Invalid request method.',
+            "ret": "error",
+            "msg": "Invalid request method.",
         })
 
-    data = request.params['data']
-    username = data['username']
-    password = data['password']
+    data = request.params["data"]
+    username = data["username"]
+    password = data["password"]
 
     # 验证用户身份
     user = authenticate(request, username=username, password=password)
@@ -301,8 +301,8 @@ def del_account(request):
                 team = Team.objects.get(pk=custom_user.team_id)
                 if team.leader_id == user.id:
                     return JsonResponse({
-                        'ret': 'error',
-                        'msg': '你的战队还没解散，队员是不会让你注销的~'
+                        "ret": "error",
+                        "msg": "你的战队还没解散，队员是不会让你注销的~"
                     })
                 team.member_count -= 1
                 team.save()
@@ -317,14 +317,14 @@ def del_account(request):
         logout(request)
 
         return JsonResponse({
-            'ret': 'success',
-            'msg': '账号已注销。',
+            "ret": "success",
+            "msg": "账号已注销。",
         })
     else:
         # 登录失败
         return JsonResponse({
-            'ret': 'error',
-            'msg': '用户名或密码错误。',
+            "ret": "error",
+            "msg": "用户名或密码错误。",
         })
 
 
@@ -337,7 +337,7 @@ def del_account(request):
 #         "user_id": 1
 #     }
 #     """
-#     user_id = request.params['user_id']
+#     user_id = request.params["user_id"]
 #
 #     user = None
 #     custom_user = None

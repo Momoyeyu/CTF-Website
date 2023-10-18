@@ -7,8 +7,9 @@ def test_del_team():
     payload = {
         "action": "del_team",
         "data": {
-            "leader_id": "1",
-            "team_name": "ezctf",
+            "username": "momoyeyu",
+            "password": "123",
+            "team_name": "ezctf"
         }
     }
     response = requests.delete('http://localhost/api/common/team', json=payload)
@@ -19,7 +20,7 @@ def test_create_team():
     payload = {
         "action": "create_team",
         "data": {
-            "leader_id": "1",
+            "leader_name": "momoyeyu",
             "team_name": "ezctf",
             "allow_join": "true"
         }
