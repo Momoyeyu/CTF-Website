@@ -63,11 +63,11 @@ def list_task(request):
                 'is_solved': is_solved,
             })
 
-        return JsonResponse({'ret': 0, 'retlist': task_data, 'total':len(task_data)})
+        return JsonResponse({'ret': 'success', 'retlist': task_data, 'total':len(task_data)})
     except Task.DoesNotExist:
-        return JsonResponse({'ret': 1, 'msg': 'Unsupported request method.'})
+        return JsonResponse({'ret': 'error', 'msg': 'Unsupported request method.'})
     except:
-        return JsonResponse({'ret': 1,  'msg': f'未知错误\n{traceback.format_exc()}'})
+        return JsonResponse({'ret': 'error',  'msg': f'未知错误\n{traceback.format_exc()}'})
 
 def query(request):
     if request.method != 'GET':
