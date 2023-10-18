@@ -7,29 +7,38 @@ from django.contrib.auth.models import User
 # Create your tests here.
 import requests
 import pprint
+import json
 
 
 class SessionTest(TestCase):
     def setUp(self):
-        self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com',password='123456')
+        self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com', password='123456')
         self.obj = User.objects.create_user(username='bbb', email='123456789@qq.com', password='123456')
         self.obj = Team.objects.create(team_name='ez', allow_join=True, member_count=1, leader_id=1)
 
         self.obj = CustomUser.objects.create(user_id=1, team_id=1, score=0)
         self.obj = CustomUser.objects.create(user_id=2, team_id=1, score=0)
 
-        self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10, solve_count=0, type=2, annex='aa.txt')
-        self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10, solve_count=0, type=2)
+        self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10,
+                                       solve_count=0, type=2, annex='aa.txt')
+        self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10,
+                                       solve_count=0, type=2)
 
     def test_main(self):
+        self.user_register()
         self.login()
+        self.logout()
+
+        self.create_team()
+        self.search_team()
         self.list_task()
         self.query_one()
-        self.download_attachment()
         self.commit_flag()
-        self.list_task()
         self.rank_user()
         self.rank_team()
+        self.logout()
+
+        self.login()
         self.logout()
 
     def login(self):
@@ -45,10 +54,11 @@ class SessionTest(TestCase):
         #  session_middleware = SessionMiddleware()
         #  session_middleware.process_request(self)
         response = self.client.post('http://localhost/api/common/user', data=payload,
-                               content_type='application/json')  # 替换为实际的登录 URL
+                                    content_type='application/json')  # 替换为实际的登录 URL
         self.assertEqual(response.status_code, 200)
         self.client.login(username='aaa', password='123456')
         pprint.pprint(response.json())
+
     def list_task(self):
         print("test list task: ")
         # 创建一个测试客户端
@@ -78,6 +88,7 @@ class SessionTest(TestCase):
 
         response = self.client.post('http://localhost/api/task/answer', data=payload, content_type='application/json')
         pprint.pprint(response.json())
+
     def rank_user(self):
         print("test rank user: ")
         response = self.client.get('http://localhost/api/rank/user?action=getrank')
@@ -108,19 +119,21 @@ class SessionTest(TestCase):
                 "team_name": "ezctf"
             }
         }
-        response = requests.delete('http://localhost/api/common/team', json=payload)
+        response = self.client.delete('http://localhost/api/common/team', data=json.dumps(payload),
+                                      content_type='application/json')
         pprint.pprint(response.json())
 
     def create_team(self):
         payload = {
             "action": "create_team",
             "data": {
-                "leader_name": "momoyeyu",
+                "leader_name": "aaa",
                 "team_name": "ezctf",
                 "allow_join": "true"
             }
         }
-        response = requests.post('http://localhost/api/common/team', json=payload)
+        response = self.client.post('http://localhost/api/common/team', data=json.dumps(payload),
+                                    content_type='application/json')
         pprint.pprint(response.json())
 
     def user_register(self):
@@ -132,36 +145,26 @@ class SessionTest(TestCase):
                 "email": "momoyeyu1@outlook.com",
             }
         }
-        response = requests.post('http://localhost/api/common/user', json=payload)
+        response = self.client.post('http://localhost/api/common/user', data=json.dumps(payload),
+                                    content_type='application/json')
         pprint.pprint(response.json())
 
-    def logout(self):
-        # Login to get a session
-        login_payload = {
-            "action": "login",
+    def search_team(self):
+        payload = {
+            "action": "search",
             "data": {
                 "username_or_email": "momoyeyu",
                 "password": "123",
             }
         }
+        response = self.client.post('http://localhost/api/common/team', data=json.dumps(payload),
+                                    content_type='application/json')
+        pprint.pprint(response.json())
 
-        login_response = requests.post('http://localhost/api/common/user', json=login_payload)
+    def logout(self):
+        logout_response = self.client.get('http://localhost/api/common/user?action=logout')
 
-        pprint.pprint(login_response.json())
-        print("status:", login_response.status_code)
-
-        # Assuming the login was successful, now you can proceed to test the logout.
-
-        if login_response.status_code == 200:
-            logout_payload = {
-                "action": "logout",
-            }
-
-            logout_response = requests.post('http://localhost/api/common/user', json=logout_payload)
-
-            pprint.pprint(logout_response.json())
-        else:
-            print("Login failed, so cannot test logout.")
+        pprint.pprint(logout_response.json())
 
 #
 # if __name__ == "__main__":
@@ -180,5 +183,3 @@ class SessionTest(TestCase):
 #
 #     # log_test("del_team()")
 #     # test_del_team()
-
-
