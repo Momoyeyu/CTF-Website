@@ -34,7 +34,6 @@ def commit_flag(request):
         "action" : "commit_flag",
         "data" : {
             "task_id" : 0,
-            "user_id" : 1,
             "flag" : "Flag:abcdefg"
         }
     }
@@ -44,12 +43,12 @@ def commit_flag(request):
             'ret': 'error',
             'msg': 'Unsupported request method.',
         })
+
     try:
         info = request.params['data']
         task_id = info['task_id']
-        user_id = info['user_id']
         flag = info['flag']
-
+        user_id = request.session.get('_auth_user_id')
         task = Task.objects.get(id=task_id)
         cuser = CustomUser.objects.get(user_id=user_id)
 
@@ -60,6 +59,8 @@ def commit_flag(request):
         else:
             cuser.score += task.points
             cuser.save()
+            task.solve_count += 1
+            task.save()
             record = AnswerRecord.objects.create(task_id=task_id, user_id=user_id, points=task.points)
             if FirstKill.objects.filter(task_id=task_id).exists() == False:
                 FirstKill.objects.create(task_id=task_id,user_id=user_id)
