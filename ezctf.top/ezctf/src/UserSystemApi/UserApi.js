@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:80'; // 替换为实际的API基础URL
+const BASE_URL = 'http://localhost:80'; 
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -11,13 +11,15 @@ const api = axios.create({
 
 export const login = async (usernameOrEmail, password) => {
   try {
-    const response = await api.post('/api/common/user?action=login', {
-      "action": "login",
-      "data": {
-        "username_or_email": usernameOrEmail,
-        "password": password,
+    const requestData = {
+      action: 'login',
+      data: {
+        username_or_email: usernameOrEmail,
+        password: password,
       },
-    });
+    };
+
+    const response = await api.post('/api/common/user?action=login', requestData);
     return response.data;
   } catch (error) {
     throw error;
@@ -26,14 +28,16 @@ export const login = async (usernameOrEmail, password) => {
 
 export const register = async (username, password, email) => {
   try {
-    const response = await api.post('/api/common/user?action=register', {
+    const requestData = {
       action: 'register',
       data: {
         username: username,
         password: password,
         email: email,
       },
-    });
+    };
+
+    const response = await api.post('/api/common/user?action=register', requestData);
     return response.data;
   } catch (error) {
     throw error;
@@ -42,12 +46,14 @@ export const register = async (username, password, email) => {
 
 export const validateCode = async (code) => {
   try {
-    const response = await api.post('/api/common/user?action=valid', {
+    const requestData = {
       action: 'valid',
       data: {
         code: code,
       },
-    });
+    };
+
+    const response = await api.post('/api/common/user?action=valid', requestData);
     return response.data;
   } catch (error) {
     throw error;
