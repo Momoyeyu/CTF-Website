@@ -27,7 +27,7 @@ class SessionTest(TestCase):
     def test_main(self):
         self.user_register()
         self.login()
-        self.logout()
+        # self.logout()
 
         self.create_team()
         self.search_team()

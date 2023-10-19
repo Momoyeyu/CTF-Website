@@ -45,8 +45,6 @@ __MACOSX
 
 backup/*
 
-# database
-db.sqlite3
+backend/db.sqlite3
 
-# pycache
 __pycache__
