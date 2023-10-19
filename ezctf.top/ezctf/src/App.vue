@@ -42,17 +42,44 @@ export default {
     CreateAvatar,
   },
   created() {
-    const userInfo_nameAndId = this.$route.query.userInfo_nameAndId;
+    const backInfo = this.$route.query.backInfo;
     const source = this.$route.query.source;
-    if (userInfo_nameAndId && source) {
+    if (backInfo && source) {
       if (source === 'Login') {
-        this.userInfo.name = userInfo_nameAndId.name;
-        this.userInfo.id = userInfo_nameAndId.id;
+        this.userInfo.name = backInfo.name;
+        this.userInfo.score = backInfo.score;
+        this.userInfo.team = backInfo.team_name;
+        if(backInfo.team_name =='none') {
+          this.userInfo.isLeader=false;
+          this.userInfo.isMember=false;
+        }
+        else if(backInfo.is_leader){
+          this.userInfo.isLeader=true;
+          this.userInfo.isMember=false;
+        }
+        else{
+          this.userInfo.isLeader=false;
+          this.userInfo.isMember=true;
+        }
         this.isLogin = true;
-      } else if (source === 'Registration') {
-          this.userInfo.name = userInfo_nameAndId.name;
-          this.userInfo.id = userInfo_nameAndId.id;
-          this.isLogin = true;
+      } 
+      else if (source === 'Registration') {
+        this.userInfo.name = backInfo.name;
+        this.userInfo.score = backInfo.score;
+        this.userInfo.team = backInfo.team_name;
+        if(backInfo.team_name =='none') {
+          this.userInfo.isLeader=false;
+          this.userInfo.isMember=false;
+        }
+        else if(backInfo.is_leader){
+          this.userInfo.isLeader=true;
+          this.userInfo.isMember=false;
+        }
+        else{
+          this.userInfo.isLeader=false;
+          this.userInfo.isMember=true;
+        }
+        this.isLogin = true;
       }
     }
   },

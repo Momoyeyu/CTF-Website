@@ -60,8 +60,11 @@
           if (response.return === 'success') {
             this.$router.push({
               path: '/App',
-              query: { userInfo_nameAndId: response.userInfo, source: 'Registration' } // 通过 source 参数标识来源
+              query: { backInfo: response.userInfo, source: 'Registration' } 
             });
+          }
+          else{
+            alert("注册失败");
           }
         } catch (error) {
           console.error('验证码错误:', error);

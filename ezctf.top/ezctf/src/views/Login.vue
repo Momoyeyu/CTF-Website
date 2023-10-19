@@ -33,8 +33,11 @@
           if (response.return === 'success') {
             this.$router.push({
               path: '/App',
-              query: { userInfo_nameAndId: response.userInfo, source: 'Login' } 
+              query: { backInfo: response.userInfo, source: 'Login' } 
             });
+          }
+          else {
+            alert("登录失败");
           }   
         } catch (error) {
           console.error('登录错误:', error);
