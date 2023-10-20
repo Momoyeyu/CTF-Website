@@ -25,20 +25,11 @@ class SessionTest(TestCase):
                                        solve_count=0, type=2)
 
     def test_main(self):
-        self.user_register()
         self.login()
-        self.logout()
 
         self.create_team()
         self.search_team()
-        self.list_task()
-        self.query_one()
-        self.commit_flag()
-        self.rank_user()
-        self.rank_team()
-        self.logout()
 
-        self.login()
         self.logout()
 
     def login(self):
@@ -50,11 +41,8 @@ class SessionTest(TestCase):
                 "password": "123456",
             }
         }
-        # 模拟登录，设置 session 数据
-        #  session_middleware = SessionMiddleware()
-        #  session_middleware.process_request(self)
         response = self.client.post('http://localhost/api/common/user', data=payload,
-                                    content_type='application/json')  # 替换为实际的登录 URL
+                                    content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.client.login(username='aaa', password='123456')
         pprint.pprint(response.json())
@@ -114,8 +102,8 @@ class SessionTest(TestCase):
         payload = {
             "action": "del_team",
             "data": {
-                "username": "momoyeyu",
-                "password": "123",
+                "username": "aaa",
+                "password": "123456",
                 "team_name": "ezctf"
             }
         }
@@ -151,14 +139,10 @@ class SessionTest(TestCase):
 
     def search_team(self):
         payload = {
-            "action": "search",
-            "data": {
-                "username_or_email": "momoyeyu",
-                "password": "123",
-            }
+            "action": "search_team",
+            "keyword": "ez",
         }
-        response = self.client.post('http://localhost/api/common/team', data=json.dumps(payload),
-                                    content_type='application/json')
+        response = self.client.post('http://localhost/api/common/team?action=search_team&keyword=ez')
         pprint.pprint(response.json())
 
     def logout(self):

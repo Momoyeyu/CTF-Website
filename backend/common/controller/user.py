@@ -79,19 +79,14 @@ def user_login(request):
         username_or_email = info["username_or_email"]
         password = info["password"]
 
-        user = None
         if "@" in username_or_email:
-            # 如果输入包含 "@"，则尝试使用电子邮件进行身份验证
             user = authenticate(request, email=username_or_email, password=password)
         else:
-            # 否则，尝试使用用户名进行身份验证
             user = authenticate(request, username=username_or_email, password=password)
 
         if user is not None:
             login(request, user)
-            # 用户已成功登录
             custom_user = CustomUser.objects.get(user_id=user.id)
-            team = None
             if custom_user.team_id is not None:
                 team = Team.objects.get(pk=custom_user.team_id)
                 is_leader = False
@@ -401,4 +396,14 @@ def del_account(request):
 #         }
 #     }, status=200)
 
+
+def get_valid_code(request):
+    """
+    获取验证码
+    GET
+    payload = {
+        "action": "get_valid_code",
+    }
+    """
+    return None
 

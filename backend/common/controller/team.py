@@ -208,14 +208,11 @@ def join_team(request):
     username = data["username"]
     team_name = data["team_name"]
 
-    user = None
     try:
         user = User.objects.get_by_natural_key(username)
         custom_user = CustomUser.objects.get(user=user)
-
         try:
             team = Team.objects.get(team_name=team_name)
-
             if custom_user.team_id is not None:
                 if team.id == custom_user.team_id:
                     return JsonResponse({
@@ -238,15 +235,12 @@ def join_team(request):
                         "leader_email": leader.email
                     }
                 }, status=400)
-
             # 正常加入
             team.member_count += 1
             custom_user.team_id = team.id
-
             team.save()
             custom_user.save()
 
-            # 返回成功响应
             return JsonResponse({
                 "ret": "success",
                 "msg": "成功加入团队",
@@ -340,9 +334,7 @@ def search_team(request):
     GET  /api/common/team?action=search_team  HTTP/1.1
     {
         "action": "search_team",
-        "data": {
-            "keyword": "ez"
-        }
+        "keyword": "ez",
     }
     """
     if request.method != "GET":
@@ -351,8 +343,7 @@ def search_team(request):
             "msg": "Invalid request method"
         }, status=405)
 
-    data= request.params["data"]
-    keyword = data["keyword"]
+    keyword = request.params["keyword"]
 
     if keyword:
         # 直接查询 team_name 包含关键字且 allow_join 为 True 的队伍
