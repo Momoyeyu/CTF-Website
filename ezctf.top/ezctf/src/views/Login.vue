@@ -7,7 +7,7 @@
         <input type="text" id="usernameOrEmail" v-model="loginInfo.usernameOrEmail" required /><br><br>
         <label for="password">密码:</label>
         <input type="password" id="password" v-model="loginInfo.password" required /><br><br>
-        <button type="submit" @click="LoginUser()">登录</button><br><br>
+        <button type="submit" @click="loginUser()">登录</button><br><br>
         <router-link to="/FP" class="router-link">忘记密码</router-link> |
         <router-link to="/Re" class="router-link">注册</router-link>
       </form>
@@ -26,7 +26,7 @@
       };
     },
     methods: {
-      async LoginUser() {
+      async loginUser() {
         try {
           const response = await login(this.loginInfo.usernameOrEmail, this.loginInfo.password);
           console.log('登录响应:', response);
@@ -36,11 +36,10 @@
               query: { backInfo: response.userInfo, source: 'Login' } 
             });
           }
-          else {
-            alert("登录失败");
-          }   
         } catch (error) {
+          alert('登录错误!');
           console.error('登录错误:', error);
+          console.log(error.response);
         }
       }
     },

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://your-api-base-url.com'; 
+const BASE_URL = 'http://localhost:80'; 
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -9,13 +9,13 @@ const api = axios.create({
   },
 });
 
-export const login = async (usernameOrEmail, password) => {
+export const login = async (usernameOrEmail, password1) => {
   try {
     const requestData = {
-      action: 'login',
+      action: "login",
       data: {
         username_or_email: usernameOrEmail,
-        password: password,
+        password: password1,
       },
     };
 
