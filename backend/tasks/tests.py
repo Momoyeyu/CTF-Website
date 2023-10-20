@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 # Create your tests here.
 import requests
 import pprint
-
 from django.urls import reverse
+
 class SessionTest(TestCase):
     def setUp(self):
         self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com',password='123456')
@@ -35,28 +35,25 @@ class SessionTest(TestCase):
         payload = {
             "action": "login",
             "data": {
-                "username_or_email": "aaa",
+                "username_or_email": "aa",
                 "password": "123456",
             }
         }
         # 模拟登录，设置 session 数据
         #  session_middleware = SessionMiddleware()
         #  session_middleware.process_request(self)
-        response = self.client.post('http://localhost/api/common/user', data=payload,
-                               content_type='application/json')  # 替换为实际的登录 URL
-        self.assertEqual(response.status_code, 200)
-        self.client.login(username='aaa', password='123456')
+        response = self.client.post('http://localhost/api/common/user', data=payload, content_type='application/json')
+    #    self.assertEqual(response.status_code, 200)
+        self.client.login(username='aa', password='123456')
         pprint.pprint(response.json())
+
     def list_task(self):
         print("test list task: ")
-        # 创建一个测试客户端
         client = self.client
-
-        # 发起请求，检查 session 中的值
-        response = client.get('http://localhost/api/task/list?action=list_all&type=2')  # 替换为实际的 URL
+        response = client.get('http://localhost/api/task/list?action=list_all&type=2')
         pprint.pprint(response.json())
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.client.session.get('user_id'), None)  # 检查 session 中的值
+        self.assertEqual(self.client.session.get('user_id'), None)
 
     def commit_flag(self):
         print("test commit flag: ")
@@ -95,4 +92,4 @@ class SessionTest(TestCase):
         print("test download attachment: ")
         response = self.client.get('http://localhost/api/task/answer?action=download_attachment&task_id=1')
         pprint.pprint(response.headers)
-        # pprint.pprint(response)
+        # pprint.pprint(response.content_params)

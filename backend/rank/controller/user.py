@@ -31,7 +31,7 @@ def get_rank(request):
                 'score':user.score,
                 'last_commit': user.last_answer_time,
             })
-        return JsonResponse({'ret': 0, 'retlist': user_data, 'total': len(user_data)})
+        return JsonResponse({'ret': 'success', 'retlist': user_data, 'total': len(user_data)})
     except CustomUser.DoesNotExist():
         return JsonResponse({'ret': 'error', 'msg': 'User not found!'})
     except:

@@ -44,7 +44,11 @@ def commit_flag(request):
             'ret': 'error',
             'msg': 'Unsupported request method.',
         })
-
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
     try:
         info = request.params['data']
         task_id = info['task_id']
@@ -54,9 +58,9 @@ def commit_flag(request):
         cuser = CustomUser.objects.get(user_id=user_id)
 
         if task.flag != flag:
-            return JsonResponse({'ret': 1,  'msg': 'Wrong!'})
+            return JsonResponse({'ret': 'error',  'msg': 'Wrong!'})
         elif AnswerRecord.objects.filter(user_id=user_id,task=task).exists():
-            return JsonResponse({'ret': 1, 'msg': '重复答题!'})
+            return JsonResponse({'ret': 'error', 'msg': '重复答题!'})
         else:
             cuser.score += task.points
             cuser.save()
@@ -67,14 +71,14 @@ def commit_flag(request):
             record = AnswerRecord.objects.create(task_id=task_id, user_id=user_id, points=task.points)
             if FirstKill.objects.filter(task_id=task_id).exists() == False:
                 FirstKill.objects.create(task_id=task_id,user_id=user_id)
-                return JsonResponse({'ret': 0, 'msg': f'First Killed! Add a new record {record.id}.'})
-            return JsonResponse({'ret': 0, 'msg':f'Accepted! Add a new record {record.id}.'})
+                return JsonResponse({'ret': 'success', 'msg': f'First Killed! Add a new record {record.id}.'})
+            return JsonResponse({'ret': 'success', 'msg':f'Accepted! Add a new record {record.id}.'})
     except Task.DoesNotExist:
-        return JsonResponse({'ret': 1, 'msg' : 'Question not found.'}, status=404)
+        return JsonResponse({'ret': 'error', 'msg' : 'Question not found.'}, status=404)
     except CustomUser.DoesNotExist:
-        return JsonResponse({'ret':1, 'msg': 'User not found.'}, status=404)
+        return JsonResponse({'ret':'error', 'msg': 'User not found.'}, status=404)
     except:
-        return JsonResponse({'ret': 1,  'msg': f'未知错误\n{traceback.format_exc()}'},status=404)
+        return JsonResponse({'ret': 'error',  'msg': f'未知错误\n{traceback.format_exc()}'},status=404)
 
 def download_attachment(request):
     """
@@ -85,6 +89,11 @@ def download_attachment(request):
             'ret': 'error',
             'msg': 'Unsupported request method.',
         })
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
     try:
         task_id = request.GET.get('task_id')
 
