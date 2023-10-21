@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Home from '../views/Home.vue'
+import Ranking from '../views/Ranking.vue'
 import Registration from '../views/Registration.vue'
 import Login from '../views/Login.vue'
 import ForgetPassword from '../views/ForgetPassword.vue'
@@ -14,6 +16,21 @@ import InfoBoard from '../views/InfoBoard.vue'
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/Home',
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/Ranking',
+    name: 'Ranking',
+    component: Ranking
+  },
   {
     path: '/Re',
     name: 'Registration',
@@ -65,7 +82,6 @@ const routes = [
     name: 'InfoBoard',
     component: InfoBoard,
   },
-
 ]
 
 const router = new VueRouter({
