@@ -1,5 +1,12 @@
+import uuid
+
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.urls import reverse
+
+from backend import settings
 from utils import get_request_params, is_valid_username
 from django.contrib.auth.models import User
 from common.models import CustomUser, Team
@@ -37,8 +44,6 @@ def dispatcher(request):
         return modify_user_info(request)
     elif action == "del_account":
         return del_account(request)
-    # elif action == "user_profile":
-    #     return get_user_profile(request)
 
     else:
         return JsonResponse({"ret": 1, "msg": "Unsupported request!"})
@@ -85,34 +90,35 @@ def user_login(request):
             user = authenticate(request, username=username_or_email, password=password)
 
         if user is not None:
-            login(request, user)
-            custom_user = CustomUser.objects.get(user_id=user.id)
-            if custom_user.team_id is not None:
-                team = Team.objects.get(pk=custom_user.team_id)
-                is_leader = False
-                if team.leader_id == user.id:
-                    is_leader = True
+
+            if user.is_active is False:
                 return JsonResponse({
-                    "ret": "success",
-                    "msg": "登录成功",
-                    "data": {
+                    "ret": "error",
+                    "msg": "用户未激活",
+                }, status=404)
+            login(request, user)
+            request.session["username"] = user.username
+            custom_user = CustomUser.objects.get(user_id=user.id)
+
+            response = {"ret": "success", "msg": "登录成功", "data": {
                         "username": user.username,
                         "score": custom_user.score,
-                        "team_name": team.team_name,
-                        "is_leader": is_leader
+                        "team_name": None,
+                        "is_leader": None
                     }
-                }, status=200)
-
-            return JsonResponse({
-                "ret": "success",
-                "msg": "登录成功",
-                "data": {
-                    "username": user.username,
-                    "score": custom_user.score,
-                    "team_name": None,
-                    "is_leader": None
                 }
-            }, status=200)
+
+            if custom_user.team_id is not None:
+                team = Team.objects.get(pk=custom_user.team_id)
+                response["data"]["team_name"] = team.team_name
+                if team.leader_id == user.id:
+                    response["data"]["is_leader"] = True
+                else:
+                    response["data"]["is_leader"] = False
+
+            response = JsonResponse(response, status=200)
+            response.set_cookie("username", user.username)
+            return response
         else:
             # 登录失败
             return JsonResponse({
@@ -152,7 +158,6 @@ def user_logout(request):
         }, status=400)
 
 
-
 def user_register(request):
     """
     用户注册，创建新的User，CustomUser，并将CustomUser的 user_id 设置为 User 的 id
@@ -177,7 +182,6 @@ def user_register(request):
         return JsonResponse({
             "ret": "error",
             "msg": "Invalid request method.",
-            "data": {}
         }, status=405)
 
     info = request.params["data"]
@@ -185,35 +189,43 @@ def user_register(request):
     password = info["password"]
     email = info["email"]
 
+    response = {"ret": "error", "msg": None, }
+
     # 验证用户输入
     if not username or not password or not email:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "请输入完整信息",
-        }, status=400)
-
+        response["msg"] = "请输入完整信息"
+        return JsonResponse(response, status=400)
     if not is_valid_username(username):
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户名不合法",
-        }, status=400)
-
+        response["msg"] = "用户名不合法"
+        return JsonResponse(response, status=400)
     if User.objects.filter(username=username).exists():
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户名已被使用",
-        }, status=400)
-
+        response["msg"] = "用户名已被使用"
+        return JsonResponse(response, status=400)
     if User.objects.filter(email=email).exists():
-        return JsonResponse({
-            "ret": "error",
-            "msg": "邮箱已被使用",
-        }, status=400)
-
-    # TODO 验证码
+        response["msg"] = "邮箱已被使用"
+        return JsonResponse(response, status=400)
 
     # 创建 User，create_user() 会自动处理密码的加密
     user = User.objects.create_user(username=username, password=password, email=email)
+    user.is_active = False
+    user.save()
+
+    # TODO 验证码
+    token = str(uuid.uuid4()).replace("-", "")
+    request.session[token] = user.id
+    path = "http://127.0.0.1:8000/user/valid?token={}".format(token)
+
+    subject = "ezctf 激活邮件"
+    message = """
+           欢迎来到 ezctf！ 
+           <br> <a href='{}'>点击激活</a>  
+           <br> 若链接不可用，请复制链接到浏览器激活: 
+           <br> {}
+           <br>                 ezctf 开发团队
+           """.format(path, path)
+
+    result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
+                       html_message=message)
 
     # 创建 CustomUser，关联到 User
     custom_user = CustomUser(user_id=user.id, score=0)
@@ -221,7 +233,7 @@ def user_register(request):
 
     return JsonResponse({
         "ret": "success",
-        "msg": "注册成功",
+        "msg": "注册成功，请验证后登录",
     }, status=200)
 
 
@@ -397,13 +409,22 @@ def del_account(request):
 #     }, status=200)
 
 
-def get_valid_code(request):
-    """
-    获取验证码
-    GET
-    payload = {
-        "action": "get_valid_code",
-    }
-    """
-    return None
+def user_active(request):
+    if request.method != "GET":
+        return JsonResponse({
+            "ret": "error",
+            "msg": "Invalid request method.",
+        }, status=405)
+
+    token = request.GET.get("token")
+    uid = request.session.get(token)
+    user = User.objects.get(pk=uid)
+    user.is_active = True
+    user.save()
+    return JsonResponse({
+        "ret": "success",
+        "msg": str(user.username) + "的账号已激活"
+    }, status=200)
+
+
 

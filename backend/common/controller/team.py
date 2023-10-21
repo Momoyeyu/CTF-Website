@@ -118,7 +118,6 @@ def del_team(request):
         "data": {
             "username": "momoyeyu",
             "password": "123",
-            "team_name": "ezctf"
         }
     }
     if team_name in team.team_name.all() and leader_id == team.leader_id
@@ -140,44 +139,35 @@ def del_team(request):
     data = request.params["data"]
     username = data["username"]
     password = data["password"]
-    team_name = data["team_name"]
 
-    try:
-        user = authenticate(request, email=username, password=password)
-        try:
-            team = Team.objects.get(pk=user.custom_user.team_id)
-            if team.leader_id != user.id:
-                # leader_id 不匹配，无法删除团队，返回错误响应
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": "无法删除团队，权限不足"
-                }, status=403)
-
-            if team.team_name == team_name:
-                CustomUser.objects.filter(team_id=team.id).update(team_id=None)
-                team.delete()
-                return JsonResponse({
-                    "ret": "success",
-                    "msg": "成功删除团队"
-                }, status=204)
-            else:
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": "战队名称不匹配"
-                }, status=400)
-
-        except Team.DoesNotExist:
-            # 团队不存在，返回错误响应
-            return JsonResponse({
-                "ret": "error",
-                "msg": "战队不存在"
-            }, status=404)
-
-    except User.DoesNotExist:
+    user = authenticate(request, username=username, password=password)
+    if user is None:
         return JsonResponse({
             "ret": "error",
             "msg": "密码错误"
-        })
+        }, status=403)
+    try:
+        team = Team.objects.get(pk=user.custom_user.team_id)
+        if team.leader_id != user.id:
+            # leader_id 不匹配，无法删除团队，返回错误响应
+            return JsonResponse({
+                "ret": "error",
+                "msg": "无法删除团队，权限不足"
+            }, status=403)
+
+        CustomUser.objects.filter(team_id=team.id).update(team_id=None)
+        team.delete()
+        return JsonResponse({
+            "ret": "success",
+            "msg": "成功删除团队"
+        }, status=204)
+
+    except ObjectDoesNotExist:
+        # 团队不存在，返回错误响应
+        return JsonResponse({
+            "ret": "error",
+            "msg": "战队不存在"
+        }, status=404)
 
 
 def join_team(request):
@@ -360,10 +350,11 @@ def search_team(request):
 
     team_list = []
     for team in teams:
+        leader = User.objects.get(pk=team.leader_id)
         team_info = {
             "team_name": team.team_name,
-            "leader_name": team.leader.username,
-            "leader_email": team.leader.email,
+            "leader_name": leader.username,
+            "leader_email": leader.email,
             "member_count": team.member_count,
             "allow_join": team.allow_join,
         }
