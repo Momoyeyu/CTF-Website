@@ -1,6 +1,6 @@
 <template>
     <div id="loginUser">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <router-link to="/Home" class="close-btn">&#10006;</router-link>
       <h1>用户登录</h1>
       <form @submit.prevent="loginUser">
         <label for="usernameOrEmail">用户名/邮箱:</label>
@@ -32,7 +32,7 @@
           console.log('登录响应:', response);
           if (response.return === 'success') {
             this.$router.push({
-              path: '/App',
+              path: '/Home',
               query: { backInfo: response.userInfo, source: 'Login' } 
             });
           }
@@ -49,12 +49,12 @@
   <style>
   #loginUser {
     margin-top:150px;
-    margin-left:450px;
+    margin-left:465px;
     position: fixed;
     top: auto;
     left: auto;
-    width: 30%;
-    height: 30%;
+    width: 450px;
+    height: 250px;
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;

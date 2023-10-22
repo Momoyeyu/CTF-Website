@@ -17,7 +17,6 @@
           <div>
             <CreateAvatar :username="userInfo.name" />
             <p>{{ userInfo.name }}</p>
-            <br>
             <div id="ScoreAndTeam">
               <p>积分:&nbsp; {{ userInfo.score }}</p>
               <p>战队：{{ userInfo.team }}</p>
@@ -90,7 +89,7 @@ name:'Navigation',
   },
   data() {
     return {
-      isLogin: true, //登录状态
+      isLogin: false, //登录状态
       isHovered: false,
       userInfo: {
         id: '114',
@@ -151,7 +150,7 @@ name:'Navigation',
 <style>
 .topborder{
     background-color:#1e1e1e;
-    width:100%;
+    width:1370px;
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;
@@ -194,11 +193,11 @@ name:'Navigation',
     color: #fff;
 }
 #loginBtn {
-    width: 100px;
-    height: 50px;
-    position: fixed;
-    top: 50px;
-    right: 150px;
+    width: 60px;
+    height: 30px;
+    position: relative;
+    top: 0px;
+    right: 100px;
     text-align: center;
 }
 
@@ -207,22 +206,24 @@ nav {
 }
 
 #ScoreAndTeam {
-  margin-left: 60px;
+  margin-left: 40px;
   text-align: left;
 }
 
 .user-info {
-  position: fixed;
-  top: 100px;
-  right: 50px;
-  width: 15%;
-  height: 60%;
+  line-height: 20px;
+  position: relative;
+  top: 40px;
+  right: -105px;
+  width: 200px;
+  height: 480px;
   justify-content: center;
   align-items: center;
-  background-color: #0d1117;
+  background-color: #1e1e1e;
   padding: 20px;
   text-align: center;
   color:white;
+  border-radius: 5px;
 }
 
 #hiddenInfo {
@@ -233,11 +234,12 @@ nav {
   border: none;
   outline: none;
   box-shadow: none;
-  background-color: black;
+  background-color: #1e1e1e;
   width: 100%;
   height: 40px;
   text-align: center;
   color: white;
+  border-radius: 5px;
 }
 
 .board:hover {
@@ -250,9 +252,9 @@ nav {
 }
 
 #ava {
-  position: fixed;
-  top: 20px;
-  right: 150px;
+  position: relative;
+  top: 15px;
+  right: -200px;
   cursor: pointer;
   z-index: 1;
 }

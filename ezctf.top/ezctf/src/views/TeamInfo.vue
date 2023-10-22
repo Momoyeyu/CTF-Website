@@ -1,6 +1,6 @@
 <template>
     <div id="teaminfo">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <router-link to="/Home" class="close-btn">&#10006;</router-link>
       <h1>战队信息</h1>
           <p>战队名称:{{ team.name }}</p>
           <p>队长:{{team.leader_id}}&nbsp;&nbsp;&nbsp;得分:1{{ leader_score }}</p>

@@ -1,6 +1,6 @@
 <template>
     <div id="noTeam">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <router-link to="/Home" class="close-btn">&#10006;</router-link>
       <h1>选择战队</h1>
       <div>
         <router-link to ='/CreateTeam' class="router-link">创建战队</router-link> |

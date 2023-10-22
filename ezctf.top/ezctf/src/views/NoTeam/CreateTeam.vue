@@ -1,6 +1,6 @@
 <template>
     <div id="createTeam">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <router-link to="/Home" class="close-btn">&#10006;</router-link>
       <h1>创建战队</h1>
       <form @submit.prevent="createTeam">
         <label for="teamname">战队名称:</label>
@@ -31,12 +31,12 @@
           const response = await createTeam(this.team.leader_id, this.team.teamname, !this.team.check);
           console.log('Create Team Response:', response);
         } catch (error) {
-          console.error('Create Team Error:', error);
+          alert(error.msg);
         }
       }, 
       createteam() {
         this.createTeam();
-        this.$router.push("/App");
+        this.$router.push("/Home");
       }
     },
   };

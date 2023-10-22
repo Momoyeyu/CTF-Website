@@ -1,6 +1,6 @@
 <template>
     <div id="registerUser">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <router-link to="/Home" class="close-btn">&#10006;</router-link>
       <h1>用户注册</h1>
       <form @submit.prevent="registerUser">
         <label for="username">用户名:</label>
@@ -59,7 +59,7 @@
           console.log('验证码响应', response);
           if (response.return === 'success') {
             this.$router.push({
-              path: '/App',
+              path: '/Home',
               query: { backInfo: response.userInfo, source: 'Registration' } 
             });
           }
@@ -77,12 +77,12 @@
   <style>
   #registerUser {
       margin-top:100px;
-      margin-left:450px;
+      margin-left:440px;
       position: fixed;
       top: auto;
       left: auto;
-      width: 30%;
-      height: 45%;
+      width: 500px;
+      height: 400px;
       background-color: rgba(0, 0, 0, 0.5);
       justify-content: center;
       align-items: center;

@@ -1,6 +1,6 @@
 <template>
     <div id="manageTeam">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <router-link to="/Home" class="close-btn">&#10006;</router-link>
       <h1>战队管理</h1>
       <p>
         战队名称：{{ team.name }}  &nbsp; 战队人数: {{ team.membernum }}/{{ team.maxnum }}

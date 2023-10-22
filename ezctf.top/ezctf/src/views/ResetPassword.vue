@@ -44,12 +44,12 @@
 <style>
 #resetPassword {
     margin-top:150px;
-    margin-left:450px;
+    margin-left:465px;
     position: fixed;
     top: auto;
     left: auto;
-    width: 30%;
-    height: 25%;
+    width: 450px;
+    height: 220px;
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;

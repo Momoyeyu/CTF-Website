@@ -1,6 +1,6 @@
 <template>
     <div id="jointeam">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <router-link to="/Home" class="close-btn">&#10006;</router-link>
       <h1>加入战队</h1>
       <input v-model="searchQuery" placeholder="搜索战队" @input="searchTeams" /><br><br>
       <div class="scrollable-table-container">
