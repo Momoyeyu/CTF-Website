@@ -21,11 +21,27 @@ def test_rank_team():
 
     pprint.pprint(response.json())
 
+
+def user_register():
+    payload = {
+        "action": "register",
+        "data": {
+            "username": "momoyeyu",
+            "password": "123",
+            "email": "momoyeyu@outlook.com",
+        }
+    }
+    response = requests.post('http://localhost/api/common/user?action=register', json=payload)
+    pprint.pprint(response.json())
+
+
 if __name__ == "__main__":
 
-    print("test user rank:")
-    test_rank_user()
+    # print("test user rank:")
+    # test_rank_user()
+    #
+    # print("test team rank:")
+    # test_rank_team()
 
-    print("test team rank:")
-    test_rank_team()
+    user_register()
 

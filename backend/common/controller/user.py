@@ -46,7 +46,7 @@ def dispatcher(request):
         return del_account(request)
 
     else:
-        return JsonResponse({"ret": 1, "msg": "Unsupported request!"})
+        return JsonResponse({"ret": "error", "msg": "Unsupported request!"})
 
 
 def user_login(request):
@@ -199,8 +199,12 @@ def user_register(request):
         response["msg"] = "用户名不合法"
         return JsonResponse(response, status=400)
     if User.objects.filter(username=username).exists():
-        response["msg"] = "用户名已被使用"
-        return JsonResponse(response, status=400)
+        user = User.objects.get(username=username)
+        if not user.is_active:
+            user.delete()
+        else:
+            response["msg"] = "用户名已被使用"
+            return JsonResponse(response, status=400)
     if User.objects.filter(email=email).exists():
         response["msg"] = "邮箱已被使用"
         return JsonResponse(response, status=400)
@@ -223,13 +227,10 @@ def user_register(request):
            <br> {}
            <br>                 ezctf 开发团队
            """.format(path, path)
-
+    print("email: " + email)
     result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
                        html_message=message)
-
-    # 创建 CustomUser，关联到 User
-    custom_user = CustomUser(user_id=user.id, score=0)
-    custom_user.save()
+    print("result: " + str(result))
 
     return JsonResponse({
         "ret": "success",
@@ -327,17 +328,16 @@ def del_account(request):
         # 删除相关数据，这里以删除用户的自定义数据为例
         try:
             custom_user = CustomUser.objects.get(user_id=user.id)
-            try:
-                team = Team.objects.get(pk=custom_user.team_id)
+            team = Team.objects.get(pk=custom_user.team_id)
+            if team is not None:
                 if team.leader_id == user.id:
                     return JsonResponse({
                         "ret": "error",
-                        "msg": "你的战队还没解散，队员是不会让你注销的~"
-                    })
-                team.member_count -= 1
-                team.save()
-            except ObjectDoesNotExist:
-                pass
+                        "msg": "战队队长需要解散战队或转让权限后才能注销"
+                    }, status=403)
+                else:
+                    team.member_count -= 1
+                    team.save()
             custom_user.delete()
             user.delete()
         except CustomUser.DoesNotExist:
@@ -349,13 +349,13 @@ def del_account(request):
         return JsonResponse({
             "ret": "success",
             "msg": "账号已注销。",
-        })
+        }, status=204)
     else:
         # 登录失败
         return JsonResponse({
             "ret": "error",
             "msg": "用户名或密码错误。",
-        })
+        }, status=403)
 
 
 # def get_user_profile(request):
@@ -421,6 +421,9 @@ def user_active(request):
     user = User.objects.get(pk=uid)
     user.is_active = True
     user.save()
+    # 创建 CustomUser，关联到 User
+    custom_user = CustomUser(user_id=user.id, score=0)
+    custom_user.save()
     return JsonResponse({
         "ret": "success",
         "msg": str(user.username) + "的账号已激活"

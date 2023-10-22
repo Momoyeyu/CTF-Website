@@ -125,8 +125,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-# STATIC_URL = 'static/'
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -141,11 +141,12 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # 邮箱设置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.office365.com'
+EMAIL_HOST = 'smtp.qq.com'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ezctf@outlook.com'
-EMAIL_HOST_PASSWORD = 'zevfjbdakwatcduu'
+EMAIL_HOST_USER = '3296989473@qq.com'
+EMAIL_HOST_PASSWORD = 'sdxuhyrrvzvkcide'
+# EMAIL_USE_SSL = True
+
 
 # 媒体文件
 MEDIA_URL = '/media/'

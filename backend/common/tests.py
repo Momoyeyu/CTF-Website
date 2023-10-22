@@ -1,5 +1,6 @@
 from django.core.mail import send_mail
 
+from backend import settings
 from utils import log_test
 from django.test import TestCase
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -10,6 +11,25 @@ from django.contrib.auth.models import User
 import requests
 import pprint
 import json
+
+
+def send_email():
+    print("test send email:")
+    path = "http://127.0.0.1:8000/user/valid?token={}".format(123)
+    email = "momoyeyu@outlook.com"
+    email = "1522384595@qq.com"
+
+    subject = "ezctf 激活邮件"
+    message = """
+           欢迎来到 ezctf！ 
+           <br> <a href='{}'>点击激活</a>  
+           <br> 若链接不可用，请复制链接到浏览器激活: 
+           <br> {}
+           <br>                 ezctf 开发团队
+           """.format(path, path)
+    result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
+                       html_message=message)
+    print(result)
 
 
 class SessionTest(TestCase):
@@ -28,7 +48,7 @@ class SessionTest(TestCase):
 
     def test_main(self):
         self.user_register()
-        self.send_email()
+        # send_email()
         self.login()
 
         self.create_team()
@@ -54,21 +74,6 @@ class SessionTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.client.login(username='aaa', password='123456')
         pprint.pprint(response.json())
-
-    def send_email(self):
-        path = "http://127.0.0.1:8000/user/valid?token={}".format(123)
-
-        subject = "ezctf 激活邮件"
-        message = """
-               欢迎来到 ezctf！ 
-               <br> <a href='{}'>点击激活</a>  
-               <br> 若链接不可用，请复制链接到浏览器激活: 
-               <br> {}
-               <br>                 ezctf 开发团队
-               """.format(path, path)
-        send_mail(subject=subject, message="", from_email="ezctf@outlook.com",
-                  recipient_list=["momoyeyu@outlook.com", ],
-                  html_message=message)
 
     def list_task(self):
         print("test list task: ")
@@ -152,7 +157,7 @@ class SessionTest(TestCase):
             "data": {
                 "username": "momoyeyu",
                 "password": "123",
-                "email": "momoyeyu1@outlook.com",
+                "email": "momoyeyu@outlook.com",
             }
         }
         response = self.client.post('http://localhost/api/common/user', data=json.dumps(payload),
