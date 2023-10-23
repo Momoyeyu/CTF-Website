@@ -6,12 +6,13 @@
             <li><a href="#/ranking"><i class="iconfont">&#xe64b;</i>Ranking</a></li>
         </ul>
         <ul class="header-right">
-            <li><button @click="log()" v-if="!isLogin" id="loginBtn">登录</button></li>
+            <li><button @click="log()" v-if="!isLogin" id="loginBtn" :disabled="!loginButtonEnabled">登录</button></li>
         </ul>
         </div>
               <div id="hiddenInfo" v-if="isLogin">
-        <div  @click="showUserInfo()" id="ava">
+        <div id="ava">
           <CreateAvatar :username="userInfo.name" />
+          <button  @click="showUserInfo()" id="avab"> </button>
         </div>
         <div v-if="isHovered" class="user-info">
           <div>
@@ -40,12 +41,14 @@
 
 <script>
 import CreateAvatar from '../components/CreateAvatar.vue';
+import { mapState, mapMutations } from 'vuex';
 export default {
 name:'Navigation',
  components: {
     CreateAvatar,
   },
   created() {
+    console.log("loginButtonEnabled in created:", this.$store.loginButtonEnabled);
     const backInfo = this.$route.query.backInfo;
     const source = this.$route.query.source;
     if (backInfo && source) {
@@ -89,7 +92,7 @@ name:'Navigation',
   },
   data() {
     return {
-      isLogin: false, //登录状态
+      isLogin: true, //登录状态
       isHovered: false,
       userInfo: {
         id: '114',
@@ -97,14 +100,19 @@ name:'Navigation',
         email: '114514@beast.com',
         score: '100',
         team: 'ezctf',
-        isLeader: true, //战队队长
+        isLeader: false, //战队队长
         isMember: false, //战队成员
         isSuperuser: true //管理员
       }
     };
   },
+  computed: {
+    ...mapState(['loginButtonEnabled']),
+  },
   methods: {
+    ...mapMutations(['setLoginButtonEnabled']),
     log() {
+      this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
     },
     showUserInfo() {
@@ -253,9 +261,16 @@ nav {
 
 #ava {
   position: relative;
-  top: 15px;
+  top: 3px;
   right: -200px;
   cursor: pointer;
   z-index: 1;
+}
+#avab {
+  margin-top: 3px;
+  margin-left: -50px;
+  height: 50px;
+  width: 50px;
+  border-radius: 50px;
 }
 </style>

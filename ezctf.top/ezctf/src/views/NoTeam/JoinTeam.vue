@@ -2,7 +2,8 @@
     <div id="jointeam">
       <router-link to="/Home" class="close-btn">&#10006;</router-link>
       <h1>加入战队</h1>
-      <input v-model="searchQuery" placeholder="搜索战队" @input="searchTeams" /><br><br>
+      <input v-model="searchQuery" placeholder="搜索战队" @input="searchTeams" />
+      <button @click="searchTeams()">搜索</button><br><br>
       <div class="scrollable-table-container">
         <table class="two-column-table">
           <thead>
@@ -48,10 +49,13 @@
         // 在这里执行加入战队的逻辑
         console.log(`加入战队 ${teamId}`);
       },
-      searchTeams() {
-        // 这里可以执行搜索战队的逻辑
-        // 例如，可以向服务器发送请求来获取匹配的战队
-        // 然后更新 this.teams 数组
+      async searchTeams() {
+        try {
+          const response = await searchTeam(this.searchQuery);
+          console.log('搜索战队响应', response);
+        } catch (error) {
+          console.error('错误:', error);
+        }
       },
     },
   };

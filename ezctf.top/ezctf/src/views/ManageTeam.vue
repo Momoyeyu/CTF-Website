@@ -4,7 +4,7 @@
       <h1>战队管理</h1>
       <p>
         战队名称：{{ team.name }}  &nbsp; 战队人数: {{ team.membernum }}/{{ team.maxnum }}
-        <button @click="changeteaminfo()">修改信息</button>
+        <button @click="changeteaminfo()">修改名称</button>
       </p>
       <h2>战队成员</h2>
       <div class="scrollable-table-container">
@@ -78,9 +78,13 @@
       };
     },
     methods: {
-      disbandTeam() {
-        // 解散战队的逻辑
-        console.log("战队已解散");
+      async deleteTeam() {
+        try {
+          const response = await deleteTeam(this.team.name);
+          console.log('删除队伍响应:', response);
+        } catch (error) {
+          console.error('错误:', error);
+        }
       },
       removeMember(memberId) {
         // 从战队移出成员的逻辑

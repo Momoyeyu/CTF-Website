@@ -1,6 +1,6 @@
 <template>
     <div id="registerUser">
-      <router-link to="/Home" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>用户注册</h1>
       <form @submit.prevent="registerUser">
         <label for="username">用户名:</label>
@@ -22,6 +22,7 @@
     
   <script>
   import { register,validateCode } from '../UserSystemApi/UserApi.js';
+  import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
       return {
@@ -34,7 +35,15 @@
         code: ''
       };
     },
+    computed: {
+    ...mapState(['loginButtonEnabled']),
+    },
     methods: {
+      ...mapMutations(['setLoginButtonEnabled']),
+      close() {
+        this.setLoginButtonEnabled(true);
+        this.$router.push('/Home');
+      },
       async getCode() {
         try {
           const response = await register( this.user.username, this.user.password, this.user.email);
@@ -97,6 +106,8 @@
       color:white;
   }
   .close-btn {
+      background: transparent; 
+      border: none; 
       text-decoration: none;
       color:white;
       position: absolute;

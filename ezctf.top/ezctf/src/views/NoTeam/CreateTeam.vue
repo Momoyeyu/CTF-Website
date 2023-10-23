@@ -29,9 +29,9 @@
       async createTeam() {
         try {
           const response = await createTeam(this.team.leader_id, this.team.teamname, !this.team.check);
-          console.log('Create Team Response:', response);
+          console.log('创建战队响应', response);
         } catch (error) {
-          alert(error.msg);
+          console.log('错误：',error);
         }
       }, 
       createteam() {
