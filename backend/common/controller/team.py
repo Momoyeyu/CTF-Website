@@ -462,7 +462,7 @@ def change_team_leader(request):
         return JsonResponse({
             "ret": "error",
             "msg": "未查找到对应用户",
-        }, status=500)
+        }, status=404)
     custom_user = CustomUser.objects.get(user_id=user.id)
     custom_leader = CustomUser.objects.get(user_id=new_leader.id)
     if custom_user.team_id is None:  # 检测用户是否在战队内
@@ -481,7 +481,7 @@ def change_team_leader(request):
         team.save()
         return JsonResponse({
             "ret": "success",
-            "msg": "成功修改队伍名称",
+            "msg": "成功修改战队队长",
             "data": {
                 "new_leader_name", team.leader.username,
             },

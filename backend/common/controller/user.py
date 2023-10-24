@@ -123,8 +123,8 @@ def user_login(request):
             # 登录失败
             return JsonResponse({
                 "ret": "error",
-                "msg": "登陆失败！请检查你的信息"
-            }, status=400)
+                "msg": "登陆失败！请检查你的信息",
+            }, status=403)
 
     except json.JSONDecodeError:
         # 请求数据无法解析
@@ -169,7 +169,6 @@ def user_register(request):
             "username": "momoyeyu",
             "password": "123",
             "email": "momoyeyu@outlookcom",
-            "valid": "123456"
         }
     }
     @return
@@ -196,7 +195,7 @@ def user_register(request):
         response["msg"] = "请输入完整信息"
         return JsonResponse(response, status=400)
     if not is_valid_username(username):
-        response["msg"] = "用户名不合法"
+        response["msg"] = "用户名含有非法字符"
         return JsonResponse(response, status=400)
     if User.objects.filter(username=username).exists():
         user = User.objects.get(username=username)
@@ -204,10 +203,10 @@ def user_register(request):
             user.delete()
         else:
             response["msg"] = "用户名已被使用"
-            return JsonResponse(response, status=400)
+            return JsonResponse(response, status=409)
     if User.objects.filter(email=email).exists():
         response["msg"] = "邮箱已被使用"
-        return JsonResponse(response, status=400)
+        return JsonResponse(response, status=409)
 
     # 创建 User，create_user() 会自动处理密码的加密
     user = User.objects.create_user(username=username, password=password, email=email)
@@ -248,7 +247,6 @@ def modify_user_info(request):
             "old_username": "momoyeyu",
             "new_username": "momoyeyu2",
             "password": "123",
-            "new_email": "momoyeyu@outlookcom"
         }
     }
     """
@@ -266,30 +264,41 @@ def modify_user_info(request):
 
     # 获取请求中的数据
     data = request.params["data"]
+    new_username = data["new_username"]
 
     # 获取用户
     user = authenticate(request, username=data["old_username"], password=data["password"])
 
-    if user is not None:
-        # 用户验证成功
-        if data.get("new_username") is not None:
-            user.username = data["new_username"]
-
-        if data.get("new_email") is not None:
-            user.email = data["new_email"]
-
-        user.save()
-
-        return JsonResponse({
-            "ret": "success",
-            "msg": "用户信息更新成功"
-        })
-    else:
-        # 用户验证失败
+    if user is None:
         return JsonResponse({
             "ret": "error",
-            "msg": "用户认证失败，无法更新信息"
-        })
+            "msg": "密码错误",
+        }, status=403)
+
+    # 用户验证成功
+    if new_username is None:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户名不能为空",
+        }, status=400)
+
+    if not is_valid_username(new_username):
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户名含有非法字符",
+        }, status=400)
+
+    user.username = new_username
+    user.save()
+
+    return JsonResponse({
+        "ret": "success",
+        "msg": "用户信息更新成功",
+        "data": {
+            "new_username": user.username,
+        },
+    }, status=200)
+
 
 
 def del_account(request):
@@ -323,89 +332,38 @@ def del_account(request):
 
     # 验证用户身份
     user = authenticate(request, username=username, password=password)
-    if user is not None:
-        # 删除相关数据，这里以删除用户的自定义数据为例
-        try:
-            custom_user = CustomUser.objects.get(user_id=user.id)
-            team = Team.objects.get(pk=custom_user.team_id)
-            if team is not None:
-                if team.leader_id == user.id:
-                    return JsonResponse({
-                        "ret": "error",
-                        "msg": "战队队长需要解散战队或转让权限后才能注销"
-                    }, status=403)
-                else:
-                    team.member_count -= 1
-                    team.save()
-            custom_user.delete()
-            user.delete()
-        except CustomUser.DoesNotExist:
-            pass  # 用户的自定义数据不存在，无需处理
-
-        # 注销用户
-        logout(request)
-
-        return JsonResponse({
-            "ret": "success",
-            "msg": "账号已注销。",
-        }, status=204)
-    else:
-        # 登录失败
+    if user is None:  # 密码验证失败
         return JsonResponse({
             "ret": "error",
-            "msg": "用户名或密码错误。",
+            "msg": "密码错误",
         }, status=403)
 
+    # 删除相关数据，这里以删除用户的自定义数据为例
+    try:
+        custom_user = CustomUser.objects.get(user_id=user.id)
+        team = Team.objects.get(pk=custom_user.team_id)
+        if team is not None:
+            if team.leader_id == user.id:
+                return JsonResponse({
+                    "ret": "error",
+                    "msg": "战队队长需要解散战队或转让权限后才能注销"
+                }, status=403)
+            else:
+                team.member_count -= 1
+                team.save()
+        custom_user.delete()
+        user.delete()
+    except CustomUser.DoesNotExist:
+        user.delete()
+        pass  # 用户的自定义数据不存在，无需处理
 
-# def get_user_profile(request):
-#     """
-#     获取用户数据
-#     GET
-#     {
-#         "action": "user_profile",
-#         "user_id": 1
-#     }
-#     """
-#     user_id = request.params["user_id"]
-#
-#     user = None
-#     custom_user = None
-#     try:
-#         user = User.objects.get(pk=user_id)
-#         custom_user = CustomUser.objects.get(user_id=user_id)
-#     except ObjectDoesNotExist:
-#         return JsonResponse({
-#             "ret": "error",
-#             "msg": "用户不存在"
-#         }, status=404)
-#
-#     team = None
-#     if custom_user.team_id is not None:
-#         team = Team.objects.get(pk=custom_user.team_id)
-#         is_leader = False
-#         if team.leader_id == user_id:
-#             is_leader = True
-#         return JsonResponse({
-#             "ret": "success",
-#             "msg": "查询成功",
-#             "data": {
-#                 "username": user.username,
-#                 "score": custom_user.score,
-#                 "teamname": team.team_name,
-#                 "is_leader": is_leader
-#             }
-#         }, status=200)
-#
-#     return JsonResponse({
-#         "ret": "success",
-#         "msg": "查询成功",
-#         "data": {
-#             "username": user.username,
-#             "score": custom_user.score,
-#             "teamname": None,
-#             "is_leader": None
-#         }
-#     }, status=200)
+    # 注销用户
+    logout(request)
+
+    return JsonResponse({
+        "ret": "success",
+        "msg": "账号已注销",
+    }, status=204)
 
 
 def user_active(request):
