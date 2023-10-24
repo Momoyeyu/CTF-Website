@@ -211,10 +211,9 @@ def user_register(request):
     # 创建 User，create_user() 会自动处理密码的加密
     user = User.objects.create_user(username=username, password=password, email=email)
     user.is_active = False
-    user.save()
 
     token = str(uuid.uuid4()).replace("-", "")
-    request.session[token] = user.id
+    user.first_name = token  # 将 token 存在 user 中
     path = "http://localhost/user/active?token={}".format(token)
 
     subject = "ezctf 激活邮件"
@@ -229,6 +228,8 @@ def user_register(request):
     result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
                        html_message=message)
     print("result: " + str(result))
+
+    user.save()
 
     return JsonResponse({
         "ret": "success",
@@ -298,7 +299,6 @@ def modify_user_info(request):
             "new_username": user.username,
         },
     }, status=200)
-
 
 
 def del_account(request):
@@ -374,10 +374,18 @@ def user_active(request):
         }, status=405)
 
     token = request.GET.get("token")
+    token = str(token)
     print("token: " + token)
-    uid = request.session.get(token)
-    print("uid:" + uid)
+    user = User.objects.get(first_name=token)
+    if user is None:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "验证失败",
+        }, status=500)
+    uid = user.id
+    print("uid:" + str(uid))
     user = User.objects.get(pk=uid)
+    user.first_name = ""
     user.is_active = True
     user.save()
     # 创建 CustomUser，关联到 User
