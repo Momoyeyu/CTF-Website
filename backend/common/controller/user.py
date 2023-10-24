@@ -214,10 +214,9 @@ def user_register(request):
     user.is_active = False
     user.save()
 
-    # TODO 验证码
     token = str(uuid.uuid4()).replace("-", "")
     request.session[token] = user.id
-    path = "http://127.0.0.1:8000/user/valid?token={}".format(token)
+    path = "http://localhost/user/active?token={}".format(token)
 
     subject = "ezctf 激活邮件"
     message = """
@@ -417,7 +416,9 @@ def user_active(request):
         }, status=405)
 
     token = request.GET.get("token")
+    print("token: " + token)
     uid = request.session.get(token)
+    print("uid:" + uid)
     user = User.objects.get(pk=uid)
     user.is_active = True
     user.save()
