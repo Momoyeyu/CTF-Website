@@ -21,6 +21,7 @@
             <td>{{ member.name }}</td>
             <td>{{ member.score }}</td>
             <td>
+                <button @click="changeTeamLeader(member.name)">队长转让</button>
                 <button @click="removeMember(member.id)">移出战队</button>
             </td>
             </tr>
@@ -51,15 +52,18 @@
         </table>
       </div>
       <br><br>
-      <button @click="disbandTeam">解散战队</button>
+      <button @click="deleteTeam()">解散战队</button>
     </div>
 </template>
   
 <script>
+  import { changeTeamLeader,deleteTeam } from '@/UserSystemApi/TeamApi';
   export default {
+    props: ['leader'],
     data() {
       return {
         team: {
+            leader_name: this.leader,
             name:'ezctf',
             membernum:'4',
             maxnum:'10',
@@ -82,6 +86,14 @@
         try {
           const response = await deleteTeam(this.team.name);
           console.log('删除队伍响应:', response);
+        } catch (error) {
+          console.error('错误:', error);
+        }
+      },
+      async changeTeamLeader(memberName) {
+        try {
+          const response = await changeTeamLeader(this.leader_name,memberName);
+          console.log('队长转让响应:', response);
         } catch (error) {
           console.error('错误:', error);
         }

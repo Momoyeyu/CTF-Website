@@ -22,8 +22,9 @@
               <p>积分:&nbsp; {{ userInfo.score }}</p>
               <p>战队：{{ userInfo.team }}</p>
             </div>
+            <button @click="modify()">修改信息</button> |
+            <button>注销账号</button>
           </div>
-          <br>
           <button @click="message()" class="board">
             <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知
           </button><br><br>
@@ -42,6 +43,7 @@
 <script>
 import CreateAvatar from '../components/CreateAvatar.vue';
 import { mapState, mapMutations } from 'vuex';
+import { logoutUser } from '@/UserSystemApi/UserApi';
 export default {
 name:'Navigation',
  components: {
@@ -118,38 +120,47 @@ name:'Navigation',
     showUserInfo() {
       this.isHovered = !this.isHovered;
     },
-    message() {
-      
-    },
     team() {
       if(this.userInfo.isLeader&&!this.userInfo.isMember){
         this.showUserInfo();
-        this.$router.push("/ManageTeam");
+        const leader = this.userInfo.name;
+        this.$router.push({ name: 'ManageTeam', params: { leader } });
       }
       else if(this.userInfo.isMember){
         this.showUserInfo();
-        this.$router.push("/TeamInfo");
+        const member = this.userInfo.name;
+        this.$router.push({ name: 'TeamInfo', params: { member } });
       }
       else{
         this.showUserInfo();
-        const leaderId = this.userInfo.id;
-        this.$router.push({ name: 'NoTeam', params: { leaderId } });
+        const leader = this.userInfo.name;
+        this.$router.push({ name: 'NoTeam', params: { leader } });
       }
     },
     message() {
       this.isHovered = !this.isHovered;
       this.$router.push("/InfoBoard");
     },
+    modify() {
+
+    },
     quit() {
-      this.userInfo.name='',
-      this.userInfo.id='',
-      this.userInfo.email='',
-      this.userInfo.totalscore='',
-      this.userInfo.isLeader=false,
-      this.userInfo.isMember=false,
-      this.userInfo.isSuperuser=false,
-      this.isLogin=false,
-      this.isHovered=false
+      logoutUser()
+      .then((response) => {
+        console.log('用户退出登录成功', response.data);
+        this.userInfo.name='',
+        this.userInfo.id='',
+        this.userInfo.email='',
+        this.userInfo.totalscore='',
+        this.userInfo.isLeader=false,
+        this.userInfo.isMember=false,
+        this.userInfo.isSuperuser=false,
+        this.isLogin=false,
+        this.isHovered=false
+      })
+      .catch((error) => {
+        console.error('用户退出登录失败', error);
+      });
     }
   }
 }

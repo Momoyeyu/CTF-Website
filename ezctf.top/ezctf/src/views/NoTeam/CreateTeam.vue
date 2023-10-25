@@ -15,12 +15,12 @@
 
 <script>
  export default {
-    props: ['leaderId'],
+    props: ['user'],
     data() {
       return {
         team: {
           teamname: '',
-          leader_id: this.leaderId,
+          leader_name: this.leader,
           check: false
         },
       };
@@ -28,7 +28,7 @@
     methods: {
       async createTeam() {
         try {
-          const response = await createTeam(this.team.leader_id, this.team.teamname, !this.team.check);
+          const response = await createTeam(this.team.leader_name, this.team.teamname, !this.team.check);
           console.log('创建战队响应', response);
         } catch (error) {
           console.log('错误：',error);

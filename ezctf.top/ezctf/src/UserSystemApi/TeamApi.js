@@ -41,6 +41,22 @@ export const deleteTeam = async (leaderId, teamName) => {
     }
 };
   
+export const joinTeam = async (username, teamname) => {
+  try {
+    const requestData = {
+      action: 'join_team',
+      data: {
+        username: username,
+        team_name: teamname,
+      },
+    };
+
+    const response = await api.put('/api/common/team?action=join_team', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const searchTeam = async (keyword) => {
     try {
@@ -55,4 +71,20 @@ export const searchTeam = async (keyword) => {
       throw error;
     }
 };
-  
+
+export const changeTeamLeader = async (username,newLeaderName) => {
+  try {
+    const requestData = {
+      action: 'change_team_leader',
+      data: {
+          username: username,
+          new_leader_name: newLeaderName
+      },
+    };
+
+    const response = await api.put('/api/common/team?action=change_team_leader', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

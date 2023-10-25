@@ -28,9 +28,11 @@
     
 <script>
   export default {
+    props: ['member'],
     data() {
       return {
         team: {
+          member_name: this.member,
           name: 'ezctf',
           leader_id: 'jwf',
           leader_score: '100',
@@ -49,7 +51,7 @@
     methods: {
       quit() {
         //发送退出战队请求到后端
-          this.$router.push("/App");
+          this.$router.push("/Home");
       }
     },
   };

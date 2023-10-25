@@ -16,7 +16,7 @@
               <tr v-for="team in filteredTeams" :key="team.id">
               <td>{{ team.name }}</td>
               <td>
-                <button @click="jointeam(team.id)">加入</button>
+                <button @click="jointeam(team.name)">加入</button>
               </td>
               </tr>
           </tbody>
@@ -27,8 +27,10 @@
   
   <script>
   export default {
+    props: ['user'], 
     data() {
       return {
+        username: this.user,
         searchQuery: "",
         teams: [
           { id: 1, name: "jwf" },
@@ -45,9 +47,18 @@
       },
     },
     methods: {
-      joinTeam(teamId) {
-        // 在这里执行加入战队的逻辑
-        console.log(`加入战队 ${teamId}`);
+      async joinTeamRequest(teamname) {
+        try {
+          const response = await joinTeam( this.username, teamname);
+          if (response.ret === 'success') {
+            console.log('成功加入团队:', response.msg);
+          } else {
+            console.error('加入团队失败:', response.msg);
+          }
+        } catch (error) {
+
+          console.error('网络请求失败:', error);
+        }
       },
       async searchTeams() {
         try {
