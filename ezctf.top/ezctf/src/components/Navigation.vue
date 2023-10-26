@@ -106,7 +106,7 @@ name:'Navigation',
         email: '114514@beast.com',
         score: '100',
         team: 'ezctf',
-        isLeader: true, //战队队长
+        isLeader: false, //战队队长
         isMember: false, //战队成员
         isSuperuser: true //管理员
       }
