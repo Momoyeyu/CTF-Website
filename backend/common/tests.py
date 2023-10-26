@@ -1,3 +1,6 @@
+from django.core.mail import send_mail
+
+from backend import settings
 from utils import log_test
 from django.test import TestCase
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -8,6 +11,25 @@ from django.contrib.auth.models import User
 import requests
 import pprint
 import json
+
+
+def send_email():
+    print("test send email:")
+    path = "http://127.0.0.1:8000/user/valid?token={}".format(123)
+    email = "momoyeyu@outlook.com"
+    email = "1522384595@qq.com"
+
+    subject = "ezctf 激活邮件"
+    message = """
+           欢迎来到 ezctf！ 
+           <br> <a href='{}'>点击激活</a>  
+           <br> 若链接不可用，请复制链接到浏览器激活: 
+           <br> {}
+           <br>                 ezctf 开发团队
+           """.format(path, path)
+    result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
+                       html_message=message)
+    print(result)
 
 
 class SessionTest(TestCase):
@@ -25,12 +47,18 @@ class SessionTest(TestCase):
                                        solve_count=0, type=2)
 
     def test_main(self):
+        self.user_register()
+        # send_email()
         self.login()
 
         self.create_team()
         self.search_team()
+        # self.del_team()
 
         self.logout()
+
+        self.create_team()
+        self.search_team()
 
     def login(self):
         print("test login: ")
@@ -104,7 +132,6 @@ class SessionTest(TestCase):
             "data": {
                 "username": "aaa",
                 "password": "123456",
-                "team_name": "ezctf"
             }
         }
         response = self.client.delete('http://localhost/api/common/team', data=json.dumps(payload),
@@ -130,7 +157,7 @@ class SessionTest(TestCase):
             "data": {
                 "username": "momoyeyu",
                 "password": "123",
-                "email": "momoyeyu1@outlook.com",
+                "email": "momoyeyu@outlook.com",
             }
         }
         response = self.client.post('http://localhost/api/common/user', data=json.dumps(payload),
@@ -138,11 +165,7 @@ class SessionTest(TestCase):
         pprint.pprint(response.json())
 
     def search_team(self):
-        payload = {
-            "action": "search_team",
-            "keyword": "ez",
-        }
-        response = self.client.post('http://localhost/api/common/team?action=search_team&keyword=ez')
+        response = self.client.get('http://localhost/api/common/team?action=search_team&keyword=ez')
         pprint.pprint(response.json())
 
     def logout(self):

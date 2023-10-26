@@ -1,6 +1,6 @@
 <template>
     <div id="createTeam">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>创建战队</h1>
       <form @submit.prevent="createTeam">
         <label for="teamname">战队名称:</label>
@@ -14,29 +14,38 @@
 </template>
 
 <script>
+ import { mapState, mapMutations } from 'vuex';
  export default {
-    props: ['leaderId'],
+    props: ['user'],
     data() {
       return {
         team: {
           teamname: '',
-          leader_id: this.leaderId,
+          leader_name: this.leader,
           check: false
         },
       };
     },
+    computed: {
+    ...mapState(['userInfoButtonEnabled']),
+    },
     methods: {
+      ...mapMutations(['setUserInfoButtonEnabled']),
+      close() {
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push('/Home');
+      },
       async createTeam() {
         try {
-          const response = await createTeam(this.team.leader_id, this.team.teamname, !this.team.check);
-          console.log('Create Team Response:', response);
+          const response = await createTeam(this.team.leader_name, this.team.teamname, !this.team.check);
+          console.log('创建战队响应', response);
         } catch (error) {
-          console.error('Create Team Error:', error);
+          console.log('错误：',error);
         }
       }, 
       createteam() {
         this.createTeam();
-        this.$router.push("/App");
+        this.$router.push("/Home");
       }
     },
   };

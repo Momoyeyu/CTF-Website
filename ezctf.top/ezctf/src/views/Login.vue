@@ -1,6 +1,7 @@
-<template>
-    <div id="loginUser">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+<template id="log">
+    <div id='bkg'>
+      <div id="loginUser">
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>用户登录</h1>
       <form @submit.prevent="loginUser">
         <label for="usernameOrEmail">用户名/邮箱:</label>
@@ -11,11 +12,13 @@
         <router-link to="/FP" class="router-link">忘记密码</router-link> |
         <router-link to="/Re" class="router-link">注册</router-link>
       </form>
+      </div>
     </div>
   </template>
     
   <script>
   import { login } from '../UserSystemApi/UserApi.js';
+  import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
       return {
@@ -25,14 +28,23 @@
         },
       };
     },
+    computed: {
+    ...mapState(['loginButtonEnabled']),
+    },
     methods: {
+      ...mapMutations(['setLoginButtonEnabled']),
+      close() {
+        this.setLoginButtonEnabled(true);
+        this.$router.push('/Home');
+      },
       async loginUser() {
         try {
           const response = await login(this.loginInfo.usernameOrEmail, this.loginInfo.password);
           console.log('登录响应:', response);
           if (response.return === 'success') {
+            this.$store.commit('setLoginButtonEnabled', true);
             this.$router.push({
-              path: '/App',
+              path: '/Home',
               query: { backInfo: response.userInfo, source: 'Login' } 
             });
           }
@@ -47,14 +59,20 @@
   </script>
     
   <style>
+  #bkg {
+    height:100vh;
+    width:100%;
+    background-image: url('../assets/1.png');
+    background-size: cover;
+  }
   #loginUser {
     margin-top:150px;
-    margin-left:450px;
+    margin-left:465px;
     position: fixed;
     top: auto;
     left: auto;
-    width: 30%;
-    height: 30%;
+    width: 450px;
+    height: 250px;
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
@@ -73,6 +91,8 @@
     color: white;
   }
   .close-btn {
+    background: transparent; 
+    border: none; 
     text-decoration: none;
     color:white;
     position: absolute;

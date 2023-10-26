@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from common.controller.user import user_active
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +25,6 @@ urlpatterns = [
     path('api/rank/', include('rank.urls')),
 
     path('api/common/', include('common.urls')),
+
+    path('user/active', user_active)
 ]

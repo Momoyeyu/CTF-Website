@@ -1,8 +1,9 @@
 <template>
     <div id="jointeam">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>加入战队</h1>
-      <input v-model="searchQuery" placeholder="搜索战队" @input="searchTeams" /><br><br>
+      <input v-model="searchQuery" placeholder="搜索战队" @input="searchTeams" />
+      <button @click="searchTeams()">搜索</button><br><br>
       <div class="scrollable-table-container">
         <table class="two-column-table">
           <thead>
@@ -15,7 +16,7 @@
               <tr v-for="team in filteredTeams" :key="team.id">
               <td>{{ team.name }}</td>
               <td>
-                <button @click="jointeam(team.id)">加入</button>
+                <button @click="jointeam(team.name)">加入</button>
               </td>
               </tr>
           </tbody>
@@ -25,9 +26,12 @@
   </template>
   
   <script>
+  import { mapState, mapMutations } from 'vuex';
   export default {
+    props: ['user'], 
     data() {
       return {
+        username: this.user,
         searchQuery: "",
         teams: [
           { id: 1, name: "jwf" },
@@ -42,16 +46,34 @@
         const query = this.searchQuery.toLowerCase();
         return this.teams.filter((team) => team.name.toLowerCase().includes(query));
       },
+      ...mapState(['userInfoButtonEnabled']),
     },
     methods: {
-      joinTeam(teamId) {
-        // 在这里执行加入战队的逻辑
-        console.log(`加入战队 ${teamId}`);
+      ...mapMutations(['setUserInfoButtonEnabled']),
+      close() {
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push('/Home');
       },
-      searchTeams() {
-        // 这里可以执行搜索战队的逻辑
-        // 例如，可以向服务器发送请求来获取匹配的战队
-        // 然后更新 this.teams 数组
+      async joinTeamRequest(teamname) {
+        try {
+          const response = await joinTeam( this.username, teamname);
+          if (response.ret === 'success') {
+            console.log('成功加入团队:', response.msg);
+          } else {
+            console.error('加入团队失败:', response.msg);
+          }
+        } catch (error) {
+
+          console.error('网络请求失败:', error);
+        }
+      },
+      async searchTeams() {
+        try {
+          const response = await searchTeam(this.searchQuery);
+          console.log('搜索战队响应', response);
+        } catch (error) {
+          console.error('错误:', error);
+        }
       },
     },
   };

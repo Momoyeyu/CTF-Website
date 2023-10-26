@@ -59,3 +59,29 @@ export const validateCode = async (code) => {
     throw error;
   }
 };
+export const modifyUserInfo = async (userInfo) => {
+  try {
+    const requestData = {
+      action: 'modify_user_info',
+      data: userInfo,
+    };
+
+    const response = await api.put('/api/common/user?action=modify_user_info', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const logoutUser = async () => {
+  try {
+    const requestData = {
+      action: 'logout',
+    };
+
+    const response = await api.get('/api/common/user?action=logout', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

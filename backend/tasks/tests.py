@@ -8,17 +8,20 @@ import requests
 import pprint
 from django.urls import reverse
 
+
 class SessionTest(TestCase):
     def setUp(self):
-        self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com',password='123456')
+        self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com', password='123456')
         self.obj = User.objects.create_user(username='bbb', email='123456789@qq.com', password='123456')
         self.obj = Team.objects.create(team_name='ez', allow_join=True, member_count=1, leader_id=1)
 
         self.obj = CustomUser.objects.create(user_id=1, team_id=1, score=0)
         self.obj = CustomUser.objects.create(user_id=2, team_id=1, score=0)
 
-        self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10, solve_count=0, type=2, annex='aa.txt')
-        self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10, solve_count=0, type=2)
+        self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10,
+                                       solve_count=0, type=2, annex='aa.txt')
+        self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10,
+                                       solve_count=0, type=2)
 
     def test_main(self):
         self.login()
@@ -43,7 +46,7 @@ class SessionTest(TestCase):
         #  session_middleware = SessionMiddleware()
         #  session_middleware.process_request(self)
         response = self.client.post('http://localhost/api/common/user', data=payload, content_type='application/json')
-    #    self.assertEqual(response.status_code, 200)
+        #    self.assertEqual(response.status_code, 200)
         self.client.login(username='aa', password='123456')
         pprint.pprint(response.json())
 
@@ -73,6 +76,7 @@ class SessionTest(TestCase):
 
         response = self.client.post('http://localhost/api/task/answer', data=payload, content_type='application/json')
         pprint.pprint(response.json())
+
     def rank_user(self):
         print("test rank user: ")
         response = self.client.get('http://localhost/api/rank/user?action=getrank')

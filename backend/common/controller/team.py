@@ -28,6 +28,8 @@ def dispatcher(request):
         return search_team(request)
     elif action == "change_team_name":
         return change_team_name(request)
+    elif action == "change_team_leader":
+        return change_team_leader(request)
 
     else:
         return JsonResponse({
@@ -118,7 +120,6 @@ def del_team(request):
         "data": {
             "username": "momoyeyu",
             "password": "123",
-            "team_name": "ezctf"
         }
     }
     if team_name in team.team_name.all() and leader_id == team.leader_id
@@ -140,44 +141,35 @@ def del_team(request):
     data = request.params["data"]
     username = data["username"]
     password = data["password"]
-    team_name = data["team_name"]
 
-    try:
-        user = authenticate(request, email=username, password=password)
-        try:
-            team = Team.objects.get(pk=user.custom_user.team_id)
-            if team.leader_id != user.id:
-                # leader_id 不匹配，无法删除团队，返回错误响应
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": "无法删除团队，权限不足"
-                }, status=403)
-
-            if team.team_name == team_name:
-                CustomUser.objects.filter(team_id=team.id).update(team_id=None)
-                team.delete()
-                return JsonResponse({
-                    "ret": "success",
-                    "msg": "成功删除团队"
-                }, status=204)
-            else:
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": "战队名称不匹配"
-                }, status=400)
-
-        except Team.DoesNotExist:
-            # 团队不存在，返回错误响应
-            return JsonResponse({
-                "ret": "error",
-                "msg": "战队不存在"
-            }, status=404)
-
-    except User.DoesNotExist:
+    user = authenticate(request, username=username, password=password)
+    if user is None:
         return JsonResponse({
             "ret": "error",
             "msg": "密码错误"
-        })
+        }, status=403)
+    try:
+        team = Team.objects.get(pk=user.custom_user.team_id)
+        if team.leader_id != user.id:
+            # leader_id 不匹配，无法删除团队，返回错误响应
+            return JsonResponse({
+                "ret": "error",
+                "msg": "无法删除团队，权限不足"
+            }, status=403)
+
+        CustomUser.objects.filter(team_id=team.id).update(team_id=None)
+        team.delete()
+        return JsonResponse({
+            "ret": "success",
+            "msg": "成功删除团队"
+        }, status=204)
+
+    except ObjectDoesNotExist:
+        # 团队不存在，返回错误响应
+        return JsonResponse({
+            "ret": "error",
+            "msg": "战队不存在"
+        }, status=404)
 
 
 def join_team(request):
@@ -360,10 +352,11 @@ def search_team(request):
 
     team_list = []
     for team in teams:
+        leader = User.objects.get(pk=team.leader_id)
         team_info = {
             "team_name": team.team_name,
-            "leader_name": team.leader.username,
-            "leader_email": team.leader.email,
+            "leader_name": leader.username,
+            "leader_email": leader.email,
             "member_count": team.member_count,
             "allow_join": team.allow_join,
         }
@@ -434,4 +427,68 @@ def change_team_name(request):
             "ret": "error",
             "msg": "队伍不存在"
         }, status=404)
+
+
+def change_team_leader(request):
+    """
+    队长更改战队名称
+    PUT /api/common/team?action=change_team_name HTTP/1.1
+    {
+        "action": "change_team_leader",
+        "data": {
+            "username": "momoyeyu",
+            "new_leader_name": "juanboy",
+        }
+    }
+    """
+    if request.method != "PUT":
+        return JsonResponse({
+            "ret": "error",
+            "msg": "Invalid request method"
+        }, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
+
+    data = request.params["data"]
+    username = data["username"]
+    new_leader_name = data["new_leader_name"]
+    user = User.objects.get_by_natural_key(username)
+    new_leader = User.objects.get_by_natural_key(new_leader_name)
+    if user is None or new_leader is None:  # 检测新旧队长用户是否正确读取
+        return JsonResponse({
+            "ret": "error",
+            "msg": "未查找到对应用户",
+        }, status=404)
+    custom_user = CustomUser.objects.get(user_id=user.id)
+    custom_leader = CustomUser.objects.get(user_id=new_leader.id)
+    if custom_user.team_id is None:  # 检测用户是否在战队内
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户尚未加入战队",
+        }, status=403)
+    team = Team.objects.get(pk=custom_user.team_id)
+    if team.leader_id == user.id:  # 检测队长权限
+        if custom_leader.team_id != team.id:  # 检测新队长战队归属
+            return JsonResponse({
+                "ret": "error",
+                "msg": "新的队长尚未加入该战队",
+            }, status=403)
+        team.leader_id = new_leader.id
+        team.save()
+        return JsonResponse({
+            "ret": "success",
+            "msg": "成功修改战队队长",
+            "data": {
+                "new_leader_name", team.leader.username,
+            },
+        }, status=200)
+    else:  # 不是队长，没有权限
+        return JsonResponse({
+            "ret": "error",
+            "msg": "权限不足",
+        }, status=403)
 

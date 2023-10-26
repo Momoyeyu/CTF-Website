@@ -1,10 +1,10 @@
 <template>
     <div id="manageTeam">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
       <p>
         战队名称：{{ team.name }}  &nbsp; 战队人数: {{ team.membernum }}/{{ team.maxnum }}
-        <button @click="changeteaminfo()">修改信息</button>
+        <button @click="changeteaminfo()">修改名称</button>
       </p>
       <h2>战队成员</h2>
       <div class="scrollable-table-container">
@@ -21,6 +21,7 @@
             <td>{{ member.name }}</td>
             <td>{{ member.score }}</td>
             <td>
+                <button @click="changeTeamLeader(member.name)">队长转让</button> |
                 <button @click="removeMember(member.id)">移出战队</button>
             </td>
             </tr>
@@ -43,7 +44,7 @@
             <td>{{ applicant.name }}</td>
             <td>{{ applicant.score }}</td>
             <td>
-                <button @click="approveApplicant(applicant.id)">通过</button>
+                <button @click="approveApplicant(applicant.id)">通过</button> |
                 <button @click="rejectApplicant(applicant.id)">拒绝</button>
             </td>
             </tr>
@@ -51,15 +52,19 @@
         </table>
       </div>
       <br><br>
-      <button @click="disbandTeam">解散战队</button>
+      <button @click="deleteTeam()">解散战队</button>
     </div>
 </template>
   
 <script>
+  import { mapState, mapMutations } from 'vuex';
+  import { changeTeamLeader,deleteTeam } from '@/UserSystemApi/TeamApi';
   export default {
+    props: ['leader'],
     data() {
       return {
         team: {
+            leader_name: this.leader,
             name:'ezctf',
             membernum:'4',
             maxnum:'10',
@@ -77,10 +82,30 @@
         ],
       };
     },
+    computed: {
+    ...mapState(['userInfoButtonEnabled']),
+    },
     methods: {
-      disbandTeam() {
-        // 解散战队的逻辑
-        console.log("战队已解散");
+      ...mapMutations(['setUserInfoButtonEnabled']),
+      close() {
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push('/Home');
+      },
+      async deleteTeam() {
+        try {
+          const response = await deleteTeam(this.team.name);
+          console.log('删除队伍响应:', response);
+        } catch (error) {
+          console.error('错误:', error);
+        }
+      },
+      async changeTeamLeader(memberName) {
+        try {
+          const response = await changeTeamLeader(this.leader_name,memberName);
+          console.log('队长转让响应:', response);
+        } catch (error) {
+          console.error('错误:', error);
+        }
       },
       removeMember(memberId) {
         // 从战队移出成员的逻辑
@@ -100,6 +125,7 @@
 
 <style>
 #manageTeam {
+    margin-top: 10px;
     margin-left: 5%;
     position: fixed;
     top: auto;

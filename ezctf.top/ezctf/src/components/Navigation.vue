@@ -6,21 +6,26 @@
             <li><a href="#/ranking"><i class="iconfont icon-paixingbang"></i>Ranking</a></li>
         </ul>
         <ul class="header-right">
-            <li><button @click="log()" v-if="!isLogin" id="loginBtn">登录</button></li>
+            <li><button @click="log()" v-if="!isLogin" id="loginBtn" :disabled="!loginButtonEnabled" :class="{ 'disabled-button': !loginButtonEnabled }">登录</button></li>
         </ul>
         </div>
               <div id="hiddenInfo" v-if="isLogin">
-        <div  @click="showUserInfo()" id="ava">
-          <CreateAvatar :username="userInfo.name" />
+        <div id="ava">
+          <button  @click="showUserInfo()" :disabled="!userInfoButtonEnabled" id="avab"><CreateAvatar :username="userInfo.name" id="avac"/></button>
         </div>
         <div v-if="isHovered" class="user-info">
           <div>
             <CreateAvatar :username="userInfo.name" />
             <p>{{ userInfo.name }}</p>
-            <br>
             <div id="ScoreAndTeam">
               <p>积分:&nbsp; {{ userInfo.score }}</p>
               <p>战队：{{ userInfo.team }}</p>
+            </div>
+            <div>
+              <div>
+                <button @click="modify()" class="infoBtn">修改信息</button> |
+                <button class="infoBtn">注销账号</button>
+              </div>
             </div>
           </div>
           <br>
@@ -41,12 +46,15 @@
 
 <script>
 import CreateAvatar from '../components/CreateAvatar.vue';
+import { mapState, mapMutations } from 'vuex';
+import { logoutUser } from '@/UserSystemApi/UserApi';
 export default {
 name:'Navigation',
  components: {
     CreateAvatar,
   },
   created() {
+    console.log("loginButtonEnabled in created:", this.$store.loginButtonEnabled);
     const backInfo = this.$route.query.backInfo;
     const source = this.$route.query.source;
     if (backInfo && source) {
@@ -90,7 +98,7 @@ name:'Navigation',
   },
   data() {
     return {
-      isLogin: true, //登录状态
+      isLogin: false, //登录状态
       isHovered: false,
       userInfo: {
         id: '114',
@@ -98,51 +106,67 @@ name:'Navigation',
         email: '114514@beast.com',
         score: '100',
         team: 'ezctf',
-        isLeader: true, //战队队长
+        isLeader: false, //战队队长
         isMember: false, //战队成员
         isSuperuser: true //管理员
       }
     };
   },
+  computed: {
+    ...mapState(['loginButtonEnabled','userInfoButtonEnabled']),
+  },
   methods: {
+    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled']),
     log() {
+      this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
     },
     showUserInfo() {
       this.isHovered = !this.isHovered;
     },
-    message() {
-      
-    },
     team() {
+      this.setUserInfoButtonEnabled(false);
       if(this.userInfo.isLeader&&!this.userInfo.isMember){
         this.showUserInfo();
-        this.$router.push("/ManageTeam");
+        const leader = this.userInfo.name;
+        this.$router.push({ name: 'ManageTeam', params: { leader } });
       }
       else if(this.userInfo.isMember){
         this.showUserInfo();
-        this.$router.push("/TeamInfo");
+        const member = this.userInfo.name;
+        this.$router.push({ name: 'TeamInfo', params: { member } });
       }
       else{
         this.showUserInfo();
-        const leaderId = this.userInfo.id;
-        this.$router.push({ name: 'NoTeam', params: { leaderId } });
+        const leader = this.userInfo.name;
+        this.$router.push({ name: 'NoTeam', params: { leader } });
       }
     },
     message() {
       this.isHovered = !this.isHovered;
+      this.setUserInfoButtonEnabled(false);
       this.$router.push("/InfoBoard");
     },
+    modify() {
+
+    },
     quit() {
-      this.userInfo.name='',
-      this.userInfo.id='',
-      this.userInfo.email='',
-      this.userInfo.totalscore='',
-      this.userInfo.isLeader=false,
-      this.userInfo.isMember=false,
-      this.userInfo.isSuperuser=false,
-      this.isLogin=false,
-      this.isHovered=false
+      logoutUser()
+      .then((response) => {
+        console.log('用户退出登录成功', response.data);
+        this.userInfo.name='',
+        this.userInfo.id='',
+        this.userInfo.email='',
+        this.userInfo.totalscore='',
+        this.userInfo.isLeader=false,
+        this.userInfo.isMember=false,
+        this.userInfo.isSuperuser=false,
+        this.isLogin=false,
+        this.isHovered=false
+      })
+      .catch((error) => {
+        console.error('用户退出登录失败', error);
+      });
     }
   }
 }
@@ -151,7 +175,7 @@ name:'Navigation',
 <style>
 .topborder{
     background-color:#1e1e1e;
-    width:100%;
+    width:1370px;
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;
@@ -194,12 +218,22 @@ name:'Navigation',
     color: #fff;
 }
 #loginBtn {
-    width: 100px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    position: relative;
+    top: -10px;
+    left: -85px;
     height: 50px;
-    position: fixed;
-    top: 50px;
-    right: 150px;
+    width: 50px;
+    border-radius: 50%;
     text-align: center;
+    cursor: pointer;
+}
+
+.disabled-button {
+  background-color: white; 
+  color: black;
 }
 
 nav {
@@ -207,22 +241,24 @@ nav {
 }
 
 #ScoreAndTeam {
-  margin-left: 60px;
+  margin-left: 40px;
   text-align: left;
 }
 
 .user-info {
-  position: fixed;
-  top: 100px;
-  right: 50px;
-  width: 15%;
-  height: 60%;
+  line-height: 20px;
+  position: relative;
+  top: 40px;
+  right: -105px;
+  width: 200px;
+  height: 480px;
   justify-content: center;
   align-items: center;
-  background-color: #0d1117;
+  background-color: #1e1e1e;
   padding: 20px;
   text-align: center;
   color:white;
+  border-radius: 5px;
 }
 
 #hiddenInfo {
@@ -233,14 +269,30 @@ nav {
   border: none;
   outline: none;
   box-shadow: none;
-  background-color: black;
+  background-color: #1e1e1e;
   width: 100%;
   height: 40px;
   text-align: center;
   color: white;
+  border-radius: 5px;
 }
 
 .board:hover {
+  background-color: grey;
+}
+
+.infoBtn {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-color: #1e1e1e;
+  color: white;
+  width: 80px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+.infoBtn:hover {
   background-color: grey;
 }
 
@@ -250,10 +302,23 @@ nav {
 }
 
 #ava {
-  position: fixed;
-  top: 20px;
-  right: 150px;
   cursor: pointer;
   z-index: 1;
+}
+#avab {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  position: relative;
+  top: 15px;
+  right: -200px;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+}
+#avac {
+  position: relative; 
+  left: -6px;
+  top: -1px;
 }
 </style>

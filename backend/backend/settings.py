@@ -16,11 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -31,14 +26,6 @@ SECRET_KEY = 'django-insecure-^wh902yfpgf+p3f_rage%h%#d741nqfanx*-9xe(60a+x)m*vr
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ezctf@outlook.com'
-EMAIL_HOST_PASSWORD = 'ezCtf11375'
 
 # Application definition
 
@@ -139,6 +126,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -150,3 +138,16 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 # session
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# 邮箱设置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '3296989473@qq.com'
+EMAIL_HOST_PASSWORD = 'sdxuhyrrvzvkcide'
+# EMAIL_USE_SSL = True
+
+
+# 媒体文件
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
