@@ -1,6 +1,6 @@
 <template>
     <div id="createTeam">
-      <router-link to="/Home" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>创建战队</h1>
       <form @submit.prevent="createTeam">
         <label for="teamname">战队名称:</label>
@@ -14,6 +14,7 @@
 </template>
 
 <script>
+ import { mapState, mapMutations } from 'vuex';
  export default {
     props: ['user'],
     data() {
@@ -25,7 +26,15 @@
         },
       };
     },
+    computed: {
+    ...mapState(['userInfoButtonEnabled']),
+    },
     methods: {
+      ...mapMutations(['setUserInfoButtonEnabled']),
+      close() {
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push('/Home');
+      },
       async createTeam() {
         try {
           const response = await createTeam(this.team.leader_name, this.team.teamname, !this.team.check);

@@ -8,11 +8,15 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     loginButtonEnabled: true,
+    userInfoButtonEnabled: true
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
       state.loginButtonEnabled = value;
     },
+    setUserInfoButtonEnabled(state, value) {
+      state.userInfoButtonEnabled = value;
+    }
   },
 });
 

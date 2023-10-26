@@ -1,6 +1,6 @@
 <template>
   <div class="message-list">
-    <router-link to="/App" class="close-btn">&#10006;</router-link>
+    <button @click="close()" class="close-btn">&#10006;</button>
     <h2>消息列表</h2>
     <ul>
       <li v-for="message in messages" :key="message.id">
@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from 'vuex';
 export default {
   data() {
     return {
@@ -24,6 +25,16 @@ export default {
         // 添加更多消息...
       ],
     };
+  },
+  computed: {
+    ...mapState(['userInfoButtonEnabled']),
+  },
+  methods: {
+    ...mapMutations(['setUserInfoButtonEnabled']),
+    close() {
+      this.setUserInfoButtonEnabled(true);
+      this.$router.push('/Home');
+    },
   },
 };
 </script>

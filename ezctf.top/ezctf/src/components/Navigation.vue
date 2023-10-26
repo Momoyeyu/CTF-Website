@@ -6,13 +6,12 @@
             <li><a href="#/ranking"><i class="iconfont">&#xe64b;</i>Ranking</a></li>
         </ul>
         <ul class="header-right">
-            <li><button @click="log()" v-if="!isLogin" id="loginBtn" :disabled="!loginButtonEnabled">登录</button></li>
+            <li><button @click="log()" v-if="!isLogin" id="loginBtn" :disabled="!loginButtonEnabled" :class="{ 'disabled-button': !loginButtonEnabled }">登录</button></li>
         </ul>
         </div>
               <div id="hiddenInfo" v-if="isLogin">
         <div id="ava">
-          <CreateAvatar :username="userInfo.name" />
-          <button  @click="showUserInfo()" id="avab"> </button>
+          <button  @click="showUserInfo()" :disabled="!userInfoButtonEnabled" id="avab"><CreateAvatar :username="userInfo.name" id="avac"/></button>
         </div>
         <div v-if="isHovered" class="user-info">
           <div>
@@ -22,9 +21,14 @@
               <p>积分:&nbsp; {{ userInfo.score }}</p>
               <p>战队：{{ userInfo.team }}</p>
             </div>
-            <button @click="modify()">修改信息</button> |
-            <button>注销账号</button>
+            <div>
+              <div>
+                <button @click="modify()" class="infoBtn">修改信息</button> |
+                <button class="infoBtn">注销账号</button>
+              </div>
+            </div>
           </div>
+          <br>
           <button @click="message()" class="board">
             <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知
           </button><br><br>
@@ -94,7 +98,7 @@ name:'Navigation',
   },
   data() {
     return {
-      isLogin: true, //登录状态
+      isLogin: false, //登录状态
       isHovered: false,
       userInfo: {
         id: '114',
@@ -102,17 +106,17 @@ name:'Navigation',
         email: '114514@beast.com',
         score: '100',
         team: 'ezctf',
-        isLeader: false, //战队队长
+        isLeader: true, //战队队长
         isMember: false, //战队成员
         isSuperuser: true //管理员
       }
     };
   },
   computed: {
-    ...mapState(['loginButtonEnabled']),
+    ...mapState(['loginButtonEnabled','userInfoButtonEnabled']),
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled']),
+    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled']),
     log() {
       this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
@@ -121,6 +125,7 @@ name:'Navigation',
       this.isHovered = !this.isHovered;
     },
     team() {
+      this.setUserInfoButtonEnabled(false);
       if(this.userInfo.isLeader&&!this.userInfo.isMember){
         this.showUserInfo();
         const leader = this.userInfo.name;
@@ -139,6 +144,7 @@ name:'Navigation',
     },
     message() {
       this.isHovered = !this.isHovered;
+      this.setUserInfoButtonEnabled(false);
       this.$router.push("/InfoBoard");
     },
     modify() {
@@ -212,12 +218,22 @@ name:'Navigation',
     color: #fff;
 }
 #loginBtn {
-    width: 60px;
-    height: 30px;
+    border: none;
+    outline: none;
+    box-shadow: none;
     position: relative;
-    top: 0px;
-    right: 100px;
+    top: -10px;
+    left: -85px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
     text-align: center;
+    cursor: pointer;
+}
+
+.disabled-button {
+  background-color: white; 
+  color: black;
 }
 
 nav {
@@ -265,23 +281,44 @@ nav {
   background-color: grey;
 }
 
+.infoBtn {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-color: #1e1e1e;
+  color: white;
+  width: 80px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+.infoBtn:hover {
+  background-color: grey;
+}
+
 .icon {
   width: 20px;
   height: 20px;
 }
 
 #ava {
-  position: relative;
-  top: 3px;
-  right: -200px;
   cursor: pointer;
   z-index: 1;
 }
 #avab {
-  margin-top: 3px;
-  margin-left: -50px;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  position: relative;
+  top: 15px;
+  right: -200px;
   height: 50px;
   width: 50px;
-  border-radius: 50px;
+  border-radius: 50%;
+}
+#avac {
+  position: relative; 
+  left: -6px;
+  top: -1px;
 }
 </style>
