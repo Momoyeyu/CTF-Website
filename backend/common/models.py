@@ -48,3 +48,13 @@ class CustomUser(models.Model):
     def __str__(self):
         return self.user.username
 
+
+class Message(models.Model):
+    user = models.ForeignKey(User, on_delete=models.PROTECT, primary_key=True, related_name='receiver')
+    origin = models.ForeignKey(User, on_delete=models.PROTECT, primary_key=True, related_name='sender')
+    message = models.CharField()
+    check = models.BooleanField(default=False)
+
+    objects = models.Manager()
+
+
