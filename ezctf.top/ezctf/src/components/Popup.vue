@@ -1,30 +1,29 @@
 <template>
-<div class="popup-wrap" id="popup-wrap" onclick="hidepopup()">
-    <div class="popup">
+<div class="popup-wrap" id="popup-wrap" v-if="isModalVisible" @click="hidepopup()">
+    <div @click.stop class="popup">
         <div class="popup-header">
-            <div class="TITLE">TITLE</div>
-            <button class="close" onclick="hidepopup()">X</button>
+            <div class="TITLE">{{ Detail.task_name }}</div>
+            <button class="close" @click="hidepopup()">X</button>
         </div>
         <div class="popup-content">
             <table class="popup-table">  
                 <tr>  
-                  <td>来源：</td>  
-                  <td>分数：</td>  
+                  <td>来源：{{ item.src }}</td>  
+                  <td>分数：{{ item.points }}</td>  
                 </tr>  
                 <tr>  
-                  <td>解出人数：</td>  
-                  <td>状态：</td>  
+                  <td>解出人数：{{ item.solve_count }}</td>  
+                  <td v-if="item.is_solved">状态：已完成</td>  
+                  <td v-else>状态：未完成</td>  
                 </tr>  
               </table>  
-              <p class="popup-description">
-                题目描述：
-            </p>
-            <!-- <div class="popup-flag">  
-              <input type="text" class="inputText" placeholder="请输入FLAG" /> 
-              </div>  -->
-              <!-- 点击关闭bug -->
+              <p class="popup-description">题目描述：{{ Detail.content }}</p>
+            <div class="popup-flag">  
+              <input type="text" v-model="inputValue" placeholder="请输入FLAG~~">  
+              <button @click="submitData">提交</button> 
+              </div> 
             <div class="popup-download">  
-                <a href="#" download>附件点击这里下载</a>  
+                <a :href="downloadUrl">附件点击这里下载</a>  
               </div>  
         </div>
     </div>
@@ -32,24 +31,59 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
 name:'Popup',
-methods:{
-    showpopup() {  
-  var popup = document.getElementById("popup-wrap");  
-  popup.style.display = "block";  
+data:function(){
+  return{
+    isModalVisible: false,
+    inputValue: '' ,
+  }
 },
-    hidepopup() {  
-  var popup = document.getElementById("popup-wrap");  
-  popup.style.display = "none";  
-}
-}
+props: {  
+    item: {  
+      type: Object,
+      required: true  
+    },
+    Detail: {  
+      type: Object,
+      required: true  
+    }
+  },
+  computed:{
+    downloadUrl() {  
+      return axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id=1')
+      .then(response =>{
+        console.log(response);
+      })
+      .catch(error => {  
+          console.error(error);  
+        });  
+  },
+},
+methods:{
+  showpopup() {  
+    this.isModalVisible = !this.isModalVisible;
+},
+  hidepopup() {  
+  this.isModalVisible = false; 
+},
+submitData() {  
+      axios.post('/api/data', {  value: this.inputValue   })  
+      .then(response => {  
+        console.log(response);  
+      })  
+      .catch(error => {  
+        console.error(error);  
+      });  
+      this.inputValue = ''; // 清空输入框  
+    }  
+  }  
 }
 </script>
 
 <style>
 .popup-wrap{
-  display: none;  
   position: fixed;  
   top: 0;  
   left: 0;  
@@ -79,6 +113,7 @@ methods:{
   position: relative;
 }
 .popup-content{
+  color: #000;
   width: 652px;
   height: 400px;
   padding: 24px;
@@ -93,17 +128,17 @@ methods:{
 }
 .close{
   float: right;
-  height: 28px;
+  height: 24px;
   border: 0 solid transparent;
-  background: #888;
-  color: #fff;
+  background:transparent;
+  color: #000;
   cursor: pointer;
   margin-right: 10px;
-  font-size: 20px;             
+  padding: 2px;
+  font-size: 26px;             
   /* border-radius: 50%; */
 }
 .close:hover{
-  background: #888;
   color: blue;
 }
 .describe{
@@ -117,10 +152,25 @@ methods:{
   padding: 20px;
   border-bottom: 1px solid #ccc;
 } 
-/* .popup-flag{
-} */
+.popup-flag{
+  text-align: center;  
+  margin-top: 150px; 
+}
+.popup-flag input{
+  border: 1px solid #000;
+  width:200px;
+  height: 30px;
+  border-radius: 5px;
+}
+.popup-flag button{
+  width: 60px;
+  height: 40px;
+  border-radius: 5px;
+  margin-left: 5px;
+  font-size: 16px;
+}
 .popup-download {  
   text-align: center;  
-  margin-top: 100px;  
+  margin-top: 10px;  
 } 
 </style>

@@ -2,8 +2,8 @@
 <div class="topborder">
         <div class="wrap">
         <ul class="header-left">
-            <li><a href="#/home"><i class="iconfont">&#xf01ff;</i>Logo</a><span>|</span></li>
-            <li><a href="#/ranking"><i class="iconfont">&#xe64b;</i>Ranking</a></li>
+            <li><a href="#/home"><i class="iconfont icon-weiruan"></i>Logo</a><span>|</span></li>
+            <li><a href="#/ranking"><i class="iconfont icon-paixingbang"></i>Ranking</a></li>
         </ul>
         <ul class="header-right">
             <li><button @click="log()" v-if="!isLogin" id="loginBtn">登录</button></li>
