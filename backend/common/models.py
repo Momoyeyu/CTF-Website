@@ -50,16 +50,16 @@ class CustomUser(models.Model):
 
 
 class Message(models.Model):
+    MESSAGE_TYPE = (
+        (0, "notice"),
+        (1, "join team application"),
+    )
+    # user: 接收者
+    # origin: 发送者
     user = models.ForeignKey(User, on_delete=models.PROTECT, primary_key=True, related_name='receiver')
     origin = models.ForeignKey(User, on_delete=models.PROTECT, primary_key=True, related_name='sender')
     message = models.CharField()
     check = models.BooleanField(default=False)
-
-    MESSAGE_TYPE = (
-        (0, 'notice'),
-        (1, 'join_team'),
-    )
+    type = models.IntegerField(choices=MESSAGE_TYPE)
 
     objects = models.Manager()
-
-
