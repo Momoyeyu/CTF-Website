@@ -53,6 +53,7 @@ class Message(models.Model):
     MESSAGE_TYPE = (
         ("notice", 0),
         ("join_team", 1),
+        ("chat", 2),
     )
     # receiver: 接收者
     # origin: 发送者

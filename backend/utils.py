@@ -3,6 +3,8 @@ import re
 from enum import Enum
 from django.http import JsonResponse
 
+from common.models import Message
+
 
 def get_request_params(request):
     """
@@ -36,23 +38,45 @@ def is_valid_username(username):
 
 
 class ExceptionEnum(Enum):
-    INVALID_REQUEST_METHOD = "Invalid request method"
+    INVALID_REQUEST_METHOD = "Invalid Request Method"
     USER_NOT_LOGIN = "用户未登录"
     USER_NOT_FOUND = "未查询到用户"
     TEAM_NOT_FOUND = "未查询到战队"
     MESSAGE_NOT_FOUND = "未查询到信息"
+    DATA_NOT_FOUND = "未查询到数据"
     NOT_LEADER = "不是队长，权限不足"
+    UNAUTHORIZED = "非授权操作"
 
 
-def success_model(msg):
-    return JsonResponse({
-        "ret": "success",
-        "msg": msg,
-    }, status=200)
+def success_template(msg, data=None, status=200):
+    if data is None:
+        return JsonResponse({
+            "ret": "success",
+            "msg": msg,
+        }, status=status)
+    else:
+        return JsonResponse({
+            "ret": "success",
+            "msg": msg,
+            "data": data,
+        }, status=status)
 
 
-def error_model(msg):
-    return {
-        "ret": "error",
-        "msg": msg,
-    }
+def error_template(msg, data=None, status=500):
+    if data is None:
+        return JsonResponse({
+            "ret": "error",
+            "msg": msg,
+        }, status=status)
+    else:
+        return JsonResponse({
+            "ret": "error",
+            "msg": msg,
+            "data": data
+        }, status=status)
+
+
+def send_message(receiver_id, origin_id, msg, type):
+    message = Message(receiver_id=receiver_id, origin_id=origin_id, message=msg, type=type)
+    message.check = False
+    message.save()
