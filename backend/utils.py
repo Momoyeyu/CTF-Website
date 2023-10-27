@@ -46,6 +46,7 @@ class ExceptionEnum(Enum):
     DATA_NOT_FOUND = "未查询到数据"
     NOT_LEADER = "不是队长，权限不足"
     UNAUTHORIZED = "非授权操作"
+    NAME_EXIST = "名称已被使用"
 
 
 def success_template(msg, data=None, status=200):
@@ -72,11 +73,11 @@ def error_template(msg, data=None, status=500):
         return JsonResponse({
             "ret": "error",
             "msg": msg,
-            "data": data
+            "data": data,
         }, status=status)
 
 
-def send_message(receiver_id, origin_id, msg, type):
-    message = Message(receiver_id=receiver_id, origin_id=origin_id, message=msg, type=type)
+def send_message(receiver_id, origin_id, msg, msg_type):
+    message = Message(receiver_id=receiver_id, origin_id=origin_id, message=msg, msg_type=msg_type)
     message.check = False
     message.save()
