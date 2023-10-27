@@ -1,8 +1,8 @@
-let blocks=document.getElementsByClassName('block')
-let pages=document.getElementsByClassName('page')
-let triangls=document.getElementsByClassName('triangle')
-for(let i=0;i<blocks.length;i++)
+for(let i=0;i<5;i++)
 {
+    let blocks=document.getElementsByClassName('block')
+    let pages=document.getElementsByClassName('page')
+    let triangls=document.getElementsByClassName('triangle')
     blocks[i].onclick=function(){
         for(let j=0;j<pages.length;j++)
         {

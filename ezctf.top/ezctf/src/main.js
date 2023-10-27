@@ -2,17 +2,26 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import Vuex from 'vuex';
+import './assets/index_icon/iconfont.css'
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
     loginButtonEnabled: true,
+    userInfoButtonEnabled: true,
+    username: '',
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
       state.loginButtonEnabled = value;
     },
+    setUserInfoButtonEnabled(state, value) {
+      state.userInfoButtonEnabled = value;
+    },
+    setUsername(state, value) {
+      state.username = value;
+    }
   },
 });
 

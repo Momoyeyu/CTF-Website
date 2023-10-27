@@ -1,6 +1,6 @@
 <template>
     <div id="teaminfo">
-      <router-link to="/Home" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队信息</h1>
           <p>战队名称:{{ team.name }}</p>
           <p>队长:{{team.leader_id}}&nbsp;&nbsp;&nbsp;得分:1{{ leader_score }}</p>
@@ -27,12 +27,12 @@
 </template>
     
 <script>
+  import { mapState, mapMutations } from 'vuex';
   export default {
-    props: ['member'],
     data() {
       return {
         team: {
-          member_name: this.member,
+          member_name: this.$store.state.username,
           name: 'ezctf',
           leader_id: 'jwf',
           leader_score: '100',
@@ -48,7 +48,15 @@
       ],
       };
     },
+    computed: {
+      ...mapState(['userInfoButtonEnabled','username']),
+    },
     methods: {
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
+      close() {
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push('/Home');
+      },
       quit() {
         //发送退出战队请求到后端
           this.$router.push("/Home");

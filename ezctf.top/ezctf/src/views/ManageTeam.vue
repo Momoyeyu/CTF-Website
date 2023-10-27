@@ -1,6 +1,6 @@
 <template>
     <div id="manageTeam">
-      <router-link to="/Home" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
       <p>
         战队名称：{{ team.name }}  &nbsp; 战队人数: {{ team.membernum }}/{{ team.maxnum }}
@@ -21,7 +21,7 @@
             <td>{{ member.name }}</td>
             <td>{{ member.score }}</td>
             <td>
-                <button @click="changeTeamLeader(member.name)">队长转让</button>
+                <button @click="changeTeamLeader(member.name)">队长转让</button> |
                 <button @click="removeMember(member.id)">移出战队</button>
             </td>
             </tr>
@@ -44,7 +44,7 @@
             <td>{{ applicant.name }}</td>
             <td>{{ applicant.score }}</td>
             <td>
-                <button @click="approveApplicant(applicant.id)">通过</button>
+                <button @click="approveApplicant(applicant.id)">通过</button> |
                 <button @click="rejectApplicant(applicant.id)">拒绝</button>
             </td>
             </tr>
@@ -57,13 +57,13 @@
 </template>
   
 <script>
+  import { mapState, mapMutations } from 'vuex';
   import { changeTeamLeader,deleteTeam } from '@/UserSystemApi/TeamApi';
   export default {
-    props: ['leader'],
     data() {
       return {
         team: {
-            leader_name: this.leader,
+            leader_name: this.$store.state.username,
             name:'ezctf',
             membernum:'4',
             maxnum:'10',
@@ -81,7 +81,15 @@
         ],
       };
     },
+    computed: {
+    ...mapState(['userInfoButtonEnabled','username']),
+    },
     methods: {
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
+      close() {
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push('/Home');
+      },
       async deleteTeam() {
         try {
           const response = await deleteTeam(this.team.name);
@@ -116,6 +124,7 @@
 
 <style>
 #manageTeam {
+    margin-top: 10px;
     margin-left: 5%;
     position: fixed;
     top: auto;

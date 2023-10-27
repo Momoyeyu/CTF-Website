@@ -2,17 +2,16 @@
 <div class="topborder">
         <div class="wrap">
         <ul class="header-left">
-            <li><a href="#/home"><i class="iconfont">&#xf01ff;</i>Logo</a><span>|</span></li>
-            <li><a href="#/ranking"><i class="iconfont">&#xe64b;</i>Ranking</a></li>
+            <li><a href="#/home"><i class="iconfont icon-weiruan"></i>Logo</a><span>|</span></li>
+            <li><a href="#/ranking"><i class="iconfont icon-paixingbang"></i>Ranking</a></li>
         </ul>
         <ul class="header-right">
-            <li><button @click="log()" v-if="!isLogin" id="loginBtn" :disabled="!loginButtonEnabled">登录</button></li>
+            <li><button @click="log()" v-if="!isLogin" id="loginBtn" :disabled="!loginButtonEnabled" :class="{ 'disabled-button': !loginButtonEnabled }">登录</button></li>
         </ul>
         </div>
               <div id="hiddenInfo" v-if="isLogin">
         <div id="ava">
-          <CreateAvatar :username="userInfo.name" />
-          <button  @click="showUserInfo()" id="avab"> </button>
+          <button  @click="showUserInfo()" :disabled="!userInfoButtonEnabled" id="avab"><CreateAvatar :username="userInfo.name" id="avac"/></button>
         </div>
         <div v-if="isHovered" class="user-info">
           <div>
@@ -22,17 +21,19 @@
               <p>积分:&nbsp; {{ userInfo.score }}</p>
               <p>战队：{{ userInfo.team }}</p>
             </div>
-            <button @click="modify()">修改信息</button> |
-            <button>注销账号</button>
           </div>
+          <br>
           <button @click="message()" class="board">
             <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知
           </button><br><br>
           <button @click="team()" class="board">
             <img src="../assets/icon/战队.png" class="icon">&nbsp;我的战队
           </button><br><br>
-          <button @click="superuser()" class="board" v-if="userInfo.isSuperuser">管理系统</button>
-          <br v-if="userInfo.isSuperuser"><br v-if="userInfo.isSuperuser">
+          <button @click="setinfo()" class="board" v-if="setInfo">用户设置</button>
+          <button @click="modify()" class="infoBtn" v-if="!setInfo">修改信息</button>
+          <button class="infoBtn" v-if="!setInfo">注销账号</button>
+          <button class="infoBtn" @click="setinfo()" v-if="!setInfo">返回</button>
+          <br><br>
           <button @click="quit()" class="board">退出登录</button>
         </div>
       </div>
@@ -55,7 +56,6 @@ name:'Navigation',
     const source = this.$route.query.source;
     if (backInfo && source) {
       if (source === 'Login') {
-        this.userInfo.name = backInfo.name;
         this.userInfo.score = backInfo.score;
         this.userInfo.team = backInfo.team_name;
         if(backInfo.team_name =='none') {
@@ -73,7 +73,6 @@ name:'Navigation',
         this.isLogin = true;
       } 
       else if (source === 'Registration') {
-        this.userInfo.name = backInfo.name;
         this.userInfo.score = backInfo.score;
         this.userInfo.team = backInfo.team_name;
         if(backInfo.team_name =='none') {
@@ -96,9 +95,9 @@ name:'Navigation',
     return {
       isLogin: true, //登录状态
       isHovered: false,
+      setInfo: true,
       userInfo: {
-        id: '114',
-        name: '于渊龙',
+        name: this.$store.state.username,
         email: '114514@beast.com',
         score: '100',
         team: 'ezctf',
@@ -109,10 +108,10 @@ name:'Navigation',
     };
   },
   computed: {
-    ...mapState(['loginButtonEnabled']),
+    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username']),
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled']),
+    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername']),
     log() {
       this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
@@ -120,25 +119,27 @@ name:'Navigation',
     showUserInfo() {
       this.isHovered = !this.isHovered;
     },
+    setinfo() {
+      this.setInfo=!this.setInfo;
+    },
     team() {
+      this.setUserInfoButtonEnabled(false);
       if(this.userInfo.isLeader&&!this.userInfo.isMember){
         this.showUserInfo();
-        const leader = this.userInfo.name;
-        this.$router.push({ name: 'ManageTeam', params: { leader } });
+        this.$router.push("/ManageTeam");
       }
       else if(this.userInfo.isMember){
         this.showUserInfo();
-        const member = this.userInfo.name;
-        this.$router.push({ name: 'TeamInfo', params: { member } });
+        this.$router.push("/TeamInfo");
       }
       else{
         this.showUserInfo();
-        const leader = this.userInfo.name;
-        this.$router.push({ name: 'NoTeam', params: { leader } });
+        this.$router.push('/NoTeam');
       }
     },
     message() {
       this.isHovered = !this.isHovered;
+      this.setUserInfoButtonEnabled(false);
       this.$router.push("/InfoBoard");
     },
     modify() {
@@ -148,8 +149,7 @@ name:'Navigation',
       logoutUser()
       .then((response) => {
         console.log('用户退出登录成功', response.data);
-        this.userInfo.name='',
-        this.userInfo.id='',
+        this.setUsername('');
         this.userInfo.email='',
         this.userInfo.totalscore='',
         this.userInfo.isLeader=false,
@@ -169,7 +169,7 @@ name:'Navigation',
 <style>
 .topborder{
     background-color:#1e1e1e;
-    width:1370px;
+    width:1360px;
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;
@@ -212,12 +212,22 @@ name:'Navigation',
     color: #fff;
 }
 #loginBtn {
-    width: 60px;
-    height: 30px;
+    border: none;
+    outline: none;
+    box-shadow: none;
     position: relative;
-    top: 0px;
-    right: 100px;
+    top: -10px;
+    left: -85px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
     text-align: center;
+    cursor: pointer;
+}
+
+.disabled-button {
+  background-color: white; 
+  color: black;
 }
 
 nav {
@@ -235,7 +245,7 @@ nav {
   top: 40px;
   right: -105px;
   width: 200px;
-  height: 480px;
+  height: 420px;
   justify-content: center;
   align-items: center;
   background-color: #1e1e1e;
@@ -265,23 +275,44 @@ nav {
   background-color: grey;
 }
 
+.infoBtn {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-color: #1e1e1e;
+  color: white;
+  width: 80px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+.infoBtn:hover {
+  background-color: grey;
+}
+
 .icon {
   width: 20px;
   height: 20px;
 }
 
 #ava {
-  position: relative;
-  top: 3px;
-  right: -200px;
   cursor: pointer;
   z-index: 1;
 }
 #avab {
-  margin-top: 3px;
-  margin-left: -50px;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  position: relative;
+  top: 15px;
+  right: -200px;
   height: 50px;
   width: 50px;
-  border-radius: 50px;
+  border-radius: 50%;
+}
+#avac {
+  position: relative; 
+  left: -6px;
+  top: -1px;
 }
 </style>

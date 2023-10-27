@@ -1,6 +1,6 @@
 <template>
     <div id="jointeam">
-      <router-link to="/Home" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>加入战队</h1>
       <input v-model="searchQuery" placeholder="搜索战队" @input="searchTeams" />
       <button @click="searchTeams()">搜索</button><br><br>
@@ -26,11 +26,11 @@
   </template>
   
   <script>
+  import { mapState, mapMutations } from 'vuex';
   export default {
-    props: ['user'], 
     data() {
       return {
-        username: this.user,
+        name: this.$store.state.username,
         searchQuery: "",
         teams: [
           { id: 1, name: "jwf" },
@@ -45,11 +45,17 @@
         const query = this.searchQuery.toLowerCase();
         return this.teams.filter((team) => team.name.toLowerCase().includes(query));
       },
+      ...mapState(['userInfoButtonEnabled','username']),
     },
     methods: {
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
+      close() {
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push('/Home');
+      },
       async joinTeamRequest(teamname) {
         try {
-          const response = await joinTeam( this.username, teamname);
+          const response = await joinTeam( this.name, teamname);
           if (response.ret === 'success') {
             console.log('成功加入团队:', response.msg);
           } else {

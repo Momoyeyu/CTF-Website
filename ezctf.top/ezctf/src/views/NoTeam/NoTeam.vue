@@ -1,6 +1,6 @@
 <template>
     <div id="noTeam">
-      <router-link to="/Home" class="close-btn">&#10006;</router-link>
+        <button @click="close()" class="close-btn">&#10006;</button>
       <h1>选择战队</h1>
       <div>
         <router-link to ='/CreateTeam' class="router-link">创建战队</router-link> |
@@ -10,9 +10,20 @@
 </template>
 
 <script>
+    import { mapState, mapMutations } from 'vuex';
     export default {
-        props: ['user'], 
+        computed: {
+            ...mapState(['userInfoButtonEnabled']),
+        },
+        methods: {
+            ...mapMutations(['setUserInfoButtonEnabled']),
+            close() {
+                this.setUserInfoButtonEnabled(true);
+                this.$router.push('/Home');
+            },
+        }
     };
+
 </script>
 
 <style>

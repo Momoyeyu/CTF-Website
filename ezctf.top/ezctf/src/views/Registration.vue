@@ -15,7 +15,6 @@
         <label for="Vcode">验证码:</label>
         <input type="text" id="Vcode" v-model="code" required /><br><br>
         <button type="submit" @click="userRegister()">注册</button>
-        <p>提示：用户名为真实姓名</p><br><br>
       </form>
     </div>
   </template>
@@ -36,10 +35,10 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled']),
+    ...mapState(['loginButtonEnabled','username']),
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled']),
+      ...mapMutations(['setLoginButtonEnabled','setUsername']),
       close() {
         this.setLoginButtonEnabled(true);
         this.$router.push('/Home');
