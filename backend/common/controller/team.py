@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from utils import get_request_params
 from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
+from utils import ExceptionEnum
 
 
 def dispatcher(request):
@@ -30,6 +31,8 @@ def dispatcher(request):
         return change_team_name(request)
     elif action == "change_team_leader":
         return change_team_leader(request)
+    elif action == "verify_apply":
+        return verify_apply(request)
 
     else:
         return JsonResponse({
@@ -505,3 +508,61 @@ def change_team_leader(request):
             "ret": "error",
             "msg": "权限不足",
         }, status=403)
+
+
+def verify_apply(request):
+    """
+    POST
+    @payload:
+    {
+        "action": "verify_apply",
+        "data": {
+            "username": "momoyeyu",
+            "applicant": "juanboy",
+        },
+    }
+    @return:
+    {
+        "ret": "success" / "error",
+        "msg": "审核已生效" / else
+    }
+    """
+    if request.method != "POST":
+        return JsonResponse({
+            "ret": "error",
+            "msg": "Invalid request method"
+        }, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "用户未登录",
+        }, status=403)
+
+    data = request.params["data"]
+    username = data["username"]
+    applicant = data["applicant"]
+
+    user = User.objects.get_by_natural_key(username)
+
+    if user is None:
+        return JsonResponse({
+            "ret": "error",
+            "msg": ExceptionEnum.USER_NOT_FOUND.value,
+        }, status=404)
+
+    custom_user = CustomUser.objects.get(user_id=user.id)
+    team = Team.objects.get(pk=custom_user.team_id)
+
+    if team is None:
+        return JsonResponse({
+            "ret": "error",
+            "msg": ExceptionEnum.TEAM_NOT_FOUND.value,
+        }, status=404)
+
+    if team.leader_id != user.id:
+        return JsonResponse({
+            "ret": "error",
+            "msg": ExceptionEnum.NOT_LEADER.value,
+        }, status=403)
+    # TODO

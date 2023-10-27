@@ -51,8 +51,8 @@ class CustomUser(models.Model):
 
 class Message(models.Model):
     MESSAGE_TYPE = (
-        (0, "notice"),
-        (1, "join team application"),
+        ("notice", 0),
+        ("join_team", 1),
     )
     # receiver: 接收者
     # origin: 发送者

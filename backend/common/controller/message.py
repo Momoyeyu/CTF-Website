@@ -138,7 +138,7 @@ def get_applications(request):
             "msg": "用户查询失败",
         }, status=404)
 
-    messages = Message.objects.filter(receiver_id=user.id, type=int(1))  # 1: join team application
+    messages = Message.objects.filter(receiver_id=user.id, type="join_team")  # 1: join_team
 
     if messages is None:  # 没有查询到消息，但请求是合法的
         return JsonResponse({

@@ -1,5 +1,6 @@
 import json
 import re
+from enum import Enum
 
 
 def get_request_params(request):
@@ -31,3 +32,9 @@ def is_valid_username(username):
         return True
     else:
         return False
+
+
+class ExceptionEnum(Enum):
+    USER_NOT_FOUND = "未查询到用户"
+    TEAM_NOT_FOUND = "未查询到战队"
+    NOT_LEADER = "不是队长，权限不足"
