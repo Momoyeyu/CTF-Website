@@ -1,6 +1,7 @@
 import json
 import re
 from enum import Enum
+from django.http import JsonResponse
 
 
 def get_request_params(request):
@@ -35,6 +36,23 @@ def is_valid_username(username):
 
 
 class ExceptionEnum(Enum):
+    INVALID_REQUEST_METHOD = "Invalid request method"
+    USER_NOT_LOGIN = "用户未登录"
     USER_NOT_FOUND = "未查询到用户"
     TEAM_NOT_FOUND = "未查询到战队"
+    MESSAGE_NOT_FOUND = "未查询到信息"
     NOT_LEADER = "不是队长，权限不足"
+
+
+def success_model(msg):
+    return JsonResponse({
+        "ret": "success",
+        "msg": msg,
+    }, status=200)
+
+
+def error_model(msg):
+    return {
+        "ret": "error",
+        "msg": msg,
+    }

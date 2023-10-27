@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from utils import get_request_params
 from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
-from utils import ExceptionEnum
+from utils import ExceptionEnum, error_model, success_model
 
 
 def dispatcher(request):
@@ -528,16 +528,10 @@ def verify_apply(request):
     }
     """
     if request.method != "POST":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return JsonResponse(error_model(ExceptionEnum.INVALID_REQUEST_METHOD), status=405)
 
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
+        return JsonResponse(error_model(ExceptionEnum.USER_NOT_LOGIN), status=403)
 
     data = request.params["data"]
     username = data["username"]
@@ -546,23 +540,30 @@ def verify_apply(request):
     user = User.objects.get_by_natural_key(username)
 
     if user is None:
-        return JsonResponse({
-            "ret": "error",
-            "msg": ExceptionEnum.USER_NOT_FOUND.value,
-        }, status=404)
+        return JsonResponse(error_model(ExceptionEnum.USER_NOT_FOUND.value), status=404)
 
     custom_user = CustomUser.objects.get(user_id=user.id)
     team = Team.objects.get(pk=custom_user.team_id)
 
     if team is None:
-        return JsonResponse({
-            "ret": "error",
-            "msg": ExceptionEnum.TEAM_NOT_FOUND.value,
-        }, status=404)
+        return JsonResponse(error_model(ExceptionEnum.TEAM_NOT_FOUND.value), status=404)
 
     if team.leader_id != user.id:
-        return JsonResponse({
-            "ret": "error",
-            "msg": ExceptionEnum.NOT_LEADER.value,
-        }, status=403)
+        return JsonResponse(error_model(ExceptionEnum.NOT_LEADER.value), status=403)
     # TODO
+    applicant = User.objects.get_by_natural_key(applicant)
+
+    if applicant is None:
+        return JsonResponse(error_model(ExceptionEnum.USER_NOT_FOUND.value), status=404)
+
+    applications = Message.objects.filter(receiver_id=user.id, origin_id=applicant.id, type="join_team")
+    if applications is None:
+        return JsonResponse(error_model(ExceptionEnum.MESSAGE_NOT_FOUND.value), status=404)
+
+    custom_applicant = CustomUser.objects.get(user_id=applicant.id)
+    custom_applicant.team_id = team.id  # 申请者入队
+    team.member_count += 1  # 队伍人员数量 + 1
+    custom_applicant.save()
+
+    return success_model("审核成功通过")
+
