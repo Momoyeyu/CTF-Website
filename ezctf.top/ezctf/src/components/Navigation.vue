@@ -21,12 +21,6 @@
               <p>积分:&nbsp; {{ userInfo.score }}</p>
               <p>战队：{{ userInfo.team }}</p>
             </div>
-            <div>
-              <div>
-                <button @click="modify()" class="infoBtn">修改信息</button> |
-                <button class="infoBtn">注销账号</button>
-              </div>
-            </div>
           </div>
           <br>
           <button @click="message()" class="board">
@@ -35,8 +29,11 @@
           <button @click="team()" class="board">
             <img src="../assets/icon/战队.png" class="icon">&nbsp;我的战队
           </button><br><br>
-          <button @click="superuser()" class="board" v-if="userInfo.isSuperuser">管理系统</button>
-          <br v-if="userInfo.isSuperuser"><br v-if="userInfo.isSuperuser">
+          <button @click="setinfo()" class="board" v-if="setInfo">用户设置</button>
+          <button @click="modify()" class="infoBtn" v-if="!setInfo">修改信息</button>
+          <button class="infoBtn" v-if="!setInfo">注销账号</button>
+          <button class="infoBtn" @click="setinfo()" v-if="!setInfo">返回</button>
+          <br><br>
           <button @click="quit()" class="board">退出登录</button>
         </div>
       </div>
@@ -59,7 +56,6 @@ name:'Navigation',
     const source = this.$route.query.source;
     if (backInfo && source) {
       if (source === 'Login') {
-        this.userInfo.name = backInfo.name;
         this.userInfo.score = backInfo.score;
         this.userInfo.team = backInfo.team_name;
         if(backInfo.team_name =='none') {
@@ -77,7 +73,6 @@ name:'Navigation',
         this.isLogin = true;
       } 
       else if (source === 'Registration') {
-        this.userInfo.name = backInfo.name;
         this.userInfo.score = backInfo.score;
         this.userInfo.team = backInfo.team_name;
         if(backInfo.team_name =='none') {
@@ -98,11 +93,11 @@ name:'Navigation',
   },
   data() {
     return {
-      isLogin: false, //登录状态
+      isLogin: true, //登录状态
       isHovered: false,
+      setInfo: true,
       userInfo: {
-        id: '114',
-        name: '于渊龙',
+        name: this.$store.state.username,
         email: '114514@beast.com',
         score: '100',
         team: 'ezctf',
@@ -113,10 +108,10 @@ name:'Navigation',
     };
   },
   computed: {
-    ...mapState(['loginButtonEnabled','userInfoButtonEnabled']),
+    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username']),
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled']),
+    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername']),
     log() {
       this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
@@ -124,22 +119,22 @@ name:'Navigation',
     showUserInfo() {
       this.isHovered = !this.isHovered;
     },
+    setinfo() {
+      this.setInfo=!this.setInfo;
+    },
     team() {
       this.setUserInfoButtonEnabled(false);
       if(this.userInfo.isLeader&&!this.userInfo.isMember){
         this.showUserInfo();
-        const leader = this.userInfo.name;
-        this.$router.push({ name: 'ManageTeam', params: { leader } });
+        this.$router.push("/ManageTeam");
       }
       else if(this.userInfo.isMember){
         this.showUserInfo();
-        const member = this.userInfo.name;
-        this.$router.push({ name: 'TeamInfo', params: { member } });
+        this.$router.push("/TeamInfo");
       }
       else{
         this.showUserInfo();
-        const leader = this.userInfo.name;
-        this.$router.push({ name: 'NoTeam', params: { leader } });
+        this.$router.push('/NoTeam');
       }
     },
     message() {
@@ -154,8 +149,7 @@ name:'Navigation',
       logoutUser()
       .then((response) => {
         console.log('用户退出登录成功', response.data);
-        this.userInfo.name='',
-        this.userInfo.id='',
+        this.setUsername('');
         this.userInfo.email='',
         this.userInfo.totalscore='',
         this.userInfo.isLeader=false,
@@ -175,7 +169,7 @@ name:'Navigation',
 <style>
 .topborder{
     background-color:#1e1e1e;
-    width:1370px;
+    width:1360px;
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;
@@ -251,7 +245,7 @@ nav {
   top: 40px;
   right: -105px;
   width: 200px;
-  height: 480px;
+  height: 420px;
   justify-content: center;
   align-items: center;
   background-color: #1e1e1e;

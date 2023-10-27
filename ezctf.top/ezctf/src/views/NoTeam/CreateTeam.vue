@@ -16,21 +16,20 @@
 <script>
  import { mapState, mapMutations } from 'vuex';
  export default {
-    props: ['user'],
     data() {
       return {
         team: {
           teamname: '',
-          leader_name: this.leader,
+          leader_name: this.$store.state.username,
           check: false
         },
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled']),
+    ...mapState(['userInfoButtonEnabled','username']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/Home');

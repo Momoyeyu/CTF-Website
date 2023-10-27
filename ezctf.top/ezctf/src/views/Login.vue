@@ -29,10 +29,10 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled']),
+    ...mapState(['loginButtonEnabled','username']),
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled']),
+      ...mapMutations(['setLoginButtonEnabled','setUsername']),
       close() {
         this.setLoginButtonEnabled(true);
         this.$router.push('/Home');
@@ -43,6 +43,7 @@
           console.log('登录响应:', response);
           if (response.return === 'success') {
             this.$store.commit('setLoginButtonEnabled', true);
+            this.$store.commit('setUsername', response.userInfo.username);
             this.$router.push({
               path: '/Home',
               query: { backInfo: response.userInfo, source: 'Login' } 

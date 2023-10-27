@@ -60,11 +60,10 @@
   import { mapState, mapMutations } from 'vuex';
   import { changeTeamLeader,deleteTeam } from '@/UserSystemApi/TeamApi';
   export default {
-    props: ['leader'],
     data() {
       return {
         team: {
-            leader_name: this.leader,
+            leader_name: this.$store.state.username,
             name:'ezctf',
             membernum:'4',
             maxnum:'10',
@@ -83,10 +82,10 @@
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled']),
+    ...mapState(['userInfoButtonEnabled','username']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/Home');
