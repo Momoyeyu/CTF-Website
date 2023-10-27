@@ -1,11 +1,11 @@
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.http import JsonResponse
 from utils import get_request_params
-from common.models import Team
+from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
-from common.models import CustomUser
 
 
 def dispatcher(request):
@@ -200,60 +200,74 @@ def join_team(request):
     username = data["username"]
     team_name = data["team_name"]
 
-    try:
-        user = User.objects.get_by_natural_key(username)
-        custom_user = CustomUser.objects.get(user=user)
-        try:
-            team = Team.objects.get(team_name=team_name)
-            if custom_user.team_id is not None:
-                if team.id == custom_user.team_id:
-                    return JsonResponse({
-                        "ret": "error",
-                        "msg": "您已在此战队，不要重复加入"
-                    }, status=400)
-                else:
-                    return JsonResponse({
-                        "ret": "error",
-                        "msg": "您已在其他战队"
-                    }, status=400)
-
-            if not team.allow_join:
-                msg = "战队 " + team_name + " 需要队长邀请才能加入"
-                leader = User.objects.get(pk=team.leader_id)
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": msg,
-                    "data": {
-                        "leader_email": leader.email
-                    }
-                }, status=400)
-            # 正常加入
-            team.member_count += 1
-            custom_user.team_id = team.id
-            team.save()
-            custom_user.save()
-
-            return JsonResponse({
-                "ret": "success",
-                "msg": "成功加入团队",
-                "data": {
-                    "team_name": team_name
-                }
-            }, status=200)
-
-        except Team.DoesNotExist:
-            # 团队不存在，返回错误响应
-            msg = "战队 " + str(team_name) + " 不存在"
-            return JsonResponse({
-                "ret": "error",
-                "msg": msg
-            }, status=404)
-
-    except User.DoesNotExist:
+    user = User.objects.get_by_natural_key(username)
+    if user is None:
         return JsonResponse({
             "ret": "error",
-            "msg": "非法用户操作"
+            "msg": "用户查询失败",
         }, status=404)
+
+    custom_user = CustomUser.objects.get(user=user)
+
+    team = Team.objects.get(team_name=team_name)
+    if team is None:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "战队 " + str(team_name) + " 不存在"
+        }, status=404)
+
+    if custom_user.team_id is not None:
+        if team.id == custom_user.team_id:
+            return JsonResponse({
+                "ret": "error",
+                "msg": "您已在此战队，不要重复加入"
+            }, status=400)
+        else:
+            return JsonResponse({
+                "ret": "error",
+                "msg": "您已在其他战队"
+            }, status=400)
+
+    leader = User.objects.get(pk=team.leader_id)
+    if not team.allow_join:
+        msg = "战队 " + team_name + " 需要队长邀请才能加入"
+        return JsonResponse({
+            "ret": "error",
+            "msg": msg,
+            "data": {
+                "leader_email": leader.email
+            }
+        }, status=400)
+
+    # 发送加入申请
+    msg = str(username) + "希望加入你的队伍"
+    message = Message(origin=user.id, receiver=leader.id, message=msg)
+    message.check = False
+    try:
+        message.save()
+        return JsonResponse({
+            "ret": "success",
+            "msg": "请求意见发送",
+        }, status=200)
+    except IntegrityError:
+        return JsonResponse({
+            "ret": "error",
+            "msg": "请求发送失败",
+        }, status=500)
+
+    # 旧 api: 直接加入，无审核
+    # team.member_count += 1
+    # custom_user.team_id = team.id
+    # team.save()
+    # custom_user.save()
+
+    # return JsonResponse({
+    #     "ret": "success",
+    #     "msg": "成功加入团队",
+    #     "data": {
+    #         "team_name": team_name
+    #     }
+    # }, status=200)
 
 
 def quit_team(request):
@@ -491,4 +505,3 @@ def change_team_leader(request):
             "ret": "error",
             "msg": "权限不足",
         }, status=403)
-
