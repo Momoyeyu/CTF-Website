@@ -55,6 +55,11 @@ class Message(models.Model):
     message = models.CharField()
     check = models.BooleanField(default=False)
 
+    MESSAGE_TYPE = (
+        (0, 'notice'),
+        (1, 'join_team'),
+    )
+
     objects = models.Manager()
 
 
