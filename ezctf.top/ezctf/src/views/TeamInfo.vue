@@ -29,11 +29,10 @@
 <script>
   import { mapState, mapMutations } from 'vuex';
   export default {
-    props: ['member'],
     data() {
       return {
         team: {
-          member_name: this.member,
+          member_name: this.$store.state.username,
           name: 'ezctf',
           leader_id: 'jwf',
           leader_score: '100',
@@ -50,10 +49,10 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled']),
+      ...mapState(['userInfoButtonEnabled','username']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/Home');

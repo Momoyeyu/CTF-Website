@@ -28,10 +28,9 @@
   <script>
   import { mapState, mapMutations } from 'vuex';
   export default {
-    props: ['user'], 
     data() {
       return {
-        username: this.user,
+        name: this.$store.state.username,
         searchQuery: "",
         teams: [
           { id: 1, name: "jwf" },
@@ -46,17 +45,17 @@
         const query = this.searchQuery.toLowerCase();
         return this.teams.filter((team) => team.name.toLowerCase().includes(query));
       },
-      ...mapState(['userInfoButtonEnabled']),
+      ...mapState(['userInfoButtonEnabled','username']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/Home');
       },
       async joinTeamRequest(teamname) {
         try {
-          const response = await joinTeam( this.username, teamname);
+          const response = await joinTeam( this.name, teamname);
           if (response.ret === 'success') {
             console.log('成功加入团队:', response.msg);
           } else {

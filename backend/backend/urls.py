@@ -26,5 +26,6 @@ urlpatterns = [
 
     path('api/common/', include('common.urls')),
 
+    # 用户激活
     path('user/active', user_active)
 ]

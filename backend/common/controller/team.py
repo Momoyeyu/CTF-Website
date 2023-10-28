@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.http import JsonResponse
 from utils import get_request_params
-from common.models import Team
+from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
-from common.models import CustomUser
+from utils import ExceptionEnum, error_template, success_template, send_message
 
 
 def dispatcher(request):
@@ -30,6 +31,8 @@ def dispatcher(request):
         return change_team_name(request)
     elif action == "change_team_leader":
         return change_team_leader(request)
+    elif action == "verify_apply":
+        return verify_apply(request)
 
     else:
         return JsonResponse({
@@ -45,70 +48,47 @@ def create_team(request):
     {
         "action": "create_team",
         "data":{
-            "leader_name": "momoyeyu",
+            "username": "momoyeyu",
             "team_name": "ezctf",
             "allow_join": "true"
         }
     }
     """
     if request.method != "POST":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
 
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
     data = request.params["data"]
+    username = data["username"]
+    team_name = data["team_name"]
+    allow_join = data["allow_join"]
 
     # 检查用户是否在战队里
-    user = None
-    try:
-        user = User.objects.get_by_natural_key(data["leader_name"])
-        custom_user = CustomUser.objects.get(user=user)
-        if custom_user.team_id is not None:
-            team = Team.objects.get(pk=custom_user.team_id)
-            return JsonResponse({
-                "ret": "error",
-                "msg": "用户已有战队",
-                "data": {
-                    "team_name": team.team_name
-                }
-            }, status=400)
+    user = User.objects.get_by_natural_key(username)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
+    custom_user = CustomUser.objects.get(user=user)
+    if custom_user.team_id is not None:
+        team = Team.objects.get(pk=custom_user.team_id)
+        response_data = {"team_name": team.team_name, }
+        return error_template("用户已有战队", data=response_data, status=403)
 
-        if Team.objects.filter(team_name=data["team_name"]).exists():
-            return JsonResponse({
-                "ret": "error",
-                "msg": "战队名已被使用",
-            }, status=400)
+    if Team.objects.filter(team_name=team_name).exists():
+        return error_template(ExceptionEnum.NAME_EXIST, status=409)
 
-        new_team = Team(
-            team_name=data["team_name"],
-            leader_name=data["leader_name"],
-            allow_join=data["allow_join"],
-            member_count=1
-        )
-        custom_user.team_id = new_team.id
+    new_team = Team(
+        team_name=team_name,
+        leader_name=username,
+        allow_join=allow_join,
+        member_count=1
+    )
+    custom_user.team_id = new_team.id
 
-        custom_user.save()
-        new_team.save()
-
-        return JsonResponse({
-            "ret": "success",
-            "msg": "成功创建战队",
-            "data": {
-                "team_name": data["team_name"]
-            }
-        }, status=200)
-
-    except User.DoesNotExist:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户不合法！"
-        }, status=404)
+    custom_user.save()
+    new_team.save()
+    response_data = {"team_name": data["team_name"], }
+    return success_template("成功创建战队", data=response_data)
 
 
 def del_team(request):
@@ -148,28 +128,20 @@ def del_team(request):
             "ret": "error",
             "msg": "密码错误"
         }, status=403)
+
+    team = Team.objects.get(pk=user.custom_user.team_id)
+    if team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+
+    if team.leader_id != user.id:
+        return error_template(ExceptionEnum.NOT_LEADER, status=403)
+
+    CustomUser.objects.filter(team_id=team.id).update(team_id=None)
     try:
-        team = Team.objects.get(pk=user.custom_user.team_id)
-        if team.leader_id != user.id:
-            # leader_id 不匹配，无法删除团队，返回错误响应
-            return JsonResponse({
-                "ret": "error",
-                "msg": "无法删除团队，权限不足"
-            }, status=403)
-
-        CustomUser.objects.filter(team_id=team.id).update(team_id=None)
         team.delete()
-        return JsonResponse({
-            "ret": "success",
-            "msg": "成功删除团队"
-        }, status=204)
-
-    except ObjectDoesNotExist:
-        # 团队不存在，返回错误响应
-        return JsonResponse({
-            "ret": "error",
-            "msg": "战队不存在"
-        }, status=404)
+        return success_template("成功删除团队", status=204)
+    except:
+        return error_template("删除团队失败")
 
 
 def join_team(request):
@@ -185,75 +157,43 @@ def join_team(request):
     }
     """
     if request.method != "PUT":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
 
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
 
     data = request.params["data"]
     username = data["username"]
     team_name = data["team_name"]
 
+    user = User.objects.get_by_natural_key(username)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
+
+    custom_user = CustomUser.objects.get(user=user)
+
+    team = Team.objects.get(team_name=team_name)
+    if team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+
+    if custom_user.team_id is not None:
+        return error_template(ExceptionEnum.UNAUTHORIZED, status=403)
+
+    leader = User.objects.get(pk=team.leader_id)
+    if not team.allow_join:
+        response_data = {"leader_email": leader.email, }
+        msg = "战队 " + team_name + " 需要队长邀请才能加入"
+        return error_template(msg, data=response_data, status=403)
+
+    # 发送加入申请
+    msg = str(username) + "希望加入你的队伍"
+    message = Message(origin=user.id, receiver=leader.id, message=msg)
+    message.check = False
     try:
-        user = User.objects.get_by_natural_key(username)
-        custom_user = CustomUser.objects.get(user=user)
-        try:
-            team = Team.objects.get(team_name=team_name)
-            if custom_user.team_id is not None:
-                if team.id == custom_user.team_id:
-                    return JsonResponse({
-                        "ret": "error",
-                        "msg": "您已在此战队，不要重复加入"
-                    }, status=400)
-                else:
-                    return JsonResponse({
-                        "ret": "error",
-                        "msg": "您已在其他战队"
-                    }, status=400)
-
-            if not team.allow_join:
-                msg = "战队 " + team_name + " 需要队长邀请才能加入"
-                leader = User.objects.get(pk=team.leader_id)
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": msg,
-                    "data": {
-                        "leader_email": leader.email
-                    }
-                }, status=400)
-            # 正常加入
-            team.member_count += 1
-            custom_user.team_id = team.id
-            team.save()
-            custom_user.save()
-
-            return JsonResponse({
-                "ret": "success",
-                "msg": "成功加入团队",
-                "data": {
-                    "team_name": team_name
-                }
-            }, status=200)
-
-        except Team.DoesNotExist:
-            # 团队不存在，返回错误响应
-            msg = "战队 " + str(team_name) + " 不存在"
-            return JsonResponse({
-                "ret": "error",
-                "msg": msg
-            }, status=404)
-
-    except User.DoesNotExist:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "非法用户操作"
-        }, status=404)
+        message.save()
+        return success_template("申请发送成功")
+    except IntegrityError:
+        return error_template("申请发送失败")
 
 
 def quit_team(request):
@@ -269,55 +209,41 @@ def quit_team(request):
     }
     """
     if request.method != "PUT":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
 
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
 
     data = request.params["data"]
     username = data["username"]
     team_name = data["team_name"]
 
-    try:
-        user = User.objects.get_by_natural_key(username)
-        custom_user = CustomUser.objects.get(user=user)
-        try:
-            team = Team.objects.get(team_name=team_name)
+    user = User.objects.get_by_natural_key(username)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
 
-            if team.leader_id == user.id:
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": "队长无法退出战队，请在和队员协商后转让队长或解散战队"
-                }, status=403)
+    custom_user = CustomUser.objects.get(user=user)
+    team = Team.objects.get(team_name=team_name)
+    if team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
 
-            team.member_count += 1
-            custom_user.team_id = None
+    if team.leader_id == user.id:  # 如果用户是队长
+        new_leader = CustomUser.objects.filter(team_id=team.id)[0]
+        if new_leader is None:  # 没有队员，战队自动删除
+            team.delete()
+            return success_template("已解散战队", status=204)
+        else:  # 有队员，队长自动分配给队员
+            msg = str(user.username + "战队转交给了" + new_leader.user.username)
+            send_message(new_leader.user.id, user.id, msg, msg_type="chat")
+            team.leader_id = new_leader.user.id
 
-            team.save()
-            custom_user.save()
+    team.member_count -= 1
+    custom_user.team_id = None
 
-            return JsonResponse({
-                "ret": "success",
-                "msg": "成功退出团队"
-            }, status=200)
+    team.save()
+    custom_user.save()
 
-        except Team.DoesNotExist:
-            return JsonResponse({
-                "ret": "error",
-                "msg": "战队不存在"
-            }, status=404)
-
-    except ObjectDoesNotExist:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户不存在"
-        }, status=404)
+    return success_template("成功退出团队")
 
 
 def search_team(request):
@@ -330,25 +256,17 @@ def search_team(request):
     }
     """
     if request.method != "GET":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
 
     keyword = request.params["keyword"]
 
     if keyword:
-        # 直接查询 team_name 包含关键字且 allow_join 为 True 的队伍
         teams = Team.objects.filter(team_name__icontains=keyword)
     else:
         teams = Team.objects.values()
 
     if not teams:
-        # 如果没有找到匹配的队伍
-        return JsonResponse({
-            "ret": "error",
-            "msg": "没有找到匹配的队伍",
-        }, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
 
     team_list = []
     for team in teams:
@@ -362,11 +280,7 @@ def search_team(request):
         }
         team_list.append(team_info)
 
-    return JsonResponse({
-        "ret": "success",
-        "msg": "匹配的队伍信息",
-        "data": team_list
-    }, status=200)
+    return success_template("匹配的队伍信息", data=team_list)
 
 
 def change_team_name(request):
@@ -383,50 +297,29 @@ def change_team_name(request):
     }
     """
     if request.method != "PUT":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
 
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
 
     data = request.params["data"]
     username = data["username"]
-    old = data["old_team_name"]
-    new = data["new_team_name"]
-    try:
-        team = Team.objects.get(team_name=old)
-        if team.leader.username == username:
-            if Team.objects.filter(team_name=new):
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": "队名已被使用",
-                }, status=409)
+    old_team_name = data["old_team_name"]
+    new_team_name = data["new_team_name"]
+    team = Team.objects.get(team_name=old_team_name)
+    if team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
 
-            team.team_name = new
-            team.save()
-            return JsonResponse({
-                "ret": "success",
-                "msg": "成功修改队伍名称",
-                "data": {
-                    "team_name": new
-                }
-            }, status=200)
-        else:
-            return JsonResponse({
-                "ret": "error",
-                "msg": "权限不足",
-            }, status=403)
+    if team.leader.username != username:
+        return error_template(ExceptionEnum.NOT_LEADER, status=403)
 
-    except ObjectDoesNotExist:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "队伍不存在"
-        }, status=404)
+    if Team.objects.filter(team_name=new_team_name):
+        return error_template(ExceptionEnum.NAME_EXIST, status=409)
+
+    team.team_name = new_team_name
+    team.save()
+    response_data = {"team_name": new_team_name, }
+    return success_template("成功修改队伍名称", data=response_data)
 
 
 def change_team_leader(request):
@@ -442,53 +335,98 @@ def change_team_leader(request):
     }
     """
     if request.method != "PUT":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
 
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
 
     data = request.params["data"]
     username = data["username"]
     new_leader_name = data["new_leader_name"]
     user = User.objects.get_by_natural_key(username)
     new_leader = User.objects.get_by_natural_key(new_leader_name)
+
     if user is None or new_leader is None:  # 检测新旧队长用户是否正确读取
-        return JsonResponse({
-            "ret": "error",
-            "msg": "未查找到对应用户",
-        }, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
     custom_user = CustomUser.objects.get(user_id=user.id)
     custom_leader = CustomUser.objects.get(user_id=new_leader.id)
-    if custom_user.team_id is None:  # 检测用户是否在战队内
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户尚未加入战队",
-        }, status=403)
-    team = Team.objects.get(pk=custom_user.team_id)
-    if team.leader_id == user.id:  # 检测队长权限
-        if custom_leader.team_id != team.id:  # 检测新队长战队归属
-            return JsonResponse({
-                "ret": "error",
-                "msg": "新的队长尚未加入该战队",
-            }, status=403)
-        team.leader_id = new_leader.id
-        team.save()
-        return JsonResponse({
-            "ret": "success",
-            "msg": "成功修改战队队长",
-            "data": {
-                "new_leader_name", team.leader.username,
-            },
-        }, status=200)
-    else:  # 不是队长，没有权限
-        return JsonResponse({
-            "ret": "error",
-            "msg": "权限不足",
-        }, status=403)
 
+    if custom_user.team_id is None:  # 检测用户是否在战队内
+        return error_template(ExceptionEnum.NOT_LEADER, status=403)
+    team = Team.objects.get(pk=custom_user.team_id)
+    if team.leader_id != user.id:  # 检测队长权限
+        return error_template(ExceptionEnum.NOT_LEADER, status=403)
+
+    if custom_leader.team_id != team.id:  # 检测新队长战队归属
+        return error_template(ExceptionEnum.UNAUTHORIZED, data=None, status=403)
+    team.leader_id = new_leader.id
+    team.save()
+
+    response_data = {"new_leader_name": team.leader.username, }
+    return success_template("成功更换队长", data=response_data, status=200)
+
+
+def verify_apply(request):
+    """
+    POST
+    @payload:
+    {
+        "action": "verify_apply",
+        "data": {
+            "username": "momoyeyu",
+            "applicant": "juanboy",
+            "accept": true / false,  # 注意布尔值不要打双引号
+        },
+    }
+    @return:
+    {
+        "ret": "success" / "error",
+        "msg": "审核已生效" / else
+    }
+    """
+    if request.method != "POST":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, data=None, status=405)
+
+    if not request.user.is_authenticated:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN, data=None, status=403)
+
+    data = request.params["data"]
+    username = data["username"]
+    applicant = data["applicant"]
+    accept = data["accept"]
+
+    user = User.objects.get_by_natural_key(username)
+
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
+
+    custom_user = CustomUser.objects.get(user_id=user.id)
+    team = Team.objects.get(pk=custom_user.team_id)
+
+    if team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
+
+    if team.leader_id != user.id:
+        return error_template(ExceptionEnum.NOT_LEADER.value, data=None, status=403)
+    applicant = User.objects.get_by_natural_key(applicant)
+
+    if applicant is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
+
+    applications = Message.objects.filter(receiver_id=user.id, origin_id=applicant.id, msg_type="join_team")
+    if applications is None:
+        return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, data=None, status=404)
+
+    if accept:
+        custom_applicant = CustomUser.objects.get(user_id=applicant.id)
+        custom_applicant.team_id = team.id  # 申请者入队
+        team.member_count += 1  # 队伍人员数量 + 1
+        custom_applicant.save()
+        send_message(user.id, applicant.id, "欢迎加入" + str(team.team_name), msg_type="chat")
+    else:
+        send_message(user.id, applicant.id, str(team.team_name) + "拒绝了你的申请", msg_type="chat")
+
+    for each in applications:
+        each.delete()
+
+    return success_template("审核已生效", data=None, status=200)
