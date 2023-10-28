@@ -83,6 +83,7 @@ methods:{
   font-size: 24px;
   text-align: center;
   line-height: 80px;
+  border-collapse: collapse;
 }
 .block button{
   width: 200px;

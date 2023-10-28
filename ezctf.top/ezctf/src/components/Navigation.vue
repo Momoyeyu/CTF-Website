@@ -169,7 +169,7 @@ name:'Navigation',
 <style>
 .topborder{
     background-color:#1e1e1e;
-    width:1360px;
+    width:100%;
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;
@@ -217,12 +217,12 @@ name:'Navigation',
     box-shadow: none;
     position: relative;
     top: -10px;
-    left: -85px;
     height: 50px;
     width: 50px;
     border-radius: 50%;
     text-align: center;
     cursor: pointer;
+    float: right;
 }
 
 .disabled-button {
