@@ -169,11 +169,7 @@ name:'Navigation',
 <style>
 .topborder{
     background-color:#1e1e1e;
-<<<<<<< HEAD
     width:100%;
-=======
-    width:1360px;
->>>>>>> 7a01388d7830680134e04f9260f4b0b8393d8c28
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;
