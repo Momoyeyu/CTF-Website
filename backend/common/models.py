@@ -54,6 +54,7 @@ class Message(models.Model):
         ("chat", 0),
         ("join_team", 1),
         ("system", 2),
+        ("invite", 3)
     )
     # receiver: 接收者
     # origin: 发送者
