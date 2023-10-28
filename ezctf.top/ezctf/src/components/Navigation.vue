@@ -100,7 +100,7 @@ name:'Navigation',
         name: this.$store.state.username,
         email: '114514@beast.com',
         score: '100',
-        team: 'ezctf',
+        team: this.$store.state.teamname,
         isLeader: false, //战队队长
         isMember: false, //战队成员
         isSuperuser: true //管理员
@@ -108,10 +108,10 @@ name:'Navigation',
     };
   },
   computed: {
-    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username']),
+    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username','teamname']),
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername']),
+    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername','setTeamname']),
     log() {
       this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
@@ -245,7 +245,7 @@ nav {
   top: 40px;
   right: -105px;
   width: 200px;
-  height: 420px;
+  height: 465px;
   justify-content: center;
   align-items: center;
   background-color: #1e1e1e;
@@ -282,7 +282,7 @@ nav {
   background-color: #1e1e1e;
   color: white;
   width: 80px;
-  height: 30px;
+  height: 20px;
   border-radius: 5px;
 }
 

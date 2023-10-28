@@ -82,10 +82,10 @@
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username']),
+    ...mapState(['userInfoButtonEnabled','username','teamname']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/Home');
@@ -94,6 +94,7 @@
         try {
           const response = await deleteTeam(this.team.name);
           console.log('删除队伍响应:', response);
+          setTeamname('None');
         } catch (error) {
           console.error('错误:', error);
         }

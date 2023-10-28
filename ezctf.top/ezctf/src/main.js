@@ -10,7 +10,8 @@ const store = new Vuex.Store({
   state: {
     loginButtonEnabled: true,
     userInfoButtonEnabled: true,
-    username: '',
+    username: '于渊龙',
+    teamname: 'ezctf',
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
@@ -21,6 +22,9 @@ const store = new Vuex.Store({
     },
     setUsername(state, value) {
       state.username = value;
+    },
+    setTeamname(state, value) {
+      state.teamname = value;
     }
   },
 });

@@ -33,7 +33,7 @@
       return {
         team: {
           member_name: this.$store.state.username,
-          name: 'ezctf',
+          name: this.$store.state.teamname,
           leader_id: 'jwf',
           leader_score: '100',
           membernum: '4',
@@ -49,10 +49,10 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username']),
+      ...mapState(['userInfoButtonEnabled','username','teamname']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/Home');
