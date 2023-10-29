@@ -78,6 +78,6 @@ def error_template(msg, data=None, status=500):
 
 
 def send_message(receiver_id, origin_id, msg, msg_type="chat"):
-    message = Message(receiver_id=receiver_id, origin_id=origin_id, message=msg, msg_type=msg_type)
+    message = Message(receiver_id=receiver_id, origin_id=origin_id, msg=msg, msg_type=msg_type)
     message.check = False
     message.save()
