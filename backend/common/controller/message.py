@@ -119,7 +119,7 @@ def get_applications(request):
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
 
-    messages = Message.objects.filter(receiver_id=user.id, msg_type="application")  # 1: application
+    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.APPLICATION)  # APPLICATION = 3
 
     if not messages:  # 没有查询到消息，但请求是合法的
         return success_template("信息查询成功，信息为空", status=200)
@@ -171,7 +171,7 @@ def get_invitations(request):
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
 
-    messages = Message.objects.filter(receiver_id=user.id, msg_type="invitation")  # 3: invitation
+    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.INVITATION)  # INVITATION = 4
 
     if not messages:  # 没有查询到消息，但请求是合法的
         return success_template("信息查询成功，信息为空", status=200)

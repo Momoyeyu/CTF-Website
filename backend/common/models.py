@@ -50,19 +50,19 @@ class CustomUser(models.Model):
 
 
 class Message(models.Model):
-    MESSAGE_TYPE = (
-        ("chat", 0),
-        ("application", 1),
-        ("system", 2),
-        ("invitation", 3)
-    )
+    class MessageType(models.IntegerChoices):
+        CHAT = 1
+        SYSTEM = 2
+        APPLICATION = 3
+        INVITATION = 4
+
     # receiver: 接收者
     # origin: 发送者
     receiver = models.ForeignKey(User, on_delete=models.PROTECT, related_name='receiver')
     origin = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sender')
     msg = models.TextField()
     checked = models.BooleanField(default=False)
-    msg_type = models.IntegerField(choices=MESSAGE_TYPE)
+    msg_type = models.IntegerField(choices=MessageType.choices)
     create_time = models.DateTimeField(auto_now_add=True)
 
     objects = models.Manager()

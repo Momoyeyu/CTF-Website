@@ -184,12 +184,12 @@ def join_team(request):
         msg = "战队 " + team_name + " 需要队长邀请才能加入"
         return error_template(msg, data=response_data, status=403)
 
-    # 发送加入申请
-    if Message.objects.filter(receiver=leader, origin=user, msg_type="application").exists():
+    # 发送加入申请                                                                       # APPLICATION = 3
+    if Message.objects.filter(receiver=leader, origin=user, msg_type=Message.MessageType.APPLICATION).exists():
         return error_template("请求已存在", status=409)
 
     msg = "希望加入你的队伍"
-    send_message(leader.id, user.id, msg=msg, msg_type="application")
+    send_message(leader.id, user.id, msg=msg, msg_type=Message.MessageType.APPLICATION)  # APPLICATION = 3
     return success_template("申请发送成功")
 
 
@@ -233,7 +233,7 @@ def quit_team(request):
         else:  # 有队员，队长自动分配给队员
             msg = str(user.username + "将战队转交给了" + new_leader.user.username)
             for each in teammates:
-                send_message(new_leader.user.id, user.id, msg, msg_type="chat")
+                send_message(new_leader.user.id, user.id, msg, msg_type=Message.MessageType.CHAT)  # CHAT = 1
             team.leader_id = new_leader.user.id
 
     team.member_count -= 1
@@ -412,7 +412,9 @@ def verify_apply(request):
     if applicant is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
 
-    application = Message.objects.get(receiver_id=user.id, origin_id=applicant.id, msg_type="application")
+    application = Message.objects.get(receiver_id=user.id,
+                                      origin_id=applicant.id,
+                                      msg_type=Message.MessageType.APPLICATION)
     if application is None:
         return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, data=None, status=404)
 
@@ -420,10 +422,10 @@ def verify_apply(request):
         custom_applicant = CustomUser.objects.get(user_id=applicant.id)
         custom_applicant.team = team  # 申请者入队
         team.member_count += 1  # 队伍人员数量 + 1
-        custom_applicant.save()
-        send_message(user.id, applicant.id, "欢迎加入" + str(team.team_name), msg_type="chat")
+        custom_applicant.save()                                                                        # CHAT = 1
+        send_message(user.id, applicant.id, "欢迎加入" + str(team.team_name), msg_type=Message.MessageType.CHAT)
     else:
-        send_message(user.id, applicant.id, str(team.team_name) + "拒绝了你的申请", msg_type="chat")
+        send_message(user.id, applicant.id, str(team.team_name) + "拒绝了你的申请", msg_type=Message.MessageType.CHAT)
 
     application.checked = True
 
@@ -473,7 +475,7 @@ def invite(request):
 
     if msg is None:
         msg = str("希望你能加入" + team.team_name)
-    send_message(invitee.id, user.id, msg=msg, msg_type="invitation")
+    send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION)  # INVITATION = 4
 
 
 def accept(request):
@@ -507,8 +509,8 @@ def accept(request):
     if origin is None or origin.is_active is False:
         res_data = {"username": origin, }
         return error_template(ExceptionEnum.USER_NOT_FOUND, data=res_data, status=404)
-    # check messages
-    invitation = Message.objects.get(receiver=user, origin=origin, msg_type="invitation")
+    # check messages                                                                          # INVITATION = 4
+    invitation = Message.objects.get(receiver=user, origin=origin, msg_type=Message.MessageType.INVITATION)
     if invitation is None:
         return error_template(ExceptionEnum.MESSAGE_NOT_FOUND, status=404)
 
@@ -528,9 +530,9 @@ def accept(request):
         custom_user.save()
         res_data = {"team_name": team.team_name, }
         msg = "接受邀请"
-        send_message(origin.id, user.id, msg=msg, msg_type="chat")
+        send_message(origin.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT)  # CHAT = 1
         return success_template("成功加入战队", data=res_data)
     else:
         msg = "拒绝邀请"
-        send_message(origin.id, user.id, msg=msg, msg_type="chat")
+        send_message(origin.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT)  # CHAT = 1
 
