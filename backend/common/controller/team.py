@@ -425,7 +425,7 @@ def verify_apply(request):
     else:
         send_message(user.id, applicant.id, str(team.team_name) + "拒绝了你的申请", msg_type="chat")
 
-    application.check = True
+    application.checked = True
 
     return success_template("审核已生效", data=None, status=200)
 
@@ -513,7 +513,7 @@ def accept(request):
         return error_template(ExceptionEnum.MESSAGE_NOT_FOUND, status=404)
 
     # 邀请信息已经处理，删除所有邀请
-    invitation.check = True
+    invitation.checked = True
 
     custom_user = CustomUser.objects.get(user=user)
     custom_origin = CustomUser.objects.get(user=origin)

@@ -16,6 +16,8 @@ def dispatcher(request):
         return get_messages(request)
     elif action == "get_applications":
         return get_applications(request)
+    elif action == "get_invitations":
+        return get_invitations(request)
 
     else:
         return JsonResponse({

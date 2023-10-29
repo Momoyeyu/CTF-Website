@@ -58,10 +58,10 @@ class Message(models.Model):
     )
     # receiver: 接收者
     # origin: 发送者
-    receiver = models.ForeignKey(User, on_delete=models.PROTECT, primary_key=True, related_name='receiver')
-    origin = models.ForeignKey(User, on_delete=models.PROTECT, primary_key=True, related_name='sender')
-    msg = models.CharField()
-    check = models.BooleanField(default=False)
+    receiver = models.ForeignKey(User, on_delete=models.PROTECT, related_name='receiver')
+    origin = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sender')
+    msg = models.TextField()
+    checked = models.BooleanField(default=False)
     msg_type = models.IntegerField(choices=MESSAGE_TYPE)
     create_time = models.DateTimeField(auto_now_add=True)
 

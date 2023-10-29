@@ -38,15 +38,15 @@ def is_valid_username(username):
 
 
 class ExceptionEnum(Enum):
-    INVALID_REQUEST_METHOD = "Invalid Request Method"
-    USER_NOT_LOGIN = "用户未登录"
-    USER_NOT_FOUND = "未查询到用户"
-    TEAM_NOT_FOUND = "未查询到战队"
-    MESSAGE_NOT_FOUND = "未查询到信息"
-    DATA_NOT_FOUND = "未查询到数据"
-    NOT_LEADER = "不是队长，权限不足"
-    UNAUTHORIZED = "非授权操作"
-    NAME_EXIST = "名称已被使用"
+    INVALID_REQUEST_METHOD = "Invalid Request Method"  # status = 405
+    USER_NOT_LOGIN = "用户未登录"  # status = 403
+    USER_NOT_FOUND = "未查询到用户"  # status = 404
+    TEAM_NOT_FOUND = "未查询到战队"  # status = 404
+    MESSAGE_NOT_FOUND = "未查询到信息"  # status = 404
+    DATA_NOT_FOUND = "未查询到数据"  # status = 404
+    NOT_LEADER = "不是队长，权限不足"  # status = 403
+    UNAUTHORIZED = "非授权操作"  # status = 403
+    NAME_EXIST = "名称已被使用"  # status = 409
 
 
 def success_template(msg, data=None, status=200):
