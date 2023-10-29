@@ -45,10 +45,10 @@
         const query = this.searchQuery.toLowerCase();
         return this.teams.filter((team) => team.name.toLowerCase().includes(query));
       },
-      ...mapState(['userInfoButtonEnabled','username']),
+      ...mapState(['userInfoButtonEnabled','username','teamname']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/Home');
@@ -80,13 +80,13 @@
 
 <style>
 #jointeam {
-    margin-top:10%;
-    margin-left:28%;
+    margin-top:150px;
+    margin-left:420px;
     position: fixed;
     top: auto;
     left: auto;
-    width: 40%;
-    height: 40%;
+    width: 500px;
+    height: 300px;
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;

@@ -43,10 +43,10 @@
           console.log('登录响应:', response);
           if (response.return === 'success') {
             this.$store.commit('setLoginButtonEnabled', true);
-            this.$store.commit('setUsername', response.userInfo.username);
+            this.$store.commit('setUsername', response.data.username);
             this.$router.push({
               path: '/Home',
-              query: { backInfo: response.userInfo, source: 'Login' } 
+              query: { backInfo: response.data, source: 'Login' } 
             });
           }
         } catch (error) {
@@ -63,7 +63,7 @@
   #bkg {
     height:100vh;
     width:100%;
-    background-image: url('../assets/1.png');
+    background-image: url('../assets/窗口背景.png');
     background-size: cover;
   }
   #loginUser {
@@ -74,10 +74,9 @@
     left: auto;
     width: 450px;
     height: 250px;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: #0d1117;
     justify-content: center;
     align-items: center;
-    background-color: #0d1117;
     padding: 20px;
     border-style: solid;
     border-radius: 5px;

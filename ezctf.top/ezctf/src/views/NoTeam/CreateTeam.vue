@@ -4,12 +4,11 @@
       <h1>创建战队</h1>
       <form @submit.prevent="createTeam">
         <label for="teamname">战队名称:</label>
-        <input type="text" id="teamname" v-model="team.teamname" required /><br><br>
+        <input type="text" id="teamname" v-model="team.team_name" required /><br><br>
         <label for="check">审核加入:</label>
         <input type="checkbox" id="check" v-model="team.check" /><br><br>
         <button type="submit" @click="createteam()">创建战队</button>
       </form>
-      <p>{{ team.leader_id }}</p>
     </div>
 </template>
 
@@ -19,25 +18,26 @@
     data() {
       return {
         team: {
-          teamname: '',
+          team_name: '',
           leader_name: this.$store.state.username,
           check: false
         },
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username']),
+    ...mapState(['userInfoButtonEnabled','username','teamname']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/Home');
       },
       async createTeam() {
         try {
-          const response = await createTeam(this.team.leader_name, this.team.teamname, !this.team.check);
+          const response = await createTeam(this.team.leader_name, this.team.team_name, !this.team.check);
           console.log('创建战队响应', response);
+          setTeamname(this.team.team_name);
         } catch (error) {
           console.log('错误：',error);
         }
@@ -52,13 +52,13 @@
 
 <style>
 #createTeam {
-    margin-top:150px;
-    margin-left:450px;
+    margin-top:200px;
+    margin-left:500px;
     position: fixed;
     top: auto;
     left: auto;
-    width: 30%;
-    height: 30%;
+    width: 350px;
+    height: 200px;
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;

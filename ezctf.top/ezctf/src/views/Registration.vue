@@ -68,7 +68,7 @@
           if (response.return === 'success') {
             this.$router.push({
               path: '/Home',
-              query: { backInfo: response.userInfo, source: 'Registration' } 
+              query: { backInfo: response.data, source: 'Registration' } 
             });
           }
           else{
@@ -84,14 +84,13 @@
   
   <style>
   #registerUser {
-      margin-top:100px;
+      margin-top:120px;
       margin-left:440px;
       position: fixed;
       top: auto;
       left: auto;
       width: 500px;
-      height: 400px;
-      background-color: rgba(0, 0, 0, 0.5);
+      height: 350px;
       justify-content: center;
       align-items: center;
       background-color: #0d1117;

@@ -28,13 +28,13 @@
 
 <style>
 #noTeam {
-    margin-top:200px;
-    margin-left:500px;
+    margin-top:220px;
+    margin-left:550px;
     position: fixed;
     top: auto;
     left: auto;
-    width: 20%;
-    height: 15%;
+    width: 250px;
+    height: 120px;
     background-color: black;
     justify-content: center;
     align-items: center;

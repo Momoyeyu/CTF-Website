@@ -1,0 +1,77 @@
+<template>
+    <div id="modifyUser">
+      <button @click="close()" class="close-btn">&#10006;</button>
+      <h1>修改信息</h1>
+      <input v-model="newUsername" placeholder="请输入新用户名" /><br><br>
+      <input v-model="password" placeholder="请输入密码" /><br><br>
+      <button @click="modify_User()">确认</button>
+    </div>
+</template>
+  
+<script>
+  import { mapState, mapMutations } from 'vuex';
+  import { modifyUserInfo } from '@/UserSystemApi/UserApi';
+  export default {
+    data() {
+      return {
+        user_name:this.$store.state.username,
+        newUsername: "",
+        password: "",
+      };
+    },
+    computed: {
+    ...mapState(['username','teamname','modifyUser']),
+    },
+    methods: {
+      ...mapMutations(['setUsername','setTeamname','setModifyUser']),
+      async modify_User() {
+        try {
+          const response = await modifyUserInfo(this.user_name, this.newUsername,this.password);
+          console.log('修改信息响应:', response);
+          if (response.return === 'success') {
+            this.$store.commit('modifyUser', false);
+            this.$store.commit('setUsername', response.new_username);
+          }
+        } catch (error) {
+          alert('错误!');
+          console.error('错误:', error);
+          console.log(error.response);
+        }
+      },
+      close() {
+        this.setModifyUser(false);
+      },
+    },
+  };
+</script>
+<style>
+#modifyUser {
+    margin-top:-250px;
+    margin-left:500px;
+    position: fixed;
+    top: auto;
+    left: auto;
+    width: 250px;
+    height: 200px;
+    background-color: black;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color:white;
+    border-width: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color:white;
+}
+.close-btn {
+    text-decoration: none;
+    color:white;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+</style>
+ 
