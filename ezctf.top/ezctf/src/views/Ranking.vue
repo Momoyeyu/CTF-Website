@@ -14,7 +14,7 @@
             </tr>
             <tr v-for="item in sortedUsers" :key="item.score">
                 <td>#{{ item.rank }}</td>
-                <td>{{ item.name }}</td>
+                <td>{{ item.user_name }}</td>
                 <td>{{ item.score }}</td>
                 <td>{{ item.last_commit }}</td>
             </tr>
@@ -46,37 +46,42 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
 name:'Ranking',
 data(){
     return{
-        users: [  
-        {  
-          name: "张三",  score: 85,  last_commit: 114514 , 
-        },  
-        {  
-          name: "李四",  score: 90,  last_commit: 114514 , 
-        },  
-        {  
-          name: "王五",  score: 10,  last_commit: 114514 ,
-        } 
-      ],
-      teams: [  
-        {  
-            team_id: 0, team_name: "JDG", member_count: 5, score:80,
-        },  
-        {  
-            team_id: 1, team_name: "BLG", member_count: 5, score:90, 
-        },  
-        {  
-            team_id: 2, team_name: "LNG", member_count: 5, score:85 ,
-        },
-        {  
-            team_id: 3, team_name: "WBG", member_count: 5, score:95,
-        },
-      ]  
+        users: [],
+        teams: [],  
     }
 },
+methods: {  
+    fetchUsersData() {  
+      axios.get('http://localhost:80/api/rank/user?action=getrank') 
+        .then(response => {  
+          this.users = response.data.retlist;  
+          console.log(this.users);
+        })  
+        .catch(error => {  
+          console.error(error);  
+        });  
+    },
+    fetchTeamsData() {  
+      axios.get('http://localhost:80/api/rank/team?action=getrank') 
+        .then(response => {  
+          this.teams = response.data.retlist;  
+          console.log(this.teams);
+        })  
+        .catch(error => {  
+          console.error(error);  
+        });  
+    }  
+  }, 
+  mounted() {  
+    // 在组件挂载完成后发送请求获取数据  
+    this.fetchUsersData();  
+    this.fetchTeamsData();  
+  }, 
 computed: {  //页面加载完成后自动对数据进行排序并生成排名
     sortedUsers() { 
       return this.users.sort((a, b) => b.score - a.score).map((item, index) => ({  

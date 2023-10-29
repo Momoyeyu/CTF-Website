@@ -54,7 +54,7 @@ props: {
     downloadUrl() {  
       return axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id=1')
       .then(response =>{
-        console.log(response);
+        console.log(response.data);
       })
       .catch(error => {  
           console.error(error);  
