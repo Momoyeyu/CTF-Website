@@ -26,6 +26,7 @@
   </template>
   
   <script>
+  import { joinTeam } from '/src/UserSystemApi/TeamApi.js';
   import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
@@ -57,20 +58,24 @@
         try {
           const response = await joinTeam( this.name, teamname);
           if (response.ret === 'success') {
+            alert(response.data.msg);
             console.log('成功加入团队:', response.msg);
           } else {
+            alert(response.data.msg);
             console.error('加入团队失败:', response.msg);
           }
         } catch (error) {
-
+          alert(error.response.data.msg);
           console.error('网络请求失败:', error);
         }
       },
       async searchTeams() {
         try {
           const response = await searchTeam(this.searchQuery);
+          alert(response.data.msg);
           console.log('搜索战队响应', response);
         } catch (error) {
+          alert(error.response.data.msg);
           console.error('错误:', error);
         }
       },

@@ -10,17 +10,14 @@
         <label for="password">确认密码:</label>
         <input type="password" id="confirmPassword" v-model="user.confirmPassword" required /><br><br>
         <label for="email">邮箱:</label>
-        <input type="email" id="email" v-model="user.email" required />
-        <button type="submit" @click="getEmail()">发送验证码</button><br><br>
-        <label for="Vcode">验证码:</label>
-        <input type="text" id="Vcode" v-model="code" required /><br><br>
-        <button type="submit" @click="userRegister()">注册</button>
+        <input type="email" id="email" v-model="user.email" required /><br><br>
+        <button type="submit" @click="userRegister()">注册</button><br><br>
       </form>
     </div>
   </template>
     
   <script>
-  import { register,validateCode } from '../UserSystemApi/UserApi.js';
+  import { register } from '../UserSystemApi/UserApi.js';
   import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
@@ -43,17 +40,22 @@
         this.setLoginButtonEnabled(true);
         this.$router.push('/Home');
       },
-      async getCode() {
+      async Register() {
         try {
           const response = await register( this.user.username, this.user.password, this.user.email);
+          alert(response.data.msg);
           console.log('注册响应:', response);
+          if (response.return === 'success') {
+            this.$router.push("/Log");
+          }
         } catch (error) {
+          alert(error.response.data.msg);
           console.error('注册错误:', error);
         }
       },
-      getEmail() {
+      userRegister() {
         if(this.user.password==this.user.confirmPassword&&this.user.password!=''){
-          this.getCode();
+          this.Register();
         }
         else{
           this.user.password='';
@@ -61,36 +63,19 @@
           alert("密码设置失败，请重新设置密码！");
         }
       },
-      async validateCode() {
-        try {
-          const response = await validateCode(this.code);
-          console.log('验证码响应', response);
-          if (response.return === 'success') {
-            this.$router.push({
-              path: '/Home',
-              query: { backInfo: response.data, source: 'Registration' } 
-            });
-          }
-          else{
-            alert("注册失败");
-          }
-        } catch (error) {
-          console.error('验证码错误:', error);
-        }
-      }
     },
   };
   </script>
   
   <style>
   #registerUser {
-      margin-top:120px;
+      margin-top:150px;
       margin-left:440px;
       position: fixed;
       top: auto;
       left: auto;
       width: 500px;
-      height: 350px;
+      height: 300px;
       justify-content: center;
       align-items: center;
       background-color: #0d1117;

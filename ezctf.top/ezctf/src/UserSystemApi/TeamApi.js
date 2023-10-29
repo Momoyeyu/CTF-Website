@@ -1,24 +1,25 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://your-api-base-url.com'; // 替换为实际的API基础URL
+const BASE_URL = 'http://localhost:80'; 
 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Type': 'application/json',
   },
 });
 
 export const createTeam = async (leaderId, teamName, allowJoin) => {
     try {
-      const response = await api.post('/api/common/team?action=create_team', {
+      const requestData = {
         action: 'create_team',
         data: {
           leader_id: leaderId,
           team_name: teamName,
           allow_join: allowJoin,
         },
-      });
+      };
+      const response = await api.post('/api/common/team?action=create_team',requestData); 
       return response.data;
     } catch (error) {
       throw error;

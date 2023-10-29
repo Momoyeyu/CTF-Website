@@ -88,13 +88,11 @@ name:'Navigation',
           this.userInfo.isLeader=false;
           this.userInfo.isMember=true;
         }
-        this.isLogin = true;
       }
     }
   },
   data() {
     return {
-      isLogin: true, //登录状态
       isHovered: false,
       setInfo: true,
       userInfo: {
@@ -104,15 +102,14 @@ name:'Navigation',
         team: this.$store.state.teamname,
         isLeader: false, //战队队长
         isMember: false, //战队成员
-        isSuperuser: true //管理员
       }
     };
   },
   computed: {
-    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username','teamname','modifyUser','deleteUser','infoboard']),
+    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username','teamname','modifyUser','deleteUser','infoboard','isLogin']),
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername','setTeamname','setModifyUser','setDeleteUser','setInfoBoard']),
+    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername','setTeamname','setModifyUser','setDeleteUser','setInfoBoard','setIsLogin']),
     log() {
       this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
@@ -152,6 +149,7 @@ name:'Navigation',
     quit() {
       logoutUser()
       .then((response) => {
+        alert(response.data.msg);
         console.log('用户退出登录成功', response.data);
         this.setUsername('');
         this.userInfo.email='',
@@ -159,10 +157,11 @@ name:'Navigation',
         this.userInfo.isLeader=false,
         this.userInfo.isMember=false,
         this.userInfo.isSuperuser=false,
-        this.isLogin=false,
+        this.setIsLogin(false);
         this.isHovered=false
       })
       .catch((error) => {
+        alert(error.response.data.msg);
         console.error('用户退出登录失败', error);
       });
     }

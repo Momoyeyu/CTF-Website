@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { createTeam } from '/src/UserSystemApi/TeamApi.js';
  import { mapState, mapMutations } from 'vuex';
  export default {
     data() {
@@ -36,14 +37,17 @@
       async createTeam() {
         try {
           const response = await createTeam(this.team.leader_name, this.team.team_name, !this.team.check);
+          alert(response.data.msg);
           console.log('创建战队响应', response);
           setTeamname(this.team.team_name);
         } catch (error) {
+          alert(error.response.data.msg);
           console.log('错误：',error);
         }
       }, 
       createteam() {
         this.createTeam();
+        this.setUserInfoButtonEnabled(true);
         this.$router.push("/Home");
       }
     },

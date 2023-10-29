@@ -13,8 +13,9 @@ const store = new Vuex.Store({
     modifyUser: false,
     deleteUser: false,
     infoBoard: false,
-    username: '于渊龙',
-    teamname: 'ezctf',
+    isLogin: false,
+    username: '',
+    teamname: '',
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
@@ -37,6 +38,9 @@ const store = new Vuex.Store({
     },
     setInfoBoard(state, value) {
       state.infoBoard = value;
+    },
+    setIsLogin(state, value){
+      state.isLogin = value;
     }
   },
 });
