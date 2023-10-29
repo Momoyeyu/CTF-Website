@@ -29,10 +29,9 @@ def dispatcher(request):
 def get_messages(request):
     """
     GET
-    @payload:
+    @params:
     {
         "action": "get_message",
-        "username": "momoyeyu",
     }
     @return:
     {
@@ -59,15 +58,12 @@ def get_messages(request):
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
-    username = request.GET.get("username")
-
-    user = User.objects.get_by_natural_key(username)
-
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     messages = Message.objects.filter(receiver=user) | Message.objects.filter(origin=user)
-
     if not messages:  # 没有查询到消息，但请求是合法的
         return success_template("信息查询成功，信息为空", status=200)
 
@@ -80,17 +76,15 @@ def get_messages(request):
             "create_time": message.create_time.isoformat()
         }
         messages_list.append(info)
-
     return success_template("信息查询成功", data=messages_list)
 
 
 def get_applications(request):
     """
     GET
-    @payload:
+    @params:
     {
         "action": "get_applications",
-        "username": "momoyeyu",
     }
     @return:
     {
@@ -111,16 +105,12 @@ def get_applications(request):
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
-    username = request.GET.get("username")
-
-    # 接收者
-    user = User.objects.get_by_natural_key(username)
-
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
-
-    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.APPLICATION)  # APPLICATION = 3
-
+    #                                                                                 # APPLICATION.value = 3
+    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.APPLICATION.value)
     if not messages:  # 没有查询到消息，但请求是合法的
         return success_template("信息查询成功，信息为空", status=200)
 
@@ -170,8 +160,8 @@ def get_invitations(request):
 
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
-
-    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.INVITATION)  # INVITATION = 4
+    #                                                                                 # INVITATION.value = 4
+    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.INVITATION.value)
 
     if not messages:  # 没有查询到消息，但请求是合法的
         return success_template("信息查询成功，信息为空", status=200)
@@ -193,3 +183,21 @@ def get_invitations(request):
         invitation_list.append(info)
 
     return success_template("信息查询成功", data=invitation_list, status=200)
+
+
+def check_messages(request):
+    """
+    PUT
+    @param:
+    {
+        "action": "check_messages",
+    }
+    """
+    if request.method != "PUT":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+    if not request.user.is_authenticated:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)

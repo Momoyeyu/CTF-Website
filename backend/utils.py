@@ -25,7 +25,7 @@ def get_request_params(request):
 
 
 def log_test(api_name):
-    print("[INFO] Testing " + api_name)
+    print("[INFO]: Testing " + api_name)
 
 
 def is_valid_username(username):
@@ -35,6 +35,14 @@ def is_valid_username(username):
         return True
     else:
         return False
+
+
+class SuccessEnum(Enum):
+    QUERY_SUCCESS = "查询成功"  # status = 200
+    MODIFICATION_SUCCESS = "修改成功"  # status = 200
+    DELETE_SUCCESS = "删除成功"  # status = 204
+    UPLOAD_SUCCESS = "上传成功"  # status = 200
+    POST_SUCCESS = "发送成功"  # status = 200
 
 
 class ExceptionEnum(Enum):
