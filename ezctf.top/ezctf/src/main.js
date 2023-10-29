@@ -10,6 +10,9 @@ const store = new Vuex.Store({
   state: {
     loginButtonEnabled: true,
     userInfoButtonEnabled: true,
+    modifyUser: false,
+    deleteUser: false,
+    infoBoard: true,
     username: '于渊龙',
     teamname: 'ezctf',
   },
@@ -25,6 +28,15 @@ const store = new Vuex.Store({
     },
     setTeamname(state, value) {
       state.teamname = value;
+    },
+    setModifyUser(state, value) {
+      state.modifyUser = value;
+    },
+    setDeleteUser(state, value) {
+      state.deleteUser = value;
+    },
+    setInfoBoard(state, value) {
+      state.infoBoard = value;
     }
   },
 });

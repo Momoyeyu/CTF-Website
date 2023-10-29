@@ -27,13 +27,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(['userInfoButtonEnabled']),
+    ...mapState(['userInfoButtonEnabled','infoBoard']),
   },
   methods: {
-    ...mapMutations(['setUserInfoButtonEnabled']),
+    ...mapMutations(['setUserInfoButtonEnabled','setInfoBoard']),
     close() {
       this.setUserInfoButtonEnabled(true);
-      this.$router.push('/Home');
+      this.setInfoBoard(false);
     },
   },
 };
@@ -41,13 +41,13 @@ export default {
 
 <style scoped>
 .message-list {
-  margin-top:100px;
-  margin-left:450px;
+  margin-top:-300px;
+  margin-left:400px;
   position: fixed;
   top: auto;
   left: auto;
-  width: 30%;
-  height: 45%;
+  width: 500px;
+  height: 350px;
   background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;

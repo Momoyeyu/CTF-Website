@@ -11,7 +11,6 @@ import CreateTeam from '../views/NoTeam/CreateTeam.vue'
 import JoinTeam from '../views/NoTeam/JoinTeam.vue'
 import TeamInfo from '../views/TeamInfo.vue'
 import ManageTeam from '../views/ManageTeam.vue'
-import InfoBoard from '../views/InfoBoard.vue'
 
 Vue.use(VueRouter)
 
@@ -76,11 +75,6 @@ const routes = [
     path: '/ManageTeam',
     name: 'ManageTeam',
     component: ManageTeam,
-  },
-  {
-    path: '/InfoBoard',
-    name: 'InfoBoard',
-    component: InfoBoard,
   },
 ]
 

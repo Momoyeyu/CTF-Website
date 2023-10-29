@@ -9,7 +9,7 @@
             <li><button @click="log()" v-if="!isLogin" id="loginBtn" :disabled="!loginButtonEnabled" :class="{ 'disabled-button': !loginButtonEnabled }">登录</button></li>
         </ul>
         </div>
-              <div id="hiddenInfo" v-if="isLogin">
+      <div id="hiddenInfo" v-if="isLogin">
         <div id="ava">
           <button  @click="showUserInfo()" :disabled="!userInfoButtonEnabled" id="avab"><CreateAvatar :username="userInfo.name" id="avac"/></button>
         </div>
@@ -31,12 +31,13 @@
           </button><br><br>
           <button @click="setinfo()" class="board" v-if="setInfo">用户设置</button>
           <button @click="modify()" class="infoBtn" v-if="!setInfo">修改信息</button>
-          <button class="infoBtn" v-if="!setInfo">注销账号</button>
+          <button @click="Delete()" class="infoBtn" v-if="!setInfo">注销账号</button>
           <button class="infoBtn" @click="setinfo()" v-if="!setInfo">返回</button>
           <br><br>
           <button @click="quit()" class="board">退出登录</button>
         </div>
       </div>
+      
     </div>
 
 </template>
@@ -58,7 +59,7 @@ name:'Navigation',
       if (source === 'Login') {
         this.userInfo.score = backInfo.score;
         this.userInfo.team = backInfo.team_name;
-        if(backInfo.team_name =='none') {
+        if(backInfo.team_name =='None') {
           this.userInfo.isLeader=false;
           this.userInfo.isMember=false;
         }
@@ -75,7 +76,7 @@ name:'Navigation',
       else if (source === 'Registration') {
         this.userInfo.score = backInfo.score;
         this.userInfo.team = backInfo.team_name;
-        if(backInfo.team_name =='none') {
+        if(backInfo.team_name =='None') {
           this.userInfo.isLeader=false;
           this.userInfo.isMember=false;
         }
@@ -108,10 +109,10 @@ name:'Navigation',
     };
   },
   computed: {
-    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username','teamname']),
+    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username','teamname','modifyUser','deleteUser','infoboard']),
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername','setTeamname']),
+    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername','setTeamname','setModifyUser','setDeleteUser','setInfoBoard']),
     log() {
       this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
@@ -140,10 +141,13 @@ name:'Navigation',
     message() {
       this.isHovered = !this.isHovered;
       this.setUserInfoButtonEnabled(false);
-      this.$router.push("/InfoBoard");
+      this.setInfoBoard(true);
     },
     modify() {
-
+      this.setModifyUser(true);
+    },
+    Delete() {
+      this.setDeleteUser(true);
     },
     quit() {
       logoutUser()
@@ -216,7 +220,8 @@ name:'Navigation',
     outline: none;
     box-shadow: none;
     position: relative;
-    top: -10px;
+    top: -11px;
+    left: -80px;
     height: 50px;
     width: 50px;
     border-radius: 50%;
