@@ -18,6 +18,8 @@ def dispatcher(request):
         return get_applications(request)
     elif action == "get_invitations":
         return get_invitations(request)
+    elif action == "check_messages":
+        return check_messages(request)
 
     else:
         return JsonResponse({
@@ -130,7 +132,6 @@ def get_invitations(request):
     @payload:
     {
         "action": "get_invitations",
-        "username": "momoyeyu",
     }
     @return:
     {
@@ -153,11 +154,8 @@ def get_invitations(request):
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
-    username = request.GET.get("username")
-
-    # 接收者
-    user = User.objects.get_by_natural_key(username)
-
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     #                                                                                 # INVITATION.value = 4

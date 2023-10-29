@@ -97,8 +97,8 @@ def create_team(request):
 
 def del_team(request):
     """
-    队长删除战队
-    DELETE 获取数据样例：
+    DELETE
+    @payload
     {
         "action": "del_team",
         "data": {
@@ -164,7 +164,7 @@ def join_team(request):
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
-    if custom_user.team.id is not None:
+    if custom_user.team is not None:
         return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
 
     leader = User.objects.get(pk=team.leader_id)
@@ -201,7 +201,9 @@ def quit_team(request):
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     custom_user = CustomUser.objects.get(user=user)
 
-    team = Team.objects.get(pk=custom_user.team_id)
+    if custom_user.team is None:
+        return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
+    team = Team.objects.get(pk=custom_user.team.id)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
@@ -386,6 +388,8 @@ def verify_apply(request):
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
 
     custom_user = CustomUser.objects.get(user=user)
+    if custom_user.team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
     team = Team.objects.get(pk=custom_user.team.id)
 
     if team is None:
@@ -424,7 +428,6 @@ def invite(request):
     {
         "action": "invite",
         "data": {
-            "username": "momoyeyu",
             "invitee": "juanboy",  # 受邀用户的用户名
             "invite_msg": "加入我们吧",
         }
@@ -439,7 +442,7 @@ def invite(request):
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
     invitee_name = data["invitee"]
-    msg = data["msg"]
+    msg = data["invite_msg"]
 
     user = User.objects.get(pk=uid)
     invitee = User.objects.get_by_natural_key(invitee_name)
@@ -460,6 +463,7 @@ def invite(request):
     if msg is None:
         msg = str("希望你能加入" + team.team_name)
     send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION.value)  # INVITATION.value = 4
+    return success_template(SuccessEnum.POST_SUCCESS.value)
 
 
 def accept(request):
@@ -481,7 +485,7 @@ def accept(request):
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
-    inviter_name = data["origin"]
+    inviter_name = data["inviter"]
     accept_or_not = data["accept"]
     # check users
     user = User.objects.get(pk=uid)

@@ -104,7 +104,7 @@ def user_login(request):
                         "username": user.username,
                         "score": custom_user.score,
                         "team_name": None,
-                        "is_leader": None
+                        "is_leader": False,
                     }
                 }
 
