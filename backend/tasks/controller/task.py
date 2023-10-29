@@ -1,83 +1,156 @@
 from django.http import HttpResponse
 from django.http import JsonResponse
-from utils import get_request_params
+from utils import get_request_params, ExceptionEnum, error_template, success_template
 from tasks.models import Task, AnswerRecord
 from django.contrib.auth.models import User
 import traceback
 
 
 def dispatcher(request):
-    action = request.GET.get('action')
-    if action == 'list_all':
-        return list_task(request)
-    elif action == 'query_one':
-        return query(request)
+    action = request.GET.get("action")
+    if action == "list_type":
+        return list_type(request)
+    elif action == "list_all":
+        return list_all(request)
+    elif action == "query_one":
+        return query_one(request)
     else:
-        return JsonResponse({'ret': 1, 'msg': 'Unsupported request!'})
+        return JsonResponse({"ret": "error", "msg": "Unsupported request!"})
 
 
-def list_task(request):
-    if request.method != 'GET':
-        return JsonResponse({
-            'ret': 1,
-            'msg': 'Unsupported request method.',
+def list_all(request):
+    """
+    GET
+    @param:
+    {
+        "action": "list_all",
+    }
+    @return:
+    {
+        "ret": "success" / "error",
+        "msg": "查询成功",
+        "data": [
+            {
+                "task_id": 1,
+                "task_name": "ez misc",
+                "src": "ezctf",
+                "difficulty": 0,
+                "points": 10,
+                "solve_count": 12,
+                "task_type": 0,
+            },
+            {
+                "task_id": 2,
+                "task_name": "ez web",
+                "src": "ezctf",
+                "difficulty": 0,
+                "points": 10,
+                "solve_count": 12,
+                "task_type": 2,
+            },
+        ]
+    }
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
+    qs = Task.objects.all()
+    if not qs:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+
+    task_list = []
+    for task in qs:
+        task_list.append({
+            "task_id": task.id,
+            "task_name": task.task_name,
+            "src": task.src,
+            "difficulty": task.difficulty,
+            "points": task.points,
+            "solve_count": task.solve_count,
+            "task_type": task.task_type,
         })
 
-    task_type = request.GET.get('type')
-    is_login = True
-    try:
-        user_id = request.session.get('_auth_user_id')
-    except User.DoesNotExist:
-        is_login = False
-    try:
-        qs = Task.objects.all()
-        if task_type:
-            qs = qs.filter(type=int(task_type))
-
-        # user = User.objects.get(id=int(user_id))
-
-        task_data = []
-        for task in qs:
-            is_solved = False
-            if is_login == True:
-                is_solved = AnswerRecord.objects.filter(user_id=user_id, task=task).exists()
-
-            task_data.append({
-                'task_id': task.id,
-                'task_name': task.task_name,
-                'src': task.src,
-                'difficulty': task.difficulty,
-                'points': task.points,
-                'solve_count': task.solve_count,
-                'is_solved': is_solved,
-            })
-
-        return JsonResponse({'ret': 'success', 'retlist': task_data, 'total': len(task_data)})
-    except Task.DoesNotExist:
-        return JsonResponse({'ret': 'error', 'msg': 'Unsupported request method.'})
-    except:
-        return JsonResponse({'ret': 'error', 'msg': f'未知错误\n{traceback.format_exc()}'})
+    return success_template("查询成功", data=task_list, status=200)
 
 
-def query(request):
-    if request.method != 'GET':
-        return JsonResponse({
-            'ret': 'error',
-            'msg': 'Unsupported request method.',
+def list_type(request):
+    """
+    GET
+    @param:
+    {
+        "action": "list_task",
+        "type": 0,
+    }
+    @return:
+    {
+        "ret": "success" / "error",
+        "msg": "查询成功",
+        "data": [
+            {
+                "task_id": 1,
+                "task_name": "ez web",
+                "src": "ezctf",
+                "difficulty": 0,
+                "points": 10,
+                "solve_count": 12,
+            },
+            {
+                "task_id": 2,
+                "task_name": "ez web",
+                "src": "ezctf",
+                "difficulty": 0,
+                "points": 10,
+                "solve_count": 12,
+            },
+        ]
+    }
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
+    task_type = request.GET.get("type")
+    qs = Task.objects.all()
+    if not qs:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+
+    if task_type:
+        qs = qs.filter(task_type=int(task_type))  # MISC = 0
+
+    task_list = []
+    for task in qs:
+        task_list.append({
+            "task_id": task.id,
+            "task_name": task.task_name,
+            "src": task.src,
+            "difficulty": task.difficulty,
+            "points": task.points,
+            "solve_count": task.solve_count,
         })
 
-    try:
-        task_id = request.GET.get('task_id')
-        task = Task.objects.get(id=task_id)
+    return success_template("查询成功", data=task_list, status=200)
 
-        # 构建返回的数据
-        task_data = {
-            'task_id': task.id,
-            'task_name': task.task_name,
-            'content': task.content,
-        }
-        return JsonResponse({'ret': 0, 'data': task_data})
-    except Task.DoesNotExist:
-        return JsonResponse({'ret': 1, 'msg': 'Unsupported request method.'})
-    except:
-        return JsonResponse({'ret': 1, 'msg': f'未知错误\n{traceback.format_exc()}'})
+
+def query_one(request):
+    """
+    GET
+    @param:
+    {
+        "action": "query_one",
+        "task_id": 1,
+    }
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
+    task_id = request.GET.get("task_id")
+    task = Task.objects.get(pk=task_id)
+    if task is None:
+        return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
+
+    # 构建返回的数据
+    task_data = {
+        "task_id": task.id,
+        "task_name": task.task_name,
+        "content": task.content,
+    }
+    return success_template("查询成功", data=task_data)

@@ -42,15 +42,15 @@ class SessionTest(TestCase):
         self.obj = CustomUser.objects.create(user_id=2, team_id=1, score=0)
 
         self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10,
-                                       solve_count=0, type=2, annex='aa.txt')
+                                       solve_count=0, task_type=1, annex='aa.txt')
         self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10,
-                                       solve_count=0, type=2)
+                                       solve_count=0, task_type=2)
 
     def test_main(self):
-        self.user_register()
+        # self.user_register()
         # send_email()
         self.login()
-
+        self.quit_team()
         self.create_team()
         self.search_team()
         # self.del_team()
@@ -61,7 +61,7 @@ class SessionTest(TestCase):
         self.search_team()
 
     def login(self):
-        print("test login: ")
+        print("[INFO]: test login: ")
         payload = {
             "action": "login",
             "data": {
@@ -75,58 +75,13 @@ class SessionTest(TestCase):
         self.client.login(username='aaa', password='123456')
         pprint.pprint(response.json())
 
-    def list_task(self):
-        print("test list task: ")
-        # 创建一个测试客户端
-        client = self.client
-
-        # 发起请求，检查 session 中的值
-        response = client.get('http://localhost/api/task/list?action=list_all&type=2')  # 替换为实际的 URL
+    def quit_team(self):
+        print("[INFO]: test quit team")
+        response = self.client.get('http://localhost/api/common/team?action=quit_team')
         pprint.pprint(response.json())
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.client.session.get('user_id'), None)  # 检查 session 中的值
-
-    def commit_flag(self):
-        print("test commit flag: ")
-
-        # users = User.objects.all()
-        # for user in users:
-        #     print("--user_id: "+str(user.id))
-
-        payload = {
-            "action": "commit_flag",
-            "data": {
-                "task_id": 1,
-                "user_id": 1,
-                "flag": "aaaa"
-            }
-        }
-
-        response = self.client.post('http://localhost/api/task/answer', data=payload, content_type='application/json')
-        pprint.pprint(response.json())
-
-    def rank_user(self):
-        print("test rank user: ")
-        response = self.client.get('http://localhost/api/rank/user?action=getrank')
-        pprint.pprint(response.json())
-
-    def rank_team(self):
-        print("test rank team: ")
-        response = self.client.get('http://localhost/api/rank/team?action=getrank')
-        pprint.pprint(response.json())
-
-    def query_one(self):
-        print("test query one task: ")
-        response = self.client.get('http://localhost/api/task/list?action=query_one&task_id=1')
-        pprint.pprint(response.json())
-
-    def download_attachment(self):
-        print("test download attachment: ")
-        response = self.client.get('http://localhost/api/task/answer?action=download_attachment&task_id=1')
-        pprint.pprint(response.headers)
-        # pprint.pprint(response)
 
     def del_team(self):
+        print("[INFO]: test del team")
         payload = {
             "action": "del_team",
             "data": {
@@ -139,12 +94,13 @@ class SessionTest(TestCase):
         pprint.pprint(response.json())
 
     def create_team(self):
+        print("[INFO]: test create team")
         payload = {
             "action": "create_team",
             "data": {
                 "leader_name": "aaa",
                 "team_name": "ezctf",
-                "allow_join": "true"
+                "allow_join": True,
             }
         }
         response = self.client.post('http://localhost/api/common/team', data=json.dumps(payload),
@@ -152,6 +108,7 @@ class SessionTest(TestCase):
         pprint.pprint(response.json())
 
     def user_register(self):
+        print("[INFO]: test user register")
         payload = {
             "action": "register",
             "data": {
@@ -165,10 +122,12 @@ class SessionTest(TestCase):
         pprint.pprint(response.json())
 
     def search_team(self):
+        print("[INFO]: test serach team")
         response = self.client.get('http://localhost/api/common/team?action=search_team&keyword=ez')
         pprint.pprint(response.json())
 
     def logout(self):
+        print("[INFO]: test logout")
         logout_response = self.client.get('http://localhost/api/common/user?action=logout')
 
         pprint.pprint(logout_response.json())
@@ -177,16 +136,3 @@ class SessionTest(TestCase):
 # if __name__ == "__main__":
 #     # log_test("user_login()")
 #     # test_login()
-#
-#     # 没有用户信息可以跑一下这个来写入信息
-#     log_test("user_register()")
-#     test_user_register()
-#
-#     log_test("logout")
-#     test_logout()
-#
-#     # log_test("create_team()")
-#     # test_create_team()
-#
-#     # log_test("del_team()")
-#     # test_del_team()

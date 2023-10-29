@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from utils import get_request_params
 from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
-from utils import ExceptionEnum, error_template, success_template, send_message
+from utils import ExceptionEnum, error_template, success_template, send_message, SuccessEnum
 
 
 def dispatcher(request):
@@ -52,38 +52,37 @@ def create_team(request):
     {
         "action": "create_team",
         "data":{
-            "username": "momoyeyu",
             "team_name": "ezctf",
             "allow_join": "true"
         }
     }
     """
     if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
     data = request.params["data"]
-    username = data["username"]
+    uid = request.session.get('_auth_user_id')
     team_name = data["team_name"]
     allow_join = data["allow_join"]
 
     # 检查用户是否在战队里
-    user = User.objects.get_by_natural_key(username)
+    user = User.objects.get(pk=uid)
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     custom_user = CustomUser.objects.get(user=user)
-    if custom_user.team.id is not None:
+    if custom_user.team is not None:
         team = Team.objects.get(pk=custom_user.team.id)
         response_data = {"team_name": team.team_name, }
         return error_template("用户已有战队", data=response_data, status=403)
 
     if Team.objects.filter(team_name=team_name).exists():
-        return error_template(ExceptionEnum.NAME_EXIST, status=409)
+        return error_template(ExceptionEnum.NAME_EXIST.value, status=409)
 
     new_team = Team(
         team_name=team_name,
-        leader_name=username,
+        leader=user,
         allow_join=allow_join,
         member_count=1
     )
@@ -103,7 +102,6 @@ def del_team(request):
     {
         "action": "del_team",
         "data": {
-            "username": "momoyeyu",
             "password": "123",
         }
     }
@@ -112,71 +110,62 @@ def del_team(request):
     还需要把所有 team_id = team 的 CustomUser 的 team_id 改为 None
     """
     if request.method != "DELETE":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
-    username = data["username"]
+    uid = request.session.get('_auth_user_id')
     password = data["password"]
-
-    user = authenticate(request, username=username, password=password)
+    user = User.objects.get(pk=uid)
+    user = authenticate(request, username=user.username, password=password)
     if user is None:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "密码错误",
-        }, status=403)
+        return error_template("密码错误", status=403)
 
     team = Team.objects.get(pk=user.custom_user.team.id)
     if team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     if team.leader_id != user.id:
-        return error_template(ExceptionEnum.NOT_LEADER, status=403)
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     CustomUser.objects.filter(team=team).update(team=None)
-    try:
-        team.delete()
-        return success_template("成功删除团队", status=204)
-    except:
-        return error_template("删除团队失败")
+    team.delete()
+    return success_template("成功删除团队", status=204)
 
 
 def join_team(request):
     """
     用户加入队伍
-    PUT 数据样例：
+    POST 数据样例：
     {
         "action": "join_team",
         "data": {
-            "username": "momoyeyu",
             "team_name": "ezctf"
         }
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+    if request.method != "POST":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
-    username = data["username"]
     team_name = data["team_name"]
-
-    user = User.objects.get_by_natural_key(username)
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
-
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     custom_user = CustomUser.objects.get(user=user)
 
     team = Team.objects.get(team_name=team_name)
     if team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     if custom_user.team.id is not None:
-        return error_template(ExceptionEnum.UNAUTHORIZED, status=403)
+        return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
 
     leader = User.objects.get(pk=team.leader_id)
     if not team.allow_join:
@@ -185,44 +174,36 @@ def join_team(request):
         return error_template(msg, data=response_data, status=403)
 
     # 发送加入申请                                                                       # APPLICATION = 3
-    if Message.objects.filter(receiver=leader, origin=user, msg_type=Message.MessageType.APPLICATION).exists():
+    if Message.objects.filter(receiver=leader, origin=user, msg_type=Message.MessageType.APPLICATION.value).exists():
         return error_template("请求已存在", status=409)
 
     msg = "希望加入你的队伍"
-    send_message(leader.id, user.id, msg=msg, msg_type=Message.MessageType.APPLICATION)  # APPLICATION = 3
+    send_message(leader.id, user.id, msg=msg, msg_type=Message.MessageType.APPLICATION.value)  # APPLICATION = 3
     return success_template("申请发送成功")
 
 
 def quit_team(request):
     """
     用户退出队伍
-    PUT 数据样例：
+    GET 数据样例：
     {
         "action": "quit_team",
-        "data": {
-            "username": "momoyeyu",
-            "team_name": "ezctf"
-        }
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
-
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
-    data = request.params["data"]
-    username = data["username"]
-    team_name = data["team_name"]
-
-    user = User.objects.get_by_natural_key(username)
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
-
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     custom_user = CustomUser.objects.get(user=user)
-    team = Team.objects.get(team_name=team_name)
+
+    team = Team.objects.get(pk=custom_user.team_id)
     if team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     if team.leader_id == user.id:  # 如果用户是队长
         teammates = CustomUser.objects.filter(team=team)
@@ -233,12 +214,14 @@ def quit_team(request):
         else:  # 有队员，队长自动分配给队员
             msg = str(user.username + "将战队转交给了" + new_leader.user.username)
             for each in teammates:
-                send_message(new_leader.user.id, user.id, msg, msg_type=Message.MessageType.CHAT)  # CHAT = 1
+                send_message(new_leader.user.id, each.user.id, msg, msg_type=Message.MessageType.CHAT.value)  # CHAT = 1
             team.leader_id = new_leader.user.id
+    else:
+        msg = user.username + "退出了战队"
+        send_message(receiver_id=team.leader_id, origin_id=user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)
 
     team.member_count -= 1
     custom_user.team = None
-
     team.save()
     custom_user.save()
 
@@ -255,7 +238,7 @@ def search_team(request):
     }
     """
     if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     keyword = request.params["keyword"]
 
@@ -265,7 +248,7 @@ def search_team(request):
         teams = Team.objects.values()
 
     if not teams:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     team_list = []
     for team in teams:
@@ -279,7 +262,7 @@ def search_team(request):
         }
         team_list.append(team_info)
 
-    return success_template("匹配的队伍信息", data=team_list)
+    return success_template("查询成功", data=team_list)
 
 
 def change_team_name(request):
@@ -289,36 +272,39 @@ def change_team_name(request):
     {
         "action": "change_team_name",
         "data": {
-            "username": "momoyeyu",
             "old_team_name": "ezctf",
             "new_team_name": "Ezctf",
         }
     }
     """
     if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
-    username = data["username"]
+    uid = request.session.get('_auth_user_id')
     old_team_name = data["old_team_name"]
     new_team_name = data["new_team_name"]
+    user = User.objects.get(pk=uid)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+
     team = Team.objects.get(team_name=old_team_name)
     if team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
-    if team.leader.username != username:
-        return error_template(ExceptionEnum.NOT_LEADER, status=403)
+    if team.leader != user:
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     if Team.objects.filter(team_name=new_team_name).exists():
-        return error_template(ExceptionEnum.NAME_EXIST, status=409)
+        return error_template(ExceptionEnum.NAME_EXIST.value, status=409)
 
     team.team_name = new_team_name
     team.save()
     response_data = {"team_name": new_team_name, }
-    return success_template("成功修改队伍名称", data=response_data)
+    return success_template("修改成功", data=response_data)
 
 
 def change_team_leader(request):
@@ -328,40 +314,42 @@ def change_team_leader(request):
     {
         "action": "change_team_leader",
         "data": {
-            "username": "momoyeyu",
             "new_leader_name": "juanboy",
         }
     }
     """
     if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
-    username = data["username"]
+    # 用户校验
     new_leader_name = data["new_leader_name"]
-    user = User.objects.get_by_natural_key(username)
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
     new_leader = User.objects.get_by_natural_key(new_leader_name)
-
     if user is None or new_leader is None:  # 检测新旧队长用户是否正确读取
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
-    custom_user = CustomUser.objects.get(user_id=user.id)
-    custom_leader = CustomUser.objects.get(user_id=new_leader.id)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    custom_user = CustomUser.objects.get(user=user)
+    custom_leader = CustomUser.objects.get(user=new_leader)
 
     if custom_user.team is None:  # 检测用户是否在战队内
-        return error_template(ExceptionEnum.NOT_LEADER, status=403)
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
     team = Team.objects.get(pk=custom_user.team.id)
     if team.leader_id != user.id:  # 检测队长权限
-        return error_template(ExceptionEnum.NOT_LEADER, status=403)
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     if custom_leader.team != team:  # 检测新队长战队归属
-        return error_template(ExceptionEnum.UNAUTHORIZED, data=None, status=403)
+        return error_template(ExceptionEnum.UNAUTHORIZED.value, data=None, status=403)
     team.leader = new_leader
     team.save()
 
-    response_data = {"new_leader_name": team.leader.username, }
+    response_data = {
+        "team_name": team.team_name,
+        "new_leader_name": team.leader.username,
+    }
     return success_template("成功更换队长", data=response_data, status=200)
 
 
@@ -372,7 +360,6 @@ def verify_apply(request):
     {
         "action": "verify_apply",
         "data": {
-            "username": "momoyeyu",
             "applicant": "juanboy",
             "accept": true / false,  # 注意布尔值不要打双引号
         },
@@ -384,18 +371,17 @@ def verify_apply(request):
     }
     """
     if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, data=None, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
 
     data = request.params["data"]
-    username = data["username"]
+    uid = request.session.get('_auth_user_id')
     applicant = data["applicant"]
-    accept = data["accept"]
+    accept_or_not = data["accept"]
 
-    user = User.objects.get_by_natural_key(username)
-
+    user = User.objects.get(pk=uid)
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
 
@@ -414,18 +400,18 @@ def verify_apply(request):
 
     application = Message.objects.get(receiver_id=user.id,
                                       origin_id=applicant.id,
-                                      msg_type=Message.MessageType.APPLICATION)
+                                      msg_type=Message.MessageType.APPLICATION.value)
     if application is None:
         return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, data=None, status=404)
 
-    if accept:
+    if accept_or_not:
         custom_applicant = CustomUser.objects.get(user_id=applicant.id)
         custom_applicant.team = team  # 申请者入队
         team.member_count += 1  # 队伍人员数量 + 1
-        custom_applicant.save()                                                                        # CHAT = 1
-        send_message(user.id, applicant.id, "欢迎加入" + str(team.team_name), msg_type=Message.MessageType.CHAT)
+        custom_applicant.save()                                                                        # CHAT.value = 1
+        send_message(user.id, applicant.id, "欢迎加入" + str(team.team_name), msg_type=Message.MessageType.CHAT.value)
     else:
-        send_message(user.id, applicant.id, str(team.team_name) + "拒绝了你的申请", msg_type=Message.MessageType.CHAT)
+        send_message(user.id, applicant.id, str(team.team_name) + "拒绝了你的申请", msg_type=Message.MessageType.CHAT.value)
 
     application.checked = True
 
@@ -445,37 +431,35 @@ def invite(request):
     }
     """
     if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, data=None, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
 
     data = request.params["data"]
-    username = data["username"]
+    uid = request.session.get('_auth_user_id')
     invitee_name = data["invitee"]
     msg = data["msg"]
 
-    user = User.objects.get_by_natural_key(username)
+    user = User.objects.get(pk=uid)
     invitee = User.objects.get_by_natural_key(invitee_name)
     if user is None or user.is_active is False:
-        res_data = {"username": username, }
-        return error_template(ExceptionEnum.USER_NOT_FOUND, data=res_data, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     if invitee is None or invitee.is_active is False:
         res_data = {"username": invitee_name, }
-        return error_template(ExceptionEnum.USER_NOT_FOUND, data=res_data, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=res_data, status=404)
 
     custom_user = CustomUser.objects.get(user=user)
-    custom_invitee = CustomUser.objects.get
     team = Team.objects.get(pk=custom_user.team_id)
     if team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     if team.leader_id != user.id:
-        return error_template(ExceptionEnum.NOT_LEADER, status=403)
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     if msg is None:
         msg = str("希望你能加入" + team.team_name)
-    send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION)  # INVITATION = 4
+    send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION.value)  # INVITATION.value = 4
 
 
 def accept(request):
@@ -484,55 +468,53 @@ def accept(request):
     {
         "action": "accept",
         "data": {
-            "username": "momoyeyu",
-            "origin": "juanboy",
+            "inviter": "juanboy",
             "accept": true / false,
         }
     }
     """
     if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, data=None, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
 
     data = request.params["data"]
-    username = data["username"]
-    origin_name = data["origin"]
-    accept = data["accept"]
+    uid = request.session.get('_auth_user_id')
+    inviter_name = data["origin"]
+    accept_or_not = data["accept"]
     # check users
-    user = User.objects.get_by_natural_key(username)
-    origin = User.objects.get_by_natural_key(origin_name)
+    user = User.objects.get(pk=uid)
+    inviter = User.objects.get_by_natural_key(inviter_name)
     if user is None or user.is_active is False:
-        res_data = {"username": username, }
-        return error_template(ExceptionEnum.USER_NOT_FOUND, data=res_data, status=404)
-    if origin is None or origin.is_active is False:
-        res_data = {"username": origin, }
-        return error_template(ExceptionEnum.USER_NOT_FOUND, data=res_data, status=404)
-    # check messages                                                                          # INVITATION = 4
-    invitation = Message.objects.get(receiver=user, origin=origin, msg_type=Message.MessageType.INVITATION)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    if inviter is None or inviter.is_active is False:
+        res_data = {"username": inviter_name, }
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=res_data, status=404)
+    # check messages                                                                          # INVITATION.value = 4
+    invitation = Message.objects.get(receiver=user, origin=inviter, msg_type=Message.MessageType.INVITATION.value)
     if invitation is None:
-        return error_template(ExceptionEnum.MESSAGE_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, status=404)
 
     # 邀请信息已经处理，删除所有邀请
     invitation.checked = True
 
     custom_user = CustomUser.objects.get(user=user)
-    custom_origin = CustomUser.objects.get(user=origin)
+    custom_origin = CustomUser.objects.get(user=inviter)
     team = Team.objects.get(pk=custom_origin.team.id)
     if team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
-    if accept:
+    if accept_or_not:
         team.member_count += 1
         custom_user.team = team
         team.save()
         custom_user.save()
         res_data = {"team_name": team.team_name, }
         msg = "接受邀请"
-        send_message(origin.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT)  # CHAT = 1
+        send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
         return success_template("成功加入战队", data=res_data)
     else:
         msg = "拒绝邀请"
-        send_message(origin.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT)  # CHAT = 1
+        send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
 

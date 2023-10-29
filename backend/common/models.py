@@ -51,6 +51,7 @@ class CustomUser(models.Model):
 
 class Message(models.Model):
     class MessageType(models.IntegerChoices):
+        OTHER = 0
         CHAT = 1
         SYSTEM = 2
         APPLICATION = 3

@@ -25,7 +25,7 @@ def get_request_params(request):
 
 
 def log_test(api_name):
-    print("[INFO] Testing " + api_name)
+    print("[INFO]: Testing " + api_name)
 
 
 def is_valid_username(username):
@@ -37,12 +37,21 @@ def is_valid_username(username):
         return False
 
 
+class SuccessEnum(Enum):
+    QUERY_SUCCESS = "查询成功"  # status = 200
+    MODIFICATION_SUCCESS = "修改成功"  # status = 200
+    DELETE_SUCCESS = "删除成功"  # status = 204
+    UPLOAD_SUCCESS = "上传成功"  # status = 200
+    POST_SUCCESS = "发送成功"  # status = 200
+
+
 class ExceptionEnum(Enum):
     INVALID_REQUEST_METHOD = "Invalid Request Method"  # status = 405
     USER_NOT_LOGIN = "用户未登录"  # status = 403
     USER_NOT_FOUND = "未查询到用户"  # status = 404
     TEAM_NOT_FOUND = "未查询到战队"  # status = 404
     MESSAGE_NOT_FOUND = "未查询到信息"  # status = 404
+    TASK_NOT_FOUND = "未查询到题目"  # status = 404
     DATA_NOT_FOUND = "未查询到数据"  # status = 404
     NOT_LEADER = "不是队长，权限不足"  # status = 403
     UNAUTHORIZED = "非授权操作"  # status = 403
