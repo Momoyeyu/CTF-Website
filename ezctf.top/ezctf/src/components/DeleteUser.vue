@@ -18,15 +18,17 @@
       };
     },
     computed: {
-    ...mapState(['username','modifyUser','deleteUser']),
+    ...mapState(['username','modifyUser','deleteUser','isLogin']),
     },
     methods: {
-      ...mapMutations(['setUsername','setModifyUser','setDeleteUser']),
+      ...mapMutations(['setUsername','setModifyUser','setDeleteUser','setIsLogin']),
       async deleteUser() {
         try {
           const response = await deleteUserInfo(this.username, this.password);
           console.log('注销账户响应:', response);
           if (response.return === 'success') {
+            alert(response.data.msg);
+            this.$store.commit('isLogin', false);
             this.$store.commit('deleteUser', false);
           }
         } catch (error) {

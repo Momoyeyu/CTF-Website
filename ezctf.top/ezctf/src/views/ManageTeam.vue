@@ -93,17 +93,21 @@
       async deleteTeam() {
         try {
           const response = await deleteTeam(this.team.name);
+          alert(response.data.msg);
           console.log('删除队伍响应:', response);
           setTeamname('None');
         } catch (error) {
+          alert(error.response.data.msg);
           console.error('错误:', error);
         }
       },
       async changeTeamLeader(memberName) {
         try {
           const response = await changeTeamLeader(this.leader_name,memberName);
+          alert(response.data.msg);
           console.log('队长转让响应:', response);
         } catch (error) {
+          alert(error.response.data.msg);
           console.error('错误:', error);
         }
       },

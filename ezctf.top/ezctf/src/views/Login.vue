@@ -29,10 +29,10 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled','username']),
+    ...mapState(['loginButtonEnabled','username','isLogin']),
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled','setUsername']),
+      ...mapMutations(['setLoginButtonEnabled','setUsername','setIsLogin']),
       close() {
         this.setLoginButtonEnabled(true);
         this.$router.push('/Home');
@@ -42,15 +42,17 @@
           const response = await login(this.loginInfo.usernameOrEmail, this.loginInfo.password);
           console.log('登录响应:', response);
           if (response.return === 'success') {
+            alert(response.data.msg);
             this.$store.commit('setLoginButtonEnabled', true);
             this.$store.commit('setUsername', response.data.username);
+            this.$store.commit('isLogin', true);
             this.$router.push({
               path: '/Home',
               query: { backInfo: response.data, source: 'Login' } 
             });
           }
         } catch (error) {
-          alert('登录错误!');
+          alert(error.response.data.msg);
           console.error('登录错误:', error);
           console.log(error.response);
         }
