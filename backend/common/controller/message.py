@@ -55,16 +55,16 @@ def get_messages(request):
     }
     """
     if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     username = request.GET.get("username")
 
     user = User.objects.get_by_natural_key(username)
 
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     messages = Message.objects.filter(receiver=user) | Message.objects.filter(origin=user)
 
@@ -107,9 +107,9 @@ def get_applications(request):
     }
     """
     if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     username = request.GET.get("username")
 
@@ -117,7 +117,7 @@ def get_applications(request):
     user = User.objects.get_by_natural_key(username)
 
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.APPLICATION)  # APPLICATION = 3
 
@@ -159,9 +159,9 @@ def get_invitations(request):
     }
     """
     if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     username = request.GET.get("username")
 
@@ -169,7 +169,7 @@ def get_invitations(request):
     user = User.objects.get_by_natural_key(username)
 
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.INVITATION)  # INVITATION = 4
 
