@@ -43,6 +43,7 @@ class ExceptionEnum(Enum):
     USER_NOT_FOUND = "未查询到用户"  # status = 404
     TEAM_NOT_FOUND = "未查询到战队"  # status = 404
     MESSAGE_NOT_FOUND = "未查询到信息"  # status = 404
+    TASK_NOT_FOUND = "未查询到题目"  # status = 404
     DATA_NOT_FOUND = "未查询到数据"  # status = 404
     NOT_LEADER = "不是队长，权限不足"  # status = 403
     UNAUTHORIZED = "非授权操作"  # status = 403

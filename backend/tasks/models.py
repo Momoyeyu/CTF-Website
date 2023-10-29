@@ -17,7 +17,7 @@ class Task(models.Model):
 
     task_name = models.CharField(max_length=100)
     content = models.TextField()
-    src = models.TextField(blank=True,null=True)
+    src = models.TextField(blank=True, null=True)
     annex = models.FileField(upload_to='task_annex/', blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     flag = models.CharField(max_length=100)
@@ -39,5 +39,6 @@ class AnswerRecord(models.Model):
     answer_time = models.DateTimeField(auto_now_add=True)
 
     objects = models.Manager()
+
     def __str__(self):
         return f"Answer Record ID: {self.id}, User ID: {self.user_id}, Task ID: {self.task_id}, Points: {self.points}, Clear Time: {self.clear_time}"
