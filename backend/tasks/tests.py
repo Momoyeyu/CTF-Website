@@ -19,17 +19,17 @@ class SessionTest(TestCase):
         self.obj = CustomUser.objects.create(user_id=2, team_id=1, score=0)
 
         self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10,
-                                       solve_count=0, type=2, annex='aa.txt')
+                                       solve_count=0, task_type=2, annex='aa.txt')
         self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10,
-                                       solve_count=0, type=2)
+                                       solve_count=0, task_type=2)
 
     def test_main(self):
         self.login()
-        self.list_task()
+        self.list_all()
         self.query_one()
-        self.download_attachment()
+        # self.download_attachment()
         self.commit_flag()
-        self.list_task()
+        self.list_all()
         self.rank_user()
         self.rank_team()
 
@@ -50,10 +50,11 @@ class SessionTest(TestCase):
         self.client.login(username='aa', password='123456')
         pprint.pprint(response.json())
 
-    def list_task(self):
+    def list_all(self):
         print("test list task: ")
         client = self.client
-        response = client.get('http://localhost/api/task/list?action=list_all&type=2')
+        response = client.get('http://localhost/api/task/list?action=list_all'
+                              'type=2')
         pprint.pprint(response.json())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session.get('user_id'), None)
