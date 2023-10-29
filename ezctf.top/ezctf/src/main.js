@@ -12,7 +12,7 @@ const store = new Vuex.Store({
     userInfoButtonEnabled: true,
     modifyUser: false,
     deleteUser: false,
-    infoBoard: true,
+    infoBoard: false,
     username: '于渊龙',
     teamname: 'ezctf',
   },
