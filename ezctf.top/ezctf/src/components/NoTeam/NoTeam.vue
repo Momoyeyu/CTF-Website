@@ -3,8 +3,8 @@
         <button @click="close()" class="close-btn">&#10006;</button>
       <h1>选择战队</h1>
       <div>
-        <router-link to ='/CreateTeam' class="router-link">创建战队</router-link> |
-        <router-link to ='/JoinTeam' class="router-link">加入战队</router-link>
+        <button @click="CreateTeam()" class="btn">创建战队</button> |
+        <button @click="JoinTeam()" class="btn">加入战队</button>
       </div>
     </div>
 </template>
@@ -13,14 +13,22 @@
     import { mapState, mapMutations } from 'vuex';
     export default {
         computed: {
-            ...mapState(['userInfoButtonEnabled']),
+            ...mapState(['userInfoButtonEnabled','noTeam','createTeam','joinTeam',]),
         },
         methods: {
-            ...mapMutations(['setUserInfoButtonEnabled']),
+            ...mapMutations(['setUserInfoButtonEnabled','setNoTeam','setCreateTeam','setJoinTeam',]),
             close() {
                 this.setUserInfoButtonEnabled(true);
-                this.$router.push('/Home');
+                this.setNoTeam(false);
             },
+            CreateTeam(){
+                this.setNoTeam(false);
+                this.setCreateTeam(true);
+            },
+            JoinTeam(){
+                this.setNoTeam(false);
+                this.setJoinTeam(true);
+            }
         }
     };
 
@@ -28,14 +36,14 @@
 
 <style>
 #noTeam {
-    margin-top:220px;
-    margin-left:550px;
+    margin-top:-200px;
+    margin-left:520px;
     position: fixed;
     top: auto;
     left: auto;
     width: 250px;
     height: 120px;
-    background-color: black;
+    background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -48,13 +56,20 @@
     color:white;
 }
 
-.router-link {
-    text-decoration: none;
+.btn{
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background-color: #1e1e1e;
     color: white;
+    width: 80px;
+    height: 20px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-.router-link:hover {
-    color: blue;
+.btn:hover{
+    background-color: grey;
 }
 
 .close-btn {

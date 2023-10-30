@@ -7,7 +7,8 @@
         <input type="text" id="teamname" v-model="team.team_name" required /><br><br>
         <label for="check">审核加入:</label>
         <input type="checkbox" id="check" v-model="team.check" /><br><br>
-        <button type="submit" @click="createteam()">创建战队</button>
+        <button type="submit" @click="createteam()">创建</button> |
+        <button @click="Re()" id="R">返回</button>
       </form>
     </div>
 </template>
@@ -26,15 +27,15 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','createTeam','noTeam']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setCreateTeam','setNoTeam']),
       close() {
         this.setUserInfoButtonEnabled(true);
-        this.$router.push('/Home');
+        this.setCreateTeam(false);
       },
-      async createTeam() {
+      async create_Team() {
         try {
           const response = await createTeam(this.team.leader_name, this.team.team_name, !this.team.check);
           alert(response.data.msg);
@@ -46,27 +47,33 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
         }
       }, 
       createteam() {
-        this.createTeam();
+        this.create_Team();
         this.setUserInfoButtonEnabled(true);
-        this.$router.push("/Home");
+        this.setCreateTeam(false);
+      },
+      Re() {
+        this.setCreateTeam(false);
+        this.setNoTeam(true);
       }
     },
   };
 </script>
 
 <style>
+button{
+  cursor: pointer;
+}
 #createTeam {
-    margin-top:200px;
-    margin-left:500px;
+    margin-top:-220px;
+    margin-left:470px;
     position: fixed;
     top: auto;
     left: auto;
     width: 350px;
     height: 200px;
-    background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-    background-color: #0d1117;
+    background-color: #1e1e1e;
     padding: 20px;
     border-style: solid;
     border-radius: 5px;

@@ -14,6 +14,9 @@ const store = new Vuex.Store({
     deleteUser: false,
     infoBoard: false,
     isLogin: false,
+    noTeam: false,
+    createTeam: false,
+    joinTeam: false,
     username: '',
     teamname: '',
   },
@@ -41,6 +44,15 @@ const store = new Vuex.Store({
     },
     setIsLogin(state, value){
       state.isLogin = value;
+    },
+    setNoTeam(state, value){
+      state.noTeam =value;
+    },
+    setCreateTeam(state, value){
+      state.createTeam =value;
+    },
+    setJoinTeam(state, value){
+      state.joinTeam =value;
     }
   },
 });

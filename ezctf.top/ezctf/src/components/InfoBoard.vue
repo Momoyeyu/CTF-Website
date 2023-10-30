@@ -48,10 +48,9 @@ export default {
   left: auto;
   width: 500px;
   height: 350px;
-  background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
-  background-color: #0d1117;
+  background-color: #1e1e1e;
   padding: 20px;
   border-style: solid;
   border-radius: 5px;

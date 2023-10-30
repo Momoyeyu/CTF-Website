@@ -64,19 +64,19 @@
   <style>
   #bkg {
     height:100vh;
-    width:100%;
+    width:1350px;
     background-image: url('../assets/窗口背景.png');
     background-size: cover;
   }
   #loginUser {
-    margin-top:150px;
+    margin-top:200px;
     margin-left:465px;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 450px;
     height: 250px;
-    background-color: #0d1117;
+    background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -91,6 +91,11 @@
   .router-link {
     text-decoration: none;
     color: white;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .router-link:hover {
+    background-color: grey;
   }
   .close-btn {
     background: transparent; 

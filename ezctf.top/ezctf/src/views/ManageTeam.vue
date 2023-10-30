@@ -131,14 +131,13 @@
 #manageTeam {
     margin-top: 10px;
     margin-left: 5%;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 80%;
-    background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-    background-color: #0d1117;
+    background-color: #1e1e1e;
     padding: 20px;
     border-style: solid;
     border-radius: 5px;

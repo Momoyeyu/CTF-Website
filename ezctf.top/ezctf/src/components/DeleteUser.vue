@@ -52,7 +52,7 @@
     left: auto;
     width: 250px;
     height: 170px;
-    background-color: black;
+    background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
     padding: 20px;

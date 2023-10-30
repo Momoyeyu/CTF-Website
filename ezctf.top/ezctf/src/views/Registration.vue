@@ -70,15 +70,15 @@
   <style>
   #registerUser {
       margin-top:150px;
-      margin-left:440px;
-      position: fixed;
+      margin-left:420px;
+      position: absolute;
       top: auto;
       left: auto;
       width: 500px;
       height: 300px;
       justify-content: center;
       align-items: center;
-      background-color: #0d1117;
+      background-color: #1e1e1e;
       padding: 20px;
       border-style: solid;
       border-radius: 5px;

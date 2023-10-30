@@ -7,6 +7,9 @@
 <ModifyUser v-if="modifyUser"/>
 <DeleteUser v-if="deleteUser"/>
 <InfoBoard v-if="infoBoard"/>
+<NoTeam v-if="noTeam"/>
+<CreateTeam v-if="createTeam"/>
+<JoinTeam v-if="joinTeam"/>
 </div>
 </div>
 </template>
@@ -19,14 +22,17 @@ import Notice from '../components/Notice.vue';
 import ModifyUser from '../components/ModifyUser.vue';
 import DeleteUser from '../components/DeleteUser.vue';
 import InfoBoard from '../components/InfoBoard.vue';
+import NoTeam from '../components/NoTeam/NoTeam.vue';
+import CreateTeam from '../components/NoTeam/CreateTeam.vue';
+import JoinTeam from '../components/NoTeam/JoinTeam.vue';
 export default {
 name:'Ranking',
-components:{Banner,Showquestion,Notice,ModifyUser,DeleteUser,InfoBoard},
+components:{Banner,Showquestion,Notice,ModifyUser,DeleteUser,InfoBoard,NoTeam,CreateTeam,JoinTeam},
 computed: {
-    ...mapState(['modifyUser','deleteUser','infoBoard']),
+    ...mapState(['modifyUser','deleteUser','infoBoard','noTeam','createTeam','joinTeam']),
 },
 methods: {
-  ...mapMutations(['setModifyUser','setDeleteUser','setInfoBoard']),
+  ...mapMutations(['setModifyUser','setDeleteUser','setInfoBoard','setNoTeam','setCreateTeam','setJoinTeam']),
 }
 }
 </script>

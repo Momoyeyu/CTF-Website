@@ -21,7 +21,8 @@
               </tr>
           </tbody>
         </table>
-      </div>
+      </div><br><br>
+      <button @click="Re()">返回</button>
     </div>
   </template>
   
@@ -46,13 +47,17 @@
         const query = this.searchQuery.toLowerCase();
         return this.teams.filter((team) => team.name.toLowerCase().includes(query));
       },
-      ...mapState(['userInfoButtonEnabled','username','teamname']),
+      ...mapState(['userInfoButtonEnabled','username','teamname','joinTeam','noTeam']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setJoinTeam','setNoTeam']),
       close() {
         this.setUserInfoButtonEnabled(true);
-        this.$router.push('/Home');
+        this.setJoinTeam(false);
+      },
+      Re() {
+        this.setJoinTeam(false);
+        this.setNoTeam(true);
       },
       async joinTeamRequest(teamname) {
         try {
@@ -60,6 +65,7 @@
           if (response.ret === 'success') {
             alert(response.data.msg);
             console.log('成功加入团队:', response.msg);
+            this.setJoinTeam(false);
           } else {
             alert(response.data.msg);
             console.error('加入团队失败:', response.msg);
@@ -84,18 +90,20 @@
   </script>
 
 <style>
+button{
+  cursor: pointer;
+}
 #jointeam {
-    margin-top:150px;
-    margin-left:420px;
+    margin-top:-280px;
+    margin-left:400px;
     position: fixed;
     top: auto;
     left: auto;
     width: 500px;
-    height: 300px;
-    background-color: rgba(0, 0, 0, 0.5);
+    height: 350px;
     justify-content: center;
     align-items: center;
-    background-color: #0d1117;
+    background-color: #1e1e1e;
     padding: 20px;
     border-style: solid;
     border-radius: 5px;

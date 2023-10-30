@@ -106,10 +106,32 @@ name:'Navigation',
     };
   },
   computed: {
-    ...mapState(['loginButtonEnabled','userInfoButtonEnabled','username','teamname','modifyUser','deleteUser','infoboard','isLogin']),
+    ...mapState(['loginButtonEnabled',
+                  'userInfoButtonEnabled',
+                  'username',
+                  'teamname',
+                  'modifyUser',
+                  'deleteUser',
+                  'infoboard',
+                  'isLogin',
+                  'noTeam',
+                  'createTeam',
+                  'joinTeam',
+    ]),
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled','setUserInfoButtonEnabled','setUsername','setTeamname','setModifyUser','setDeleteUser','setInfoBoard','setIsLogin']),
+    ...mapMutations(['setLoginButtonEnabled',
+                      'setUserInfoButtonEnabled',
+                      'setUsername',
+                      'setTeamname',
+                      'setModifyUser',
+                      'setDeleteUser',
+                      'setInfoBoard',
+                      'setIsLogin',
+                      'setNoTeam',
+                      'setCreateTeam',
+                      'setJoinTeam',
+    ]),
     log() {
       this.setLoginButtonEnabled(false);
       this.$router.push("/Log");
@@ -132,7 +154,7 @@ name:'Navigation',
       }
       else{
         this.showUserInfo();
-        this.$router.push('/NoTeam');
+        this.setNoTeam(true);
       }
     },
     message() {

@@ -43,17 +43,16 @@
     
 <style>
 #resetPassword {
-    margin-top:150px;
+    margin-top:200px;
     margin-left:465px;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 450px;
     height: 220px;
-    background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-    background-color: #0d1117;
+    background-color: #1e1e1e;
     padding: 20px;
     border-style: solid;
     border-radius: 5px;
