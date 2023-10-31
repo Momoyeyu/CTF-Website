@@ -127,7 +127,7 @@ def del_team(request):
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
-    if team.leader_id != user.id:
+    if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     CustomUser.objects.filter(team=team).update(team=None)
@@ -167,18 +167,18 @@ def join_team(request):
     if custom_user.team is not None:
         return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
 
-    leader = User.objects.get(pk=team.leader_id)
     if not team.allow_join:
-        response_data = {"leader_email": leader.email, }
+        response_data = {"leader_email": team.leader.email, }
         msg = "战队 " + team_name + " 需要队长邀请才能加入"
         return error_template(msg, data=response_data, status=403)
 
-    # 发送加入申请                                                                       # APPLICATION = 3
-    if Message.objects.filter(receiver=leader, origin=user, msg_type=Message.MessageType.APPLICATION.value).exists():
+    # 发送加入申请
+    if Message.objects.filter(receiver=team.leader, origin=user,  # APPLICATION = 3
+                              msg_type=Message.MessageType.APPLICATION.value).exists():
         return error_template("请求已存在", status=409)
 
     msg = "希望加入你的队伍"
-    send_message(leader.id, user.id, msg=msg, msg_type=Message.MessageType.APPLICATION.value)  # APPLICATION = 3
+    send_message(team.leader.id, user.id, msg=msg, msg_type=Message.MessageType.APPLICATION.value)  # APPLICATION = 3
     return success_template("申请发送成功")
 
 
@@ -207,7 +207,7 @@ def quit_team(request):
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
-    if team.leader_id == user.id:  # 如果用户是队长
+    if team.leader == user:  # 如果用户是队长
         teammates = CustomUser.objects.filter(team=team)
         new_leader = teammates.first()
         if new_leader is None:  # 没有队员，战队自动删除
@@ -217,10 +217,10 @@ def quit_team(request):
             msg = str(user.username + "将战队转交给了" + new_leader.user.username)
             for each in teammates:
                 send_message(new_leader.user.id, each.user.id, msg, msg_type=Message.MessageType.CHAT.value)  # CHAT = 1
-            team.leader_id = new_leader.user.id
+            team.leader = new_leader.user
     else:
         msg = user.username + "退出了战队"
-        send_message(receiver_id=team.leader_id, origin_id=user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)
+        send_message(receiver_id=team.leader.id, origin_id=user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)
 
     team.member_count -= 1
     custom_user.team = None
@@ -254,7 +254,7 @@ def search_team(request):
 
     team_list = []
     for team in teams:
-        leader = User.objects.get(pk=team.leader_id)
+        leader = User.objects.get(pk=team.leader.id)
         team_info = {
             "team_name": team.team_name,
             "leader_name": leader.username,
@@ -340,7 +340,7 @@ def change_team_leader(request):
     if custom_user.team is None:  # 检测用户是否在战队内
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
     team = Team.objects.get(pk=custom_user.team.id)
-    if team.leader_id != user.id:  # 检测队长权限
+    if team.leader != user:  # 检测队长权限
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     if custom_leader.team != team:  # 检测新队长战队归属
@@ -395,7 +395,7 @@ def verify_apply(request):
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
 
-    if team.leader_id != user.id:
+    if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, data=None, status=403)
     applicant = User.objects.get_by_natural_key(applicant)
 
@@ -453,11 +453,11 @@ def invite(request):
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=res_data, status=404)
 
     custom_user = CustomUser.objects.get(user=user)
-    team = Team.objects.get(pk=custom_user.team_id)
+    team = Team.objects.get(pk=custom_user.team.id)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
-    if team.leader_id != user.id:
+    if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     if msg is None:

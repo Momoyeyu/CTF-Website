@@ -143,6 +143,7 @@ class SessionTest(TestCase):
         }
         response = self.client.post('http://localhost/api/common/user', data=json.dumps(payload),
                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     # team:
@@ -158,6 +159,7 @@ class SessionTest(TestCase):
         }
         response = self.client.post('http://localhost/api/common/team', data=json.dumps(payload),
                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def del_team(self):
@@ -170,6 +172,7 @@ class SessionTest(TestCase):
         }
         response = self.client.delete('http://localhost/api/common/team?action=del_team', data=json.dumps(payload),
                                       content_type='application/json')
+        self.assertEqual(response.status_code, 204)
         if response.status_code == 204:
             # 处理成功的情况，HTTP状态码204表示成功删除
             print("[INFO]: Team deleted successfully")
@@ -189,6 +192,7 @@ class SessionTest(TestCase):
         }
         response = self.client.post('http://localhost/api/common/team', data=json.dumps(payload),
                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def quit_team(self):
@@ -199,6 +203,7 @@ class SessionTest(TestCase):
     def search_team(self):
         print("[INFO]: test serach team")
         response = self.client.get('http://localhost/api/common/team?action=search_team&keyword=ez')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def verify_apply(self):
@@ -213,6 +218,7 @@ class SessionTest(TestCase):
         response = self.client.post('http://localhost/api/common/team?action=verify_apply',
                                     data=json.dumps(payload),
                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def change_team_leader(self):
@@ -226,6 +232,7 @@ class SessionTest(TestCase):
         response = self.client.put('http://localhost/api/common/team?action=change_team_leader',
                                    data=json.dumps(payload),
                                    content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def invite(self):
@@ -240,6 +247,7 @@ class SessionTest(TestCase):
         response = self.client.post('http://localhost/api/common/team?action=invite',
                                    data=json.dumps(payload),
                                    content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def accept(self):
