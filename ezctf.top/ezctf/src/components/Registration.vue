@@ -2,7 +2,7 @@
     <div id="registerUser">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>用户注册</h1>
-      <form @submit.prevent="registerUser">
+      <form>
         <label for="username">用户名:</label>
         <input type="text" id="username" v-model="user.username" required /><br><br>
         <label for="password">密码:</label>
@@ -11,7 +11,7 @@
         <input type="password" id="confirmPassword" v-model="user.confirmPassword" required /><br><br>
         <label for="email">邮箱:</label>
         <input type="email" id="email" v-model="user.email" required /><br><br>
-        <button type="submit">注册</button><br><br>
+        <button @click="registerUser()">注册</button><br><br>
       </form>
     </div>
   </template>
@@ -32,21 +32,24 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled','username']),
+    ...mapState(['loginButtonEnabled','username','reg','log']),
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled','setUsername']),
+      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog']),
       close() {
         this.setLoginButtonEnabled(true);
-        this.$router.push('/Home');
+        this.setReg(false);
+        this.setLog(true);
+        this.$router.push('/');
       },
       async Register() {
         try {
           const response = await register( this.user.username, this.user.password, this.user.email);
           alert(response.data.msg);
           console.log('注册响应:', response);
-          if (response.return === 'success') {
-            this.$router.push("/Log");
+          if (response.ret === 'success') {
+            this.$store.commit('setReg', false);
+            this.$store.commit('setLog', true);
           }
         } catch (error) {
           alert(error.response.data.msg);
@@ -69,8 +72,8 @@
   
   <style>
   #registerUser {
-      margin-top:150px;
-      margin-left:420px;
+      margin-top:160px;
+      margin-left:450px;
       position: absolute;
       top: auto;
       left: auto;

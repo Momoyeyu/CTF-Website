@@ -1,6 +1,6 @@
 <template>
     <div id="resetPassword">
-      <router-link to="/Log" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>重置密码</h1>
       <form @submit.prevent="Complete">
         <label for="newPassword">新密码:</label>
@@ -13,6 +13,7 @@
 </template>
     
 <script>
+  import { mapState, mapMutations } from 'vuex';
     export default {
       data() {
         return {
@@ -22,14 +23,23 @@
           },
         };
       },
+      computed: {
+      ...mapState(['log','RePa']),
+      },
       methods: {
+        ...mapMutations(['setLog','setRePa']),
+        close() {
+          this.setLog(true);
+          this.setRePa(false);
+        },
         resetpassword() {
           // 发送重置密码请求到后端
         },
         Complete() {
             if(this.ResetPassword.newPassword==this.ResetPassword.confirmNewPassword&&this.ResetPassword.newPassword!=''){
               this.resetpassword();
-              this.$router.push("/Log");
+              this.$store.commit('setLog', true);
+              this.$store.commit('setRePa', false);
             }
             else{
                 this.ResetPassword.newPassword='';

@@ -51,57 +51,16 @@ name:'Navigation',
  components: {
     CreateAvatar,
   },
-  created() {
-    console.log("loginButtonEnabled in created:", this.$store.loginButtonEnabled);
-    const backInfo = this.$route.query.backInfo;
-    const source = this.$route.query.source;
-    if (backInfo && source) {
-      if (source === 'Login') {
-        this.userInfo.score = backInfo.score;
-        this.userInfo.team = backInfo.team_name;
-        if(backInfo.team_name =='None') {
-          this.userInfo.isLeader=false;
-          this.userInfo.isMember=false;
-        }
-        else if(backInfo.is_leader){
-          this.userInfo.isLeader=true;
-          this.userInfo.isMember=false;
-        }
-        else{
-          this.userInfo.isLeader=false;
-          this.userInfo.isMember=true;
-        }
-        this.isLogin = true;
-      } 
-      else if (source === 'Registration') {
-        this.userInfo.score = backInfo.score;
-        this.userInfo.team = backInfo.team_name;
-        if(backInfo.team_name =='None') {
-          this.userInfo.isLeader=false;
-          this.userInfo.isMember=false;
-        }
-        else if(backInfo.is_leader){
-          this.userInfo.isLeader=true;
-          this.userInfo.isMember=false;
-        }
-        else{
-          this.userInfo.isLeader=false;
-          this.userInfo.isMember=true;
-        }
-      }
-    }
-  },
   data() {
     return {
       isHovered: false,
       setInfo: true,
       userInfo: {
         name: this.$store.state.username,
-        email: '114514@beast.com',
         score: '100',
         team: this.$store.state.teamname,
-        isLeader: false, //战队队长
-        isMember: false, //战队成员
+        is_Leader: this.$store.state.isLeader, 
+        is_Member: this.$store.state.isMember,
       }
     };
   },
@@ -110,6 +69,9 @@ name:'Navigation',
                   'userInfoButtonEnabled',
                   'username',
                   'teamname',
+                  'score',
+                  'isLeader',
+                  'isMember',
                   'modifyUser',
                   'deleteUser',
                   'infoboard',
@@ -124,6 +86,9 @@ name:'Navigation',
                       'setUserInfoButtonEnabled',
                       'setUsername',
                       'setTeamname',
+                      'setScore',
+                      'setIsLeader',
+                      'setIsMember',
                       'setModifyUser',
                       'setDeleteUser',
                       'setInfoBoard',
@@ -144,11 +109,11 @@ name:'Navigation',
     },
     team() {
       this.setUserInfoButtonEnabled(false);
-      if(this.userInfo.isLeader&&!this.userInfo.isMember){
+      if(this.userInfo.is_Leader&&!this.userInfo.is_Member){
         this.showUserInfo();
         this.$router.push("/ManageTeam");
       }
-      else if(this.userInfo.isMember){
+      else if(this.userInfo.is_Member){
         this.showUserInfo();
         this.$router.push("/TeamInfo");
       }
@@ -174,11 +139,9 @@ name:'Navigation',
         alert(response.data.msg);
         console.log('用户退出登录成功', response.data);
         this.setUsername('');
-        this.userInfo.email='',
-        this.userInfo.totalscore='',
-        this.userInfo.isLeader=false,
-        this.userInfo.isMember=false,
-        this.userInfo.isSuperuser=false,
+        this.setScore('');
+        this.setIsLeader(false);
+        this.setIsMember(false);
         this.setIsLogin(false);
         this.isHovered=false
       })
