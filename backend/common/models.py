@@ -39,7 +39,7 @@ class Team(models.Model):
 
 class CustomUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
-    team = models.ForeignKey(Team, on_delete=models.PROTECT, null=True, blank=True, related_name='user_group')
+    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='user_group')
     score = models.IntegerField(default=0)
     last_answer_time = models.DateTimeField(null=True, blank=True)
 
@@ -59,11 +59,12 @@ class Message(models.Model):
 
     # receiver: 接收者
     # origin: 发送者
-    receiver = models.ForeignKey(User, on_delete=models.PROTECT, related_name='receiver')
-    origin = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sender')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+    origin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
     msg = models.TextField()
     checked = models.BooleanField(default=False)
     msg_type = models.IntegerField(choices=MessageType.choices)
     create_time = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
 
     objects = models.Manager()

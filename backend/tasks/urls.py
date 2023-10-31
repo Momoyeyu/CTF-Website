@@ -9,7 +9,7 @@ urlpatterns = [
 
     # 用户行为
     path('answer', answer.dispatcher),
-    path('list', task.dispatcher),
+    path('query', task.dispatcher),
 
     # 管理员行为
     # path('add', task.dispatcher),

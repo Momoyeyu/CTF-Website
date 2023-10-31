@@ -39,10 +39,7 @@ def dispatcher(request):
         return accept(request)
 
     else:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Unsupported request!"
-        }, status=404)
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST, status=405)
 
 
 def create_team(request):
@@ -122,7 +119,8 @@ def del_team(request):
     user = authenticate(request, username=user.username, password=password)
     if user is None:
         return error_template("密码错误", status=403)
-
+    if user.custom_user.team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
     team = Team.objects.get(pk=user.custom_user.team.id)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
@@ -391,7 +389,6 @@ def verify_apply(request):
     if custom_user.team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
     team = Team.objects.get(pk=custom_user.team.id)
-
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
 
@@ -402,23 +399,24 @@ def verify_apply(request):
     if applicant is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
 
-    application = Message.objects.get(receiver_id=user.id,
-                                      origin_id=applicant.id,
-                                      msg_type=Message.MessageType.APPLICATION.value)
-    if application is None:
+    applications = Message.objects.filter(receiver_id=user.id,
+                                          origin_id=applicant.id,
+                                          msg_type=Message.MessageType.APPLICATION.value,
+                                          is_active=True)
+    if not applications:
         return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, data=None, status=404)
 
     if accept_or_not:
         custom_applicant = CustomUser.objects.get(user_id=applicant.id)
         custom_applicant.team = team  # 申请者入队
         team.member_count += 1  # 队伍人员数量 + 1
-        custom_applicant.save()                                                                        # CHAT.value = 1
+        custom_applicant.save()  # CHAT.value = 1
         send_message(user.id, applicant.id, "欢迎加入" + str(team.team_name), msg_type=Message.MessageType.CHAT.value)
     else:
-        send_message(user.id, applicant.id, str(team.team_name) + "拒绝了你的申请", msg_type=Message.MessageType.CHAT.value)
+        send_message(user.id, applicant.id, str(team.team_name) + "拒绝了你的申请",
+                     msg_type=Message.MessageType.CHAT.value)
 
-    application.checked = True
-
+    applications.update(checked=True, is_active=False)
     return success_template("审核已生效", data=None, status=200)
 
 
@@ -453,6 +451,8 @@ def invite(request):
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=res_data, status=404)
 
     custom_user = CustomUser.objects.get(user=user)
+    if custom_user.team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
     team = Team.objects.get(pk=custom_user.team.id)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
@@ -473,7 +473,7 @@ def accept(request):
         "action": "accept",
         "data": {
             "inviter": "juanboy",
-            "accept": true / false,
+            "accept": true,
         }
     }
     """
@@ -495,13 +495,16 @@ def accept(request):
     if inviter is None or inviter.is_active is False:
         res_data = {"username": inviter_name, }
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=res_data, status=404)
-    # check messages                                                                          # INVITATION.value = 4
-    invitation = Message.objects.get(receiver=user, origin=inviter, msg_type=Message.MessageType.INVITATION.value)
-    if invitation is None:
+    # check messages                                                                           # INVITATION.value = 4
+    invitations = Message.objects.filter(receiver=user,
+                                         origin=inviter,
+                                         msg_type=Message.MessageType.INVITATION.value,
+                                         is_active=True)
+    if not invitations:
         return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, status=404)
 
     # 邀请信息已经处理，删除所有邀请
-    invitation.checked = True
+    invitations.update(checked=True, is_active=False)
 
     custom_user = CustomUser.objects.get(user=user)
     custom_origin = CustomUser.objects.get(user=inviter)
@@ -521,4 +524,3 @@ def accept(request):
     else:
         msg = "拒绝邀请"
         send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
-

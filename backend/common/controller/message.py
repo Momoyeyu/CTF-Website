@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from utils import get_request_params, error_template, success_template, ExceptionEnum
+from utils import get_request_params, error_template, success_template, ExceptionEnum, SuccessEnum
 from common.models import Message, CustomUser
 from django.contrib.auth.models import User
 
@@ -22,10 +22,7 @@ def dispatcher(request):
         return check_messages(request)
 
     else:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Unsupported request!"
-        }, status=404)
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
 def get_messages(request):
@@ -71,6 +68,9 @@ def get_messages(request):
 
     messages_list = []
     for message in messages:
+        if message.receiver is None or message.origin is None:
+            message.delete()
+            continue
         info = {
             "receiver": message.receiver.username,
             "origin": message.origin.username,
@@ -118,6 +118,9 @@ def get_applications(request):
 
     applicant_list = []
     for message in messages:
+        if message.origin is None:
+            message.delete()
+            continue
         info = {
             "applicant": message.origin.username,
         }
@@ -195,7 +198,11 @@ def check_messages(request):
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+
     uid = request.session.get('_auth_user_id')
     user = User.objects.get(pk=uid)
-    if user is None:
+    if user is None or user.is_active is False:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+
+    Message.objects.filter(receiver=user).update(checked=True)
+    return success_template(SuccessEnum.REQUEST_SUCCESS)

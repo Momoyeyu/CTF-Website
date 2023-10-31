@@ -1,11 +1,9 @@
 import uuid
-
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-
 from backend import settings
 from utils import get_request_params, is_valid_username, error_template, success_template, send_message
 from utils import ExceptionEnum, SuccessEnum
@@ -47,7 +45,7 @@ def dispatcher(request):
         return del_account(request)
 
     else:
-        return JsonResponse({"ret": "error", "msg": "Unsupported request!"})
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST, status=405)
 
 
 def user_login(request):
@@ -70,59 +68,47 @@ def user_login(request):
             "username": "momoyeyu",
             "score": "100",
             "team_name": "ezctf",
-            "is_leader": "true"
+            "is_leader": true
         }
     }
     """
     if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
-    try:
-        info = request.params["data"]
-        username_or_email = info["username_or_email"]
-        password = info["password"]
+    info = request.params["data"]
+    username_or_email = info["username_or_email"]
+    password = info["password"]
 
-        if "@" in username_or_email:
-            user = authenticate(request, email=username_or_email, password=password)
+    if "@" in username_or_email:
+        user = authenticate(request, email=username_or_email, password=password)
+    else:
+        user = authenticate(request, username=username_or_email, password=password)
+
+    if user is None:
+        return error_template("登陆失败！请检查你的信息", status=403)
+
+    if user.is_active is False:
+        return error_template("用户未激活", status=403)
+    login(request, user)
+    request.session["username"] = user.username
+    custom_user = CustomUser.objects.get(user_id=user.id)
+
+    res_data = {
+        "username": user.username,
+        "score": custom_user.score,
+        "team_name": None,
+        "is_leader": False,
+    }
+
+    if custom_user.team_id is not None:
+        team = Team.objects.get(pk=custom_user.team_id)
+        res_data["team_name"] = team.team_name
+        if team.leader_id == user.id:
+            res_data["is_leader"] = True
         else:
-            user = authenticate(request, username=username_or_email, password=password)
+            res_data["is_leader"] = False
 
-        if user is None:
-            return error_template("登陆失败！请检查你的信息", status=403)
-
-        if user.is_active is False:
-            return error_template("用户未激活", status=403)
-        login(request, user)
-        request.session["username"] = user.username
-        custom_user = CustomUser.objects.get(user_id=user.id)
-
-        response = {"ret": "success", "msg": "登录成功", "data": {
-                    "username": user.username,
-                    "score": custom_user.score,
-                    "team_name": None,
-                    "is_leader": False,
-                }
-            }
-
-        if custom_user.team_id is not None:
-            team = Team.objects.get(pk=custom_user.team_id)
-            response["data"]["team_name"] = team.team_name
-            if team.leader_id == user.id:
-                response["data"]["is_leader"] = True
-            else:
-                response["data"]["is_leader"] = False
-
-        response = JsonResponse(response, status=200)
-        response.set_cookie("username", user.username)
-        return response
-
-
-    except json.JSONDecodeError:
-        # 请求数据无法解析
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid JSON data in the request.",
-        }, status=400)
+    return success_template("登陆成功", data=res_data)
 
 
 def user_logout(request):
@@ -131,22 +117,13 @@ def user_logout(request):
     GET
     """
     if request.method != "GET":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if request.user.is_authenticated:
         logout(request)
-        return JsonResponse({
-            "ret": "success",
-            "msg": "已退出登录",
-        }, status=200)
+        return success_template("已退出登录")
     else:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "您没有登录",
-        }, status=400)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
 
 def user_register(request):
@@ -169,7 +146,7 @@ def user_register(request):
     }
     """
     if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     info = request.params["data"]
     username = info["username"]
@@ -186,7 +163,7 @@ def user_register(request):
         if not user.is_active:
             user.delete()
         else:
-            return error_template(ExceptionEnum.NAME_EXIST, status=409)
+            return error_template(ExceptionEnum.NAME_EXIST.value, status=409)
     if User.objects.filter(email=email).exists():
         return error_template("邮箱已被使用", status=409)
 
@@ -206,10 +183,8 @@ def user_register(request):
            <br> {}
            <br>                 ezctf 开发团队
            """.format(path, path)
-    print("email: " + email)
     result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
                        html_message=message)
-    print("result: " + str(result))
     user.save()
     res_data = { "username": user.username, }
     return success_template("注册成功，请验证后登录", data=res_data)
@@ -221,18 +196,18 @@ def modify_user_info(request):
     PUT
     @payload:
     {
-        "action":"modify_user_info",
-        "data":{
+        "action": "modify_user_info",
+        "data": {
             "new_username": "momoyeyu2",
             "password": "123",
         }
     }
     """
     if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     # 获取请求中的数据
     data = request.params["data"]
@@ -243,10 +218,10 @@ def modify_user_info(request):
     # 获取用户
     user = User.objects.get(pk=uid)
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
-    user = authenticate(request, user.username, password=password)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    user = authenticate(request, username=user.username, password=password)
     if user is None:
-        return error_template(ExceptionEnum.WRONG_PASSWORD, status=403)
+        return error_template(ExceptionEnum.WRONG_PASSWORD.value, status=403)
 
     # 用户验证成功
     if new_username.isspace():
@@ -275,28 +250,30 @@ def del_account(request):
     }
     """
     if request.method != "DELETE":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
     password = data["password"]
     uid = request.session.get('_auth_user_id')
     user = User.objects.get(pk=uid)
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     # 验证用户身份
     user = authenticate(request, username=user.username, password=password)
-    if user is None:  # 密码验证失败
-        return error_template(ExceptionEnum.WRONG_PASSWORD, status=403)
+    if user is None:
+        return error_template(ExceptionEnum.WRONG_PASSWORD.value, status=403)
 
     # 删除相关数据，这里以删除用户的自定义数据为例
     custom_user = CustomUser.objects.get(user=user)
     if custom_user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
-    team = Team.objects.get(pk=custom_user.team_id)
+    team = None
+    if custom_user.team is not None:
+        team = Team.objects.get(pk=custom_user.team_id)
     if team is not None:
         if team.leader == user:  # is leader
             teammates = CustomUser.objects.filter(team=team)
@@ -325,7 +302,7 @@ def del_account(request):
 
 def user_active(request):
     if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     token = str(request.GET.get("token"))
     user = User.objects.get(first_name=token)

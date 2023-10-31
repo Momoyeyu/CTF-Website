@@ -38,16 +38,20 @@ def is_valid_username(username):
 
 
 class SuccessEnum(Enum):
-    QUERY_SUCCESS = "查询成功"  # status = 200
-    MODIFICATION_SUCCESS = "修改成功"  # status = 200
-    DELETE_SUCCESS = "删除成功"  # status = 204
-    UPLOAD_SUCCESS = "上传成功"  # status = 200
-    POST_SUCCESS = "发送成功"  # status = 200
+    # status = 200
+    REQUEST_SUCCESS = "请求成功"
+    QUERY_SUCCESS = "查询成功"
+    MODIFICATION_SUCCESS = "修改成功"
+    UPLOAD_SUCCESS = "上传成功"
+    POST_SUCCESS = "发送成功"
+    # status = 204
+    DELETE_SUCCESS = "删除成功"
 
 
 class ExceptionEnum(Enum):
     # METHOD NOT ALLOWED 405
-    INVALID_REQUEST_METHOD = "Invalid Request Method"
+    INVALID_REQUEST_METHOD = "Invalid Request Method!"
+    UNSUPPORTED_REQUEST = "Unsupported Request!"
     # NOT FOUND 404:
     USER_NOT_FOUND = "未查询到用户"
     TEAM_NOT_FOUND = "未查询到战队"
