@@ -1,6 +1,6 @@
 <template>
     <div id="forgetPassword">
-      <router-link to="/Log" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>忘记密码</h1>
       <form @submit.prevent="forgetPassword">
         <label for="email">邮箱:</label>
@@ -14,6 +14,7 @@
 </template>
     
 <script>
+  import { mapState, mapMutations } from 'vuex';
     export default {
       data() {
         return {
@@ -25,13 +26,22 @@
           },
         };
       },
+      computed: {
+      ...mapState(['log','FoPa','RePa']),
+      },
       methods: {
+        ...mapMutations(['setLog','setFoPa','setRePa']),
+        close() {
+          this.setFoPa(false);
+          this.setLog(true);
+        },
         getVcode() {
           // 发送获取验证码请求到后端
         },
         next() {
             //发送验证码，验证是否正确
-            this.$router.push("/Reset");
+            this.setRePa(true);
+            this.setFoPa(false);
         }
       },
     };
