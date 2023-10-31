@@ -2,12 +2,12 @@
     <div id="resetPassword">
       <router-link to="/Log" class="close-btn">&#10006;</router-link>
       <h1>重置密码</h1>
-      <form @submit.prevent="resetPassword">
+      <form @submit.prevent="Complete">
         <label for="newPassword">新密码:</label>
         <input type="text" id="newPassword" v-model="ResetPassword.newPassword" required /><br><br>
         <label for="confirmNewPassword">确认新密码:</label>
         <input type="text" id="confirmNewPassword" v-model="ResetPassword.confirmNewPassword" required /><br><br>
-        <button type="submit" @click="Complete()">完成</button><br><br>
+        <button type="submit">完成</button><br><br>
       </form>
     </div>
 </template>
@@ -44,7 +44,7 @@
 <style>
 #resetPassword {
     margin-top:200px;
-    margin-left:465px;
+    margin-left:480px;
     position: absolute;
     top: auto;
     left: auto;

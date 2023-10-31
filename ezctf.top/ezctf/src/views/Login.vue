@@ -8,7 +8,7 @@
         <input type="text" id="usernameOrEmail" v-model="loginInfo.usernameOrEmail" required /><br><br>
         <label for="password">密码:</label>
         <input type="password" id="password" v-model="loginInfo.password" required /><br><br>
-        <button type="submit" @click="loginUser()">登录</button><br><br>
+        <button type="submit">登录</button><br><br>
         <router-link to="/FP" class="router-link">忘记密码</router-link> |
         <router-link to="/Re" class="router-link">注册</router-link>
       </form>
@@ -54,7 +54,6 @@
         } catch (error) {
           alert(error.response.data.msg);
           console.error('登录错误:', error);
-          console.log(error.response);
         }
       }
     },
@@ -63,14 +62,14 @@
     
   <style>
   #bkg {
-    height:100vh;
+    height:87.5vh;
     width:1350px;
     background-image: url('../assets/窗口背景.png');
     background-size: cover;
   }
   #loginUser {
     margin-top:200px;
-    margin-left:465px;
+    margin-left:480px;
     position: absolute;
     top: auto;
     left: auto;

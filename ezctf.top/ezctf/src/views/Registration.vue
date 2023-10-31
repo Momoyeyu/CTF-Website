@@ -11,7 +11,7 @@
         <input type="password" id="confirmPassword" v-model="user.confirmPassword" required /><br><br>
         <label for="email">邮箱:</label>
         <input type="email" id="email" v-model="user.email" required /><br><br>
-        <button type="submit" @click="userRegister()">注册</button><br><br>
+        <button type="submit">注册</button><br><br>
       </form>
     </div>
   </template>
@@ -53,7 +53,7 @@
           console.error('注册错误:', error);
         }
       },
-      userRegister() {
+      registerUser() {
         if(this.user.password==this.user.confirmPassword&&this.user.password!=''){
           this.Register();
         }

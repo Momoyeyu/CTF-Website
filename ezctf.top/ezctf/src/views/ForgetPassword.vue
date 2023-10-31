@@ -8,7 +8,7 @@
         <button type="submit" @click="getVcode()">发送验证码</button><br><br>
         <label for="Vcode">验证码:</label>
         <input type="text" id="Vcode" v-model="Vcode.Vcode" required /><br><br>
-        <button type="submit" @click="next()">下一步</button><br><br>
+        <button @click="next()">下一步</button><br><br>
       </form>
     </div>
 </template>
@@ -40,7 +40,7 @@
 <style>
 #forgetPassword {
     margin-top:200px;
-    margin-left:465px;
+    margin-left:480px;
     position: absolute;
     top: auto;
     left: auto;
