@@ -48,7 +48,7 @@ def create_team(request):
     POST 获取数据样例：
     {
         "action": "create_team",
-        "data":{
+        "data": {
             "team_name": "ezctf",
             "allow_join": "true"
         }
@@ -272,7 +272,6 @@ def change_team_name(request):
     {
         "action": "change_team_name",
         "data": {
-            "old_team_name": "ezctf",
             "new_team_name": "Ezctf",
         }
     }
@@ -285,13 +284,14 @@ def change_team_name(request):
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
-    old_team_name = data["old_team_name"]
     new_team_name = data["new_team_name"]
     user = User.objects.get(pk=uid)
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
-    team = Team.objects.get(team_name=old_team_name)
+    if user.custom_user.team is None:
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
+    team = Team.objects.get(pk=user.custom_user.team.id)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
@@ -304,7 +304,7 @@ def change_team_name(request):
     team.team_name = new_team_name
     team.save()
     response_data = {"team_name": new_team_name, }
-    return success_template("修改成功", data=response_data)
+    return success_template(SuccessEnum.MODIFICATION_SUCCESS.value, data=response_data)
 
 
 def change_team_leader(request):
@@ -350,7 +350,7 @@ def change_team_leader(request):
         "team_name": team.team_name,
         "new_leader_name": team.leader.username,
     }
-    return success_template("成功更换队长", data=response_data, status=200)
+    return success_template(SuccessEnum.MODIFICATION_SUCCESS.value, data=response_data, status=200)
 
 
 def verify_apply(request):

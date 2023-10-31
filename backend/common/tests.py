@@ -80,6 +80,7 @@ class SessionTest(TestCase):
         print("===============================")
         self.login()
         self.get_message()
+        self.change_team_name()
         self.get_applications()
         self.get_invitations()
         self.logout()
@@ -265,6 +266,20 @@ class SessionTest(TestCase):
         response = self.client.post('http://localhost/api/common/team?action=verify_apply',
                                     data=json.dumps(payload),
                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        pprint.pprint(response.json())
+
+    def change_team_name(self):
+        log_test("change team name")
+        payload = {
+            "action": "change_team_name",
+            "data": {
+                "new_team_name": "233",
+            },
+        }
+        response = self.client.put('http://localhost/api/common/team?action=change_team_name',
+                                   data=json.dumps(payload),
+                                   content_type='application/json')
         self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
