@@ -417,7 +417,7 @@ def verify_apply(request):
                      msg_type=Message.MessageType.CHAT.value)
 
     applications.update(checked=True, is_active=False)
-    return success_template("审核已生效", data=None, status=200)
+    return success_template("审核已生效", status=200)
 
 
 def invite(request):
@@ -517,10 +517,11 @@ def accept(request):
         custom_user.team = team
         team.save()
         custom_user.save()
-        res_data = {"team_name": team.team_name, }
         msg = "接受邀请"
+        res_data = {"team_name": team.team_name, }
         send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
         return success_template("成功加入战队", data=res_data)
     else:
         msg = "拒绝邀请"
         send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
+        return success_template("拒绝加入战队")
