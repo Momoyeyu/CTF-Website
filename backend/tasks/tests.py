@@ -89,12 +89,12 @@ class SessionTest(TestCase):
 
     def rank_user(self):
         print("test rank user: ")
-        response = self.client.get('http://localhost/api/rank/user?action=rank')
+        response = self.client.get('http://localhost/api/rank/user')
         pprint.pprint(response.json())
 
     def rank_team(self):
         print("test rank team: ")
-        response = self.client.get('http://localhost/api/rank/team?action=rank')
+        response = self.client.get('http://localhost/api/rank/team')
         pprint.pprint(response.json())
 
     def detail(self):

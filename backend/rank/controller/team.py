@@ -15,6 +15,28 @@ def dispatcher(request):
 
 
 def team_rank(request):
+    """
+    @return:
+    {
+        "ret": "success",
+        "msg": "查询成功",
+        "data": {
+            "team_list": [
+                {
+                    "team_name": "aaa",
+                    "score": 100,
+                    "member_count": 2,
+                },
+                {
+                    "username": "bbb",
+                    "score": 100,
+                    "member_count": 2,
+                },
+            ],
+            "total": 2,
+        }
+    }
+    """
     if request.method != 'GET':
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 

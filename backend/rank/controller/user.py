@@ -16,6 +16,28 @@ def dispatcher(request):
 
 
 def user_rank(request):
+    """
+    @return:
+    {
+        "ret": "success",
+        "msg": "查询成功",
+        "data": {
+            "user_list": [
+                {
+                    "username": "aaa",
+                    "score": 100,
+                    "last_commit": xxx,
+                },
+                {
+                    "username": "bbb",
+                    "score": 100,
+                    "last_commit": xxx,
+                },
+            ],
+            "total": 2,
+        }
+    }
+    """
     if request.method != 'GET':
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
@@ -23,12 +45,12 @@ def user_rank(request):
     user_list = []
     for user in users:
         user_list.append({
-            'user_name': user.user.username,
-            'score':user.score,
+            'username': user.user.username,
+            'score': user.score,
             'last_commit': user.last_answer_time,
         })
     res_data = {
-        "team_list": user_list,
+        "user_list": user_list,
         "total": len(user_list),
     }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
