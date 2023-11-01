@@ -39,17 +39,16 @@
     
 <style>
 #forgetPassword {
-    margin-top:150px;
-    margin-left:450px;
-    position: fixed;
+    margin-top:200px;
+    margin-left:465px;
+    position: absolute;
     top: auto;
     left: auto;
-    width: 30%;
-    height: 25%;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 450px;
+    height: 220px;
     justify-content: center;
     align-items: center;
-    background-color: #0d1117;
+    background-color: #1e1e1e;
     padding: 20px;
     border-style: solid;
     border-radius: 5px;

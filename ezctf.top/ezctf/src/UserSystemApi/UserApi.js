@@ -9,13 +9,13 @@ const api = axios.create({
   },
 });
 
-export const login = async (usernameOrEmail, password) => {
+export const login = async (usernameOrEmail, password1) => {
   try {
     const requestData = {
-      action: 'login',
+      action: "login",
       data: {
         username_or_email: usernameOrEmail,
-        password: password,
+        password: password1,
       },
     };
 
@@ -44,16 +44,43 @@ export const register = async (username, password, email) => {
   }
 };
 
-export const validateCode = async (code) => {
+export const modifyUserInfo = async (old_username,new_username,password) => {
   try {
     const requestData = {
-      action: 'valid',
+      action: 'modify_user_info',
       data: {
-        code: code,
+        old_username: old_username,
+        new_username: new_username,
+        password: password
       },
     };
+    const response = await api.put('/api/common/user?action=modify_user_info', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
-    const response = await api.post('/api/common/user?action=valid', requestData);
+export const logoutUser = async () => {
+  try {
+    const requestData = {
+      action: 'logout',
+    };
+
+    const response = await api.get('/api/common/user?action=logout', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteUserInfo = async () => {
+  try {
+    const requestData = {
+      action: 'del_account',
+    };
+
+    const response = await api.delete('/api/common/user?action=del_account', requestData);
     return response.data;
   } catch (error) {
     throw error;

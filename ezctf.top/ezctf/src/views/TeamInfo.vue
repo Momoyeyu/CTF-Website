@@ -1,6 +1,6 @@
 <template>
     <div id="teaminfo">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队信息</h1>
           <p>战队名称:{{ team.name }}</p>
           <p>队长:{{team.leader_id}}&nbsp;&nbsp;&nbsp;得分:1{{ leader_score }}</p>
@@ -27,11 +27,13 @@
 </template>
     
 <script>
+  import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
       return {
         team: {
-          name: 'ezctf',
+          member_name: this.$store.state.username,
+          name: this.$store.state.teamname,
           leader_id: 'jwf',
           leader_score: '100',
           membernum: '4',
@@ -46,10 +48,18 @@
       ],
       };
     },
+    computed: {
+      ...mapState(['userInfoButtonEnabled','username','teamname']),
+    },
     methods: {
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
+      close() {
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push('/Home');
+      },
       quit() {
         //发送退出战队请求到后端
-          this.$router.push("/App");
+          this.$router.push("/Home");
       }
     },
   };
@@ -60,13 +70,12 @@
   margin-top:100px;
   margin-left:28%;
   width: 40%;
-  position: fixed;
+  position: absolute;
   top: auto;
   left: auto;
-  background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
-  background-color: #0d1117;
+  background-color: #1e1e1e;
   padding: 20px;
   border-style: solid;
   border-radius: 5px;

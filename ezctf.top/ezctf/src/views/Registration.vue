@@ -1,6 +1,6 @@
 <template>
     <div id="registerUser">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>用户注册</h1>
       <form @submit.prevent="registerUser">
         <label for="username">用户名:</label>
@@ -10,18 +10,15 @@
         <label for="password">确认密码:</label>
         <input type="password" id="confirmPassword" v-model="user.confirmPassword" required /><br><br>
         <label for="email">邮箱:</label>
-        <input type="email" id="email" v-model="user.email" required />
-        <button type="submit" @click="getEmail()">发送验证码</button><br><br>
-        <label for="Vcode">验证码:</label>
-        <input type="text" id="Vcode" v-model="code" required /><br><br>
-        <button type="submit" @click="userRegister()">注册</button>
-        <p>提示：用户名为真实姓名</p><br><br>
+        <input type="email" id="email" v-model="user.email" required /><br><br>
+        <button type="submit" @click="userRegister()">注册</button><br><br>
       </form>
     </div>
   </template>
     
   <script>
-  import { register,validateCode } from '../UserSystemApi/UserApi.js';
+  import { register } from '../UserSystemApi/UserApi.js';
+  import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
       return {
@@ -34,18 +31,31 @@
         code: ''
       };
     },
+    computed: {
+    ...mapState(['loginButtonEnabled','username']),
+    },
     methods: {
-      async getCode() {
+      ...mapMutations(['setLoginButtonEnabled','setUsername']),
+      close() {
+        this.setLoginButtonEnabled(true);
+        this.$router.push('/Home');
+      },
+      async Register() {
         try {
           const response = await register( this.user.username, this.user.password, this.user.email);
+          alert(response.data.msg);
           console.log('注册响应:', response);
+          if (response.return === 'success') {
+            this.$router.push("/Log");
+          }
         } catch (error) {
+          alert(error.response.data.msg);
           console.error('注册错误:', error);
         }
       },
-      getEmail() {
+      userRegister() {
         if(this.user.password==this.user.confirmPassword&&this.user.password!=''){
-          this.getCode();
+          this.Register();
         }
         else{
           this.user.password='';
@@ -53,40 +63,22 @@
           alert("密码设置失败，请重新设置密码！");
         }
       },
-      async validateCode() {
-        try {
-          const response = await validateCode(this.code);
-          console.log('验证码响应', response);
-          if (response.return === 'success') {
-            this.$router.push({
-              path: '/App',
-              query: { backInfo: response.userInfo, source: 'Registration' } 
-            });
-          }
-          else{
-            alert("注册失败");
-          }
-        } catch (error) {
-          console.error('验证码错误:', error);
-        }
-      }
     },
   };
   </script>
   
   <style>
   #registerUser {
-      margin-top:100px;
-      margin-left:450px;
-      position: fixed;
+      margin-top:150px;
+      margin-left:420px;
+      position: absolute;
       top: auto;
       left: auto;
-      width: 30%;
-      height: 45%;
-      background-color: rgba(0, 0, 0, 0.5);
+      width: 500px;
+      height: 300px;
       justify-content: center;
       align-items: center;
-      background-color: #0d1117;
+      background-color: #1e1e1e;
       padding: 20px;
       border-style: solid;
       border-radius: 5px;
@@ -97,6 +89,8 @@
       color:white;
   }
   .close-btn {
+      background: transparent; 
+      border: none; 
       text-decoration: none;
       color:white;
       position: absolute;

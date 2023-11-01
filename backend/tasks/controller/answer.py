@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from django.http import JsonResponse
-from utils import get_request_params
 from tasks.models import Task, AnswerRecord
 from common.models import CustomUser
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,108 +10,147 @@ import backend.settings as settings
 from django.utils import timezone
 import os
 import traceback
+from utils import get_request_params, ExceptionEnum, error_template, success_template
+
 
 def dispatcher(request):
-
-    if request.method == 'POST':
+    if request.method == "GET":
+        action = request.GET.get("action")
+    else:
         request.params = get_request_params(request)
-        action = request.params['action']
-    else:
-        action = request.GET.get('action')
+        action = request.params["action"]
 
-    if action == 'commit_flag':
+    if action == "commit_flag":
         return commit_flag(request)
-    elif action == 'download_attachment':
+    elif action == "download_attachment":
         return download_attachment(request)
+    elif action == "list_solved":
+        return list_solved(request)
     else:
-        return JsonResponse({'ret': 1, 'msg': 'Unsupported request!'})
+        return JsonResponse({"ret": 1, "msg": "Unsupported request!"})
 
 
 def commit_flag(request):
     """
-    Need info:
+    POST
+    @payload
     {
         "action" : "commit_flag",
         "data" : {
+            "
             "task_id" : 0,
             "flag" : "Flag:abcdefg"
         }
     }
     """
-    if request.method != 'POST':
-        return JsonResponse({
-            'ret': 'error',
-            'msg': 'Unsupported request method.',
-        })
+    if request.method != "POST":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
-    try:
-        info = request.params['data']
-        task_id = info['task_id']
-        flag = info['flag']
-        user_id = request.session.get('_auth_user_id')
-        task = Task.objects.get(id=task_id)
-        cuser = CustomUser.objects.get(user_id=user_id)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
-        if task.flag != flag:
-            return JsonResponse({'ret': 'error',  'msg': 'Wrong!'})
-        elif AnswerRecord.objects.filter(user_id=user_id,task=task).exists():
-            return JsonResponse({'ret': 'error', 'msg': '重复答题!'})
-        else:
-            cuser.score += task.points
-            cuser.save()
-            task.solve_count += 1
-            task.save()
-            cuser.last_answer_time = timezone.now()
-            cuser.save()
-            record = AnswerRecord.objects.create(task_id=task_id, user_id=user_id, points=task.points)
-            if FirstKill.objects.filter(task_id=task_id).exists() == False:
-                FirstKill.objects.create(task_id=task_id,user_id=user_id)
-                return JsonResponse({'ret': 'success', 'msg': f'First Killed! Add a new record {record.id}.'})
-            return JsonResponse({'ret': 'success', 'msg':f'Accepted! Add a new record {record.id}.'})
-    except Task.DoesNotExist:
-        return JsonResponse({'ret': 'error', 'msg' : 'Question not found.'}, status=404)
-    except CustomUser.DoesNotExist:
-        return JsonResponse({'ret':'error', 'msg': 'User not found.'}, status=404)
-    except:
-        return JsonResponse({'ret': 'error',  'msg': f'未知错误\n{traceback.format_exc()}'},status=404)
+    info = request.params["data"]
+    task_id = info["task_id"]
+    flag = info["flag"]
+    uid = request.session.get("_auth_user_id")
+    user = User.objects.get(pk=uid)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    task = Task.objects.get(id=task_id)
+    if task is None:
+        return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
+
+    cuser = CustomUser.objects.get(user=user)
+
+    if task.flag != flag:
+        return success_template("回答错误", status=200)
+    elif AnswerRecord.objects.filter(user_id=uid, task=task).exists():
+        return error_template("重复答题", status=403)
+    else:
+        cuser.score += task.points
+        cuser.save()
+        task.solve_count += 1
+        task.save()
+        cuser.last_answer_time = timezone.now()
+        cuser.save()
+        record = AnswerRecord.objects.create(task_id=task_id, user_id=uid, points=task.points)
+        if not FirstKill.objects.filter(task_id=task_id).exists():
+            FirstKill.objects.create(task_id=task_id, user_id=uid)
+            msg = f"First Killed! Add a new record {record.id}."
+            return success_template(msg)
+        msg = f"Accepted! Add a new record {record.id}."
+        return success_template(msg)
+
 
 def download_attachment(request):
     """
-    need info:task_id
+    GET
+    {
+        "action": "download_attachment",
+        "task_id": 1,
+    }
     """
-    if request.method != 'GET':
-        return JsonResponse({
-            'ret': 'error',
-            'msg': 'Unsupported request method.',
-        })
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
-    try:
-        task_id = request.GET.get('task_id')
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
-        # print(task_id)
-        task = Task.objects.get(id=int(task_id))
+    task_id = request.GET.get("task_id")
+    task = Task.objects.get(id=int(task_id))
+    if task is None:
+        return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
+    attach_path = str(task.annex)
+    file_path = os.path.join(settings.MEDIA_ROOT, attach_path)
 
-        attach_path = str(task.annex)
-        file_path = os.path.join(settings.MEDIA_ROOT, attach_path)
+    if os.path.exists(file_path):
+        file = open(file_path, "rb")
+        response = FileResponse(file)
+        response["Content-Type"] = "application/octet-stream"
+        response["Content-Disposition"] = f"filename='{os.path.basename(file_path)}'"
+        # TODO 关闭文件尚未解决
+        return response
+    else:
+        return HttpResponse("File not found", status=404)
 
-        if os.path.exists(file_path):
-            file = open(file_path, 'rb')
-            response = FileResponse(file)
-            response['Content-Type'] = 'application/octet-stream'
-            response['Content-Disposition'] = f'filename="{os.path.basename(file_path)}"'
-            # TODO 关闭文件尚未解决
-            return response
-        else:
-            return HttpResponse('File not found', status=404)
-    except Task.DoesNotExist:
-        return HttpResponse('Task not found', status=404)
-    except:
-        return HttpResponse(f'未知错误\n{traceback.format_exc()}', status=404)
+
+def list_solved(request):
+    """
+    GET
+    @param:
+    {
+        "action": "list_solved",
+    }
+    @return:
+    {
+        "ret": "success" / "error",
+        "msg": "",
+        "data": [
+            {
+                "task_id": 1,
+            },
+            {
+                "task_id": 2,
+            },
+            {
+                "task_id": 3,
+            },
+        ]
+    }
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
+    if not request.user.is_authenticated:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+
+    uid = request.session.get("_auth_user_id")
+    user = User.objects.get(pk=uid)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+
+    answered_tasks = AnswerRecord.objects.filter(user=user)
+    task_id_list = []
+    for task in answered_tasks:
+        task_id_list.append({
+            "task_id": task.id,
+        })
+    return success_template("查询成功", data=task_id_list)

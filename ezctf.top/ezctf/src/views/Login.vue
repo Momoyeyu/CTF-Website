@@ -1,21 +1,24 @@
-<template>
-    <div id="loginUser">
-      <router-link to="/App" class="close-btn">&#10006;</router-link>
+<template id="log">
+    <div id='bkg'>
+      <div id="loginUser">
+      <button @click="close()" class="close-btn">&#10006;</button>
       <h1>用户登录</h1>
       <form @submit.prevent="loginUser">
         <label for="usernameOrEmail">用户名/邮箱:</label>
         <input type="text" id="usernameOrEmail" v-model="loginInfo.usernameOrEmail" required /><br><br>
         <label for="password">密码:</label>
         <input type="password" id="password" v-model="loginInfo.password" required /><br><br>
-        <button type="submit" @click="LoginUser()">登录</button><br><br>
+        <button type="submit" @click="loginUser()">登录</button><br><br>
         <router-link to="/FP" class="router-link">忘记密码</router-link> |
         <router-link to="/Re" class="router-link">注册</router-link>
       </form>
+      </div>
     </div>
   </template>
     
   <script>
   import { login } from '../UserSystemApi/UserApi.js';
+  import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
       return {
@@ -25,22 +28,33 @@
         },
       };
     },
+    computed: {
+    ...mapState(['loginButtonEnabled','username','isLogin']),
+    },
     methods: {
-      async LoginUser() {
+      ...mapMutations(['setLoginButtonEnabled','setUsername','setIsLogin']),
+      close() {
+        this.setLoginButtonEnabled(true);
+        this.$router.push('/Home');
+      },
+      async loginUser() {
         try {
           const response = await login(this.loginInfo.usernameOrEmail, this.loginInfo.password);
           console.log('登录响应:', response);
           if (response.return === 'success') {
+            alert(response.data.msg);
+            this.$store.commit('setLoginButtonEnabled', true);
+            this.$store.commit('setUsername', response.data.username);
+            this.$store.commit('isLogin', true);
             this.$router.push({
-              path: '/App',
-              query: { backInfo: response.userInfo, source: 'Login' } 
+              path: '/Home',
+              query: { backInfo: response.data, source: 'Login' } 
             });
           }
-          else {
-            alert("登录失败");
-          }   
         } catch (error) {
+          alert(error.response.data.msg);
           console.error('登录错误:', error);
+          console.log(error.response);
         }
       }
     },
@@ -48,18 +62,23 @@
   </script>
     
   <style>
+  #bkg {
+    height:100vh;
+    width:1350px;
+    background-image: url('../assets/窗口背景.png');
+    background-size: cover;
+  }
   #loginUser {
-    margin-top:150px;
-    margin-left:450px;
-    position: fixed;
+    margin-top:200px;
+    margin-left:465px;
+    position: absolute;
     top: auto;
     left: auto;
-    width: 30%;
-    height: 30%;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 450px;
+    height: 250px;
+    background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
-    background-color: #0d1117;
     padding: 20px;
     border-style: solid;
     border-radius: 5px;
@@ -72,8 +91,15 @@
   .router-link {
     text-decoration: none;
     color: white;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .router-link:hover {
+    background-color: grey;
   }
   .close-btn {
+    background: transparent; 
+    border: none; 
     text-decoration: none;
     color:white;
     position: absolute;

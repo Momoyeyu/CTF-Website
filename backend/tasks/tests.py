@@ -8,25 +8,29 @@ import requests
 import pprint
 from django.urls import reverse
 
+
 class SessionTest(TestCase):
     def setUp(self):
-        self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com',password='123456')
+        self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com', password='123456')
         self.obj = User.objects.create_user(username='bbb', email='123456789@qq.com', password='123456')
         self.obj = Team.objects.create(team_name='ez', allow_join=True, member_count=1, leader_id=1)
 
         self.obj = CustomUser.objects.create(user_id=1, team_id=1, score=0)
         self.obj = CustomUser.objects.create(user_id=2, team_id=1, score=0)
 
-        self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10, solve_count=0, type=2, annex='aa.txt')
-        self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10, solve_count=0, type=2)
+        self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10,
+                                       solve_count=0, task_type=1, annex='aa.txt')
+        self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10,
+                                       solve_count=0, task_type=2)
 
     def test_main(self):
         self.login()
-        self.list_task()
+        self.list_all()
+        self.list_type()
         self.query_one()
-        self.download_attachment()
+        # self.download_attachment()
         self.commit_flag()
-        self.list_task()
+        self.list_solved()
         self.rank_user()
         self.rank_team()
 
@@ -35,7 +39,7 @@ class SessionTest(TestCase):
         payload = {
             "action": "login",
             "data": {
-                "username_or_email": "aa",
+                "username_or_email": "aaa",
                 "password": "123456",
             }
         }
@@ -43,25 +47,36 @@ class SessionTest(TestCase):
         #  session_middleware = SessionMiddleware()
         #  session_middleware.process_request(self)
         response = self.client.post('http://localhost/api/common/user', data=payload, content_type='application/json')
-    #    self.assertEqual(response.status_code, 200)
+        #    self.assertEqual(response.status_code, 200)
         self.client.login(username='aa', password='123456')
         pprint.pprint(response.json())
 
-    def list_task(self):
-        print("test list task: ")
+    def list_type(self):
+        print("[INFO]: test list type: ")
         client = self.client
-        response = client.get('http://localhost/api/task/list?action=list_all&type=2')
+        response = client.get('http://localhost/api/task/list?action=list_type&type=2')
+        pprint.pprint(response.json())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.session.get('user_id'), None)
+
+    def list_all(self):
+        print("[INFO]: test list all: ")
+        client = self.client
+        response = client.get('http://localhost/api/task/list?action=list_all')
+        pprint.pprint(response.json())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.session.get('user_id'), None)
+
+    def list_solved(self):
+        print("[INFO]: test list solved")
+        client = self.client
+        response = client.get('http://localhost/api/task/answer?action=list_solved')
         pprint.pprint(response.json())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session.get('user_id'), None)
 
     def commit_flag(self):
-        print("test commit flag: ")
-
-        # users = User.objects.all()
-        # for user in users:
-        #     print("--user_id: "+str(user.id))
-
+        print("[INFO]: test commit flag: ")
         payload = {
             "action": "commit_flag",
             "data": {
@@ -70,9 +85,9 @@ class SessionTest(TestCase):
                 "flag": "aaaa"
             }
         }
-
         response = self.client.post('http://localhost/api/task/answer', data=payload, content_type='application/json')
         pprint.pprint(response.json())
+
     def rank_user(self):
         print("test rank user: ")
         response = self.client.get('http://localhost/api/rank/user?action=getrank')

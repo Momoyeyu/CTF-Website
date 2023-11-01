@@ -1,19 +1,32 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Home from '../views/Home.vue'
+import Ranking from '../views/Ranking.vue'
 import Registration from '../views/Registration.vue'
 import Login from '../views/Login.vue'
 import ForgetPassword from '../views/ForgetPassword.vue'
 import ResetPassword from '../views/ResetPassword.vue'
-import NoTeam from '../views/NoTeam/NoTeam.vue'
-import CreateTeam from '../views/NoTeam/CreateTeam.vue'
-import JoinTeam from '../views/NoTeam/JoinTeam.vue'
 import TeamInfo from '../views/TeamInfo.vue'
 import ManageTeam from '../views/ManageTeam.vue'
-import InfoBoard from '../views/InfoBoard.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/Home',
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/Ranking',
+    name: 'Ranking',
+    component: Ranking
+  },
   {
     path: '/Re',
     name: 'Registration',
@@ -35,22 +48,6 @@ const routes = [
     component: ResetPassword,
   },
   {
-    path: '/NoTeam',
-    name: 'NoTeam',
-    component: NoTeam,
-  },
-  {
-    path: '/CreateTeam',
-    name: 'CreateTeam',
-    component: CreateTeam,
-    props: true,
-  },
-  {
-    path: '/JoinTeam',
-    name: 'JoinTeam',
-    component: JoinTeam,
-  },
-  {
     path: '/TeamInfo',
     name: 'TeamInfo',
     component: TeamInfo,
@@ -60,12 +57,6 @@ const routes = [
     name: 'ManageTeam',
     component: ManageTeam,
   },
-  {
-    path: '/InfoBoard',
-    name: 'InfoBoard',
-    component: InfoBoard,
-  },
-
 ]
 
 const router = new VueRouter({

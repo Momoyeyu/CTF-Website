@@ -31,12 +31,13 @@
   <style>
   .avatar {
     display: inline-block;
+    position: relative;
   }
   
   .avatar-circle {
     width: 50px;
     height: 50px;
-    border-radius: 50%;
+    border-radius: 50px;
     background-color: #3498db;
     color: white;
     font-size: 24px;
