@@ -29,13 +29,13 @@
           const response = await modifyUserInfo(this.user_name, this.newUsername,this.password);
           console.log('修改信息响应:', response);
           if (response.return === 'success') {
+            alert(response.msg);
             this.$store.commit('modifyUser', false);
             this.$store.commit('setUsername', response.new_username);
           }
         } catch (error) {
-          alert('错误!');
+          alert(error.response.msg);
           console.error('错误:', error);
-          console.log(error.response);
         }
       },
       close() {

@@ -17,8 +17,15 @@ const store = new Vuex.Store({
     noTeam: false,
     createTeam: false,
     joinTeam: false,
+    log: true,
+    reg: false,
+    FoPa: false,
+    RePa: false,
     username: '',
+    score: '',
     teamname: '',
+    isLeader: false,
+    isMember: false
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
@@ -32,6 +39,15 @@ const store = new Vuex.Store({
     },
     setTeamname(state, value) {
       state.teamname = value;
+    },
+    setScore(state, value) {
+      state.score = value;
+    },
+    setIsLeader(state, value) {
+      state.isLeader = value;
+    },
+    setIsMember(state, value) {
+      state.isMember = value;
     },
     setModifyUser(state, value) {
       state.modifyUser = value;
@@ -53,7 +69,19 @@ const store = new Vuex.Store({
     },
     setJoinTeam(state, value){
       state.joinTeam =value;
-    }
+    },
+    setLog(state, value){
+      state.log =value;
+    },
+    setReg(state, value){
+      state.reg =value;
+    },
+    setFoPa(state, value){
+      state.FoPa =value;
+    },
+    setRePa(state, value){
+      state.RePa =value;
+    },
   },
 });
 

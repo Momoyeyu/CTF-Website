@@ -13,25 +13,6 @@ import pprint
 import json
 
 
-def send_email():
-    print("test send email:")
-    path = "http://127.0.0.1:8000/user/valid?token={}".format(123)
-    email = "momoyeyu@outlook.com"
-    email = "1522384595@qq.com"
-
-    subject = "ezctf 激活邮件"
-    message = """
-           欢迎来到 ezctf！ 
-           <br> <a href='{}'>点击激活</a>  
-           <br> 若链接不可用，请复制链接到浏览器激活: 
-           <br> {}
-           <br>                 ezctf 开发团队
-           """.format(path, path)
-    result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
-                       html_message=message)
-    print(result)
-
-
 class SessionTest(TestCase):
     def setUp(self):
         self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com', password='123456')
@@ -52,10 +33,12 @@ class SessionTest(TestCase):
         self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10,
                                        solve_count=0, task_type=2)
 
-        # self.obj = Message.objects.create(receiver_id=1, origin_id=3, msg="申请加入战队",
-        #                                   msg_type=Message.MessageType.APPLICATION.value)
+        self.obj = Message.objects.create(receiver_id=1, origin_id=3, msg="申请加入战队",
+                                          msg_type=Message.MessageType.APPLICATION.value)
+        self.obj = Message.objects.create(receiver_id=3, origin_id=1, msg="邀请加入战队",
+                                          msg_type=Message.MessageType.INVITATION.value)
 
-    def test_one(self):
+    def test_create_del(self):
         # self.user_register()
         # send_email()
         self.login()
@@ -68,7 +51,7 @@ class SessionTest(TestCase):
         self.search_team()
         self.logout()
 
-    def test_two(self):
+    def test_join_quit_change(self):
         print("===============================")
         self.login_c()
         self.quit_team()
@@ -85,7 +68,7 @@ class SessionTest(TestCase):
         self.quit_team()
         self.logout()
 
-    def test_three(self):
+    def test_invite_accept(self):
         print("===============================")
         self.login()
         self.invite()
@@ -95,6 +78,41 @@ class SessionTest(TestCase):
         self.accept()
         self.quit_team()
         self.login_c()
+
+    def test_message(self):
+        print("===============================")
+        self.login()
+        self.get_message()
+        self.change_team_name()
+        self.get_applications()
+        self.get_invitations()
+        self.logout()
+
+        self.login_c()
+        self.get_message()
+        self.get_applications()
+        self.get_invitations()
+        self.modify_user_info()
+        self.del_account()
+
+    # message
+    def get_message(self):
+        log_test("get message")
+        response = self.client.get('http://localhost/api/common/message?action=get_messages')
+        self.assertEqual(response.status_code, 200)
+        pprint.pprint(response.json())
+
+    def get_applications(self):
+        log_test("get applications")
+        response = self.client.get('http://localhost/api/common/message?action=get_applications')
+        self.assertEqual(response.status_code, 200)
+        pprint.pprint(response.json())
+
+    def get_invitations(self):
+        log_test("get invitations")
+        response = self.client.get('http://localhost/api/common/message?action=get_invitations')
+        self.assertEqual(response.status_code, 200)
+        pprint.pprint(response.json())
 
     # user:
     def login(self):
@@ -146,6 +164,39 @@ class SessionTest(TestCase):
         }
         response = self.client.post('http://localhost/api/common/user', data=json.dumps(payload),
                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        pprint.pprint(response.json())
+
+    def del_account(self):
+        log_test("del account")
+        payload = {
+            "action": "del_account",
+            "data": {
+                "password": "123456",
+            }
+        }
+        response = self.client.delete('http://localhost/api/common/user', data=json.dumps(payload),
+                                      content_type='application/json')
+        if response.status_code == 204:
+            # 处理成功的情况，HTTP状态码204表示成功删除
+            print("[INFO]: Account deleted successfully")
+            print(response.content)
+        else:
+            # 处理其他状态码或错误情况
+            print("[ERROR]: Account deletion failed with status code", response.status_code)
+            print(response.content)
+
+    def modify_user_info(self):
+        log_test("modify user info")
+        payload = {
+            "action": "modify_user_info",
+            "data": {
+                "new_username": "momoyeyu",
+                "password": "123456",
+            }
+        }
+        response = self.client.put('http://localhost/api/common/user', data=json.dumps(payload),
+                                   content_type='application/json')
         pprint.pprint(response.json())
 
     # team:
@@ -161,6 +212,7 @@ class SessionTest(TestCase):
         }
         response = self.client.post('http://localhost/api/common/team', data=json.dumps(payload),
                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def del_team(self):
@@ -202,6 +254,7 @@ class SessionTest(TestCase):
     def search_team(self):
         print("[INFO]: test serach team")
         response = self.client.get('http://localhost/api/common/team?action=search_team&keyword=ez')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def verify_apply(self):
@@ -216,6 +269,21 @@ class SessionTest(TestCase):
         response = self.client.post('http://localhost/api/common/team?action=verify_apply',
                                     data=json.dumps(payload),
                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        pprint.pprint(response.json())
+
+    def change_team_name(self):
+        log_test("change team name")
+        payload = {
+            "action": "change_team_name",
+            "data": {
+                "new_team_name": "233",
+            },
+        }
+        response = self.client.put('http://localhost/api/common/team?action=change_team_name',
+                                   data=json.dumps(payload),
+                                   content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def change_team_leader(self):
@@ -229,6 +297,7 @@ class SessionTest(TestCase):
         response = self.client.put('http://localhost/api/common/team?action=change_team_leader',
                                    data=json.dumps(payload),
                                    content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def invite(self):
@@ -241,8 +310,9 @@ class SessionTest(TestCase):
             }
         }
         response = self.client.post('http://localhost/api/common/team?action=invite',
-                                   data=json.dumps(payload),
-                                   content_type='application/json')
+                                    data=json.dumps(payload),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def accept(self):
@@ -255,8 +325,8 @@ class SessionTest(TestCase):
             }
         }
         response = self.client.post('http://localhost/api/common/team?action=accept',
-                                   data=json.dumps(payload),
-                                   content_type='application/json')
+                                    data=json.dumps(payload),
+                                    content_type='application/json')
         pprint.pprint(response.json())
 
 #

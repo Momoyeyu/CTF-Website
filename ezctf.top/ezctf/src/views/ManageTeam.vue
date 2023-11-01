@@ -62,13 +62,6 @@
   export default {
     data() {
       return {
-        team: {
-            leader_name: this.$store.state.username,
-            name:'ezctf',
-            membernum:'4',
-            maxnum:'10',
-            check:true
-        },
         members: [
           { id: 1, name: "jwf", score: 100 },
           { id: 2, name: "yyl", score: 100 },
@@ -82,32 +75,52 @@
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember']),
+    teamInfo(){
+      return{
+      team: {
+            leader_name: this.$store.state.username,
+            name: this.$store.state.teamname,
+            membernum:'4',
+            maxnum:'10',
+            check:true
+        },
+      };
+    },
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember']),
       close() {
         this.setUserInfoButtonEnabled(true);
-        this.$router.push('/Home');
+        this.$router.push('/');
       },
       async deleteTeam() {
         try {
           const response = await deleteTeam(this.team.name);
-          alert(response.data.msg);
           console.log('删除队伍响应:', response);
-          setTeamname('None');
+          if(response.ret=='success'){
+            alert(response.msg);
+            this.setTeamname('None');
+            this,setIsLeader(false);
+            this.$router.push("/");
+          }
         } catch (error) {
-          alert(error.response.data.msg);
+          alert(error.response.msg);
           console.error('错误:', error);
         }
       },
       async changeTeamLeader(memberName) {
         try {
           const response = await changeTeamLeader(this.leader_name,memberName);
-          alert(response.data.msg);
           console.log('队长转让响应:', response);
+          if(response.ret=='success'){
+            alert(response.msg);
+            this.setIsLeader(false);
+            this.setIsMember(true);
+            this.$router.push("/");
+          }
         } catch (error) {
-          alert(error.response.data.msg);
+          alert(error.response.msg);
           console.error('错误:', error);
         }
       },

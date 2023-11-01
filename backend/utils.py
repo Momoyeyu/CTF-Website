@@ -38,24 +38,35 @@ def is_valid_username(username):
 
 
 class SuccessEnum(Enum):
-    QUERY_SUCCESS = "查询成功"  # status = 200
-    MODIFICATION_SUCCESS = "修改成功"  # status = 200
-    DELETE_SUCCESS = "删除成功"  # status = 204
-    UPLOAD_SUCCESS = "上传成功"  # status = 200
-    POST_SUCCESS = "发送成功"  # status = 200
+    # status = 200
+    REQUEST_SUCCESS = "请求成功"
+    QUERY_SUCCESS = "查询成功"
+    MODIFICATION_SUCCESS = "修改成功"
+    UPLOAD_SUCCESS = "上传成功"
+    POST_SUCCESS = "发送成功"
+    # status = 204
+    DELETE_SUCCESS = "删除成功"
 
 
 class ExceptionEnum(Enum):
-    INVALID_REQUEST_METHOD = "Invalid Request Method"  # status = 405
-    USER_NOT_LOGIN = "用户未登录"  # status = 403
-    USER_NOT_FOUND = "未查询到用户"  # status = 404
-    TEAM_NOT_FOUND = "未查询到战队"  # status = 404
-    MESSAGE_NOT_FOUND = "未查询到信息"  # status = 404
-    TASK_NOT_FOUND = "未查询到题目"  # status = 404
-    DATA_NOT_FOUND = "未查询到数据"  # status = 404
-    NOT_LEADER = "不是队长，权限不足"  # status = 403
-    UNAUTHORIZED = "非授权操作"  # status = 403
-    NAME_EXIST = "名称已被使用"  # status = 409
+    # EXIST CONFLICT 409
+    NAME_EXIST = "名称已被使用"
+    # METHOD NOT ALLOWED 405
+    INVALID_REQUEST_METHOD = "Invalid Request Method!"
+    UNSUPPORTED_REQUEST = "Unsupported Request!"
+    # NOT FOUND 404:
+    USER_NOT_FOUND = "未查询到用户"
+    TEAM_NOT_FOUND = "未查询到战队"
+    MESSAGE_NOT_FOUND = "未查询到信息"
+    TASK_NOT_FOUND = "未查询到题目"
+    DATA_NOT_FOUND = "未查询到数据"
+    # UNAUTHORIZED 403:
+    WRONG_PASSWORD = "密码错误"
+    NOT_LEADER = "不是队长，权限不足"
+    UNAUTHORIZED = "非授权操作"
+    USER_NOT_LOGIN = "用户未登录"
+    # 400
+    MISS_PARAMETER = "请求参数不完整"
 
 
 def success_template(msg, data=None, status=200):
@@ -86,7 +97,7 @@ def error_template(msg, data=None, status=500):
         }, status=status)
 
 
-def send_message(receiver_id, origin_id, msg, msg_type="chat"):
+def send_message(receiver_id, origin_id, msg, msg_type=Message.MessageType.CHAT.value):
     message = Message(receiver_id=receiver_id, origin_id=origin_id, msg=msg, msg_type=msg_type)
     message.check = False
     message.save()

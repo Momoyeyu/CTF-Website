@@ -1,15 +1,14 @@
 import uuid
-
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-
 from backend import settings
-from utils import get_request_params, is_valid_username
+from utils import get_request_params, is_valid_username, error_template, success_template, send_message
+from utils import ExceptionEnum, SuccessEnum
 from django.contrib.auth.models import User
-from common.models import CustomUser, Team
+from common.models import CustomUser, Team, Message
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 import json
@@ -46,7 +45,7 @@ def dispatcher(request):
         return del_account(request)
 
     else:
-        return JsonResponse({"ret": "error", "msg": "Unsupported request!"})
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST, status=405)
 
 
 def user_login(request):
@@ -69,70 +68,47 @@ def user_login(request):
             "username": "momoyeyu",
             "score": "100",
             "team_name": "ezctf",
-            "is_leader": "true"
+            "is_leader": true
         }
     }
     """
     if request.method != "POST":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Unsupported request method.",
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
-    try:
-        info = request.params["data"]
-        username_or_email = info["username_or_email"]
-        password = info["password"]
-        print(username_or_email)
-        print(password)
-        if "@" in username_or_email:
-            user = authenticate(request, email=username_or_email, password=password)
+    info = request.params["data"]
+    username_or_email = info["username_or_email"]
+    password = info["password"]
+
+    if "@" in username_or_email:
+        user = authenticate(request, email=username_or_email, password=password)
+    else:
+        user = authenticate(request, username=username_or_email, password=password)
+
+    if user is None:
+        return error_template("登录失败！请检查你的信息", status=403)
+
+    if user.is_active is False:
+        return error_template("用户未激活", status=403)
+    login(request, user)
+    request.session["username"] = user.username
+    custom_user = CustomUser.objects.get(user_id=user.id)
+
+    res_data = {
+        "username": user.username,
+        "score": custom_user.score,
+        "team_name": None,
+        "is_leader": False,
+    }
+
+    if custom_user.team_id is not None:
+        team = Team.objects.get(pk=custom_user.team_id)
+        res_data["team_name"] = team.team_name
+        if team.leader_id == user.id:
+            res_data["is_leader"] = True
         else:
-            user = authenticate(request, username=username_or_email, password=password)
-        print(user)
-        if user is not None:
+            res_data["is_leader"] = False
 
-            if user.is_active is False:
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": "用户未激活",
-                }, status=404)
-            login(request, user)
-            request.session["username"] = user.username
-            custom_user = CustomUser.objects.get(user_id=user.id)
-
-            response = {"ret": "success", "msg": "登录成功", "data": {
-                        "username": user.username,
-                        "score": custom_user.score,
-                        "team_name": None,
-                        "is_leader": False,
-                    }
-                }
-
-            if custom_user.team_id is not None:
-                team = Team.objects.get(pk=custom_user.team_id)
-                response["data"]["team_name"] = team.team_name
-                if team.leader_id == user.id:
-                    response["data"]["is_leader"] = True
-                else:
-                    response["data"]["is_leader"] = False
-
-            response = JsonResponse(response, status=200)
-            response.set_cookie("username", user.username)
-            return response
-        else:
-            # 登录失败
-            return JsonResponse({
-                "ret": "error",
-                "msg": "登录失败！请检查你的信息",
-            }, status=403)
-
-    except json.JSONDecodeError:
-        # 请求数据无法解析
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid JSON data in the request.",
-        }, status=400)
+    return success_template("登录成功", data=res_data)
 
 
 def user_logout(request):
@@ -141,22 +117,13 @@ def user_logout(request):
     GET
     """
     if request.method != "GET":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if request.user.is_authenticated:
         logout(request)
-        return JsonResponse({
-            "ret": "success",
-            "msg": "已退出登录",
-        }, status=200)
+        return success_template("已退出登录")
     else:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "您没有登录",
-        }, status=400)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
 
 def user_register(request):
@@ -179,35 +146,26 @@ def user_register(request):
     }
     """
     if request.method != "POST":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method.",
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     info = request.params["data"]
     username = info["username"]
     password = info["password"]
     email = info["email"]
 
-    response = {"ret": "error", "msg": None, }
-
     # 验证用户输入
     if not username or not password or not email:
-        response["msg"] = "请输入完整信息"
-        return JsonResponse(response, status=400)
+        return error_template("请输入完整信息", status=400)
     if not is_valid_username(username):
-        response["msg"] = "用户名含有非法字符"
-        return JsonResponse(response, status=400)
+        return error_template("用户名含有非法字符", status=400)
     if User.objects.filter(username=username).exists():
         user = User.objects.get(username=username)
         if not user.is_active:
             user.delete()
         else:
-            response["msg"] = "用户名已被使用"
-            return JsonResponse(response, status=409)
+            return error_template(ExceptionEnum.NAME_EXIST.value, status=409)
     if User.objects.filter(email=email).exists():
-        response["msg"] = "邮箱已被使用"
-        return JsonResponse(response, status=409)
+        return error_template("邮箱已被使用", status=409)
 
     # 创建 User，create_user() 会自动处理密码的加密
     user = User.objects.create_user(username=username, password=password, email=email)
@@ -225,17 +183,11 @@ def user_register(request):
            <br> {}
            <br>                 ezctf 开发团队
            """.format(path, path)
-    print("email: " + email)
     result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
                        html_message=message)
-    print("result: " + str(result))
-
     user.save()
-
-    return JsonResponse({
-        "ret": "success",
-        "msg": "注册成功，请验证后登录",
-    }, status=200)
+    res_data = { "username": user.username, }
+    return success_template("注册成功，请验证后登录", data=res_data)
 
 
 def modify_user_info(request):
@@ -244,62 +196,45 @@ def modify_user_info(request):
     PUT
     @payload:
     {
-        "action":"modify_user_info",
-        "data":{
-            "old_username": "momoyeyu",
+        "action": "modify_user_info",
+        "data": {
             "new_username": "momoyeyu2",
             "password": "123",
         }
     }
     """
     if request.method != "PUT":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method"
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     # 获取请求中的数据
     data = request.params["data"]
-    new_username = data["new_username"]
+    new_username = str(data["new_username"])
+    password = data["password"]
+    uid = request.session.get('_auth_user_id')
 
     # 获取用户
-    user = authenticate(request, username=data["old_username"], password=data["password"])
-
+    user = User.objects.get(pk=uid)
     if user is None:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "密码错误",
-        }, status=403)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    user = authenticate(request, username=user.username, password=password)
+    if user is None:
+        return error_template(ExceptionEnum.WRONG_PASSWORD.value, status=403)
 
     # 用户验证成功
-    if new_username is None:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户名不能为空",
-        }, status=400)
+    if new_username.isspace():
+        return error_template("用户名不能为空", status=400)
 
     if not is_valid_username(new_username):
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户名含有非法字符",
-        }, status=400)
+        return error_template("用户名含有非法字符", status=400)
 
     user.username = new_username
     user.save()
 
-    return JsonResponse({
-        "ret": "success",
-        "msg": "用户信息更新成功",
-        "data": {
-            "new_username": user.username,
-        },
-    }, status=200)
+    res_data = {"new_username": user.username, }
+    return success_template("用户信息更新成功", data=res_data, status=200)
 
 
 def del_account(request):
@@ -310,92 +245,76 @@ def del_account(request):
     {
         "action":"del_account",
         "data":{
-            "username": "momoyeyu",
             "password": "123",
         }
     }
     """
     if request.method != "DELETE":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method.",
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "用户未登录",
-        }, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
-    username = data["username"]
     password = data["password"]
-
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     # 验证用户身份
-    user = authenticate(request, username=username, password=password)
-    if user is None:  # 密码验证失败
-        return JsonResponse({
-            "ret": "error",
-            "msg": "密码错误",
-        }, status=403)
+    user = authenticate(request, username=user.username, password=password)
+    if user is None:
+        return error_template(ExceptionEnum.WRONG_PASSWORD.value, status=403)
 
     # 删除相关数据，这里以删除用户的自定义数据为例
-    try:
-        custom_user = CustomUser.objects.get(user_id=user.id)
+    custom_user = CustomUser.objects.get(user=user)
+    if custom_user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+
+    team = None
+    if custom_user.team is not None:
         team = Team.objects.get(pk=custom_user.team_id)
-        if team is not None:
-            if team.leader_id == user.id:
-                return JsonResponse({
-                    "ret": "error",
-                    "msg": "战队队长需要解散战队或转让权限后才能注销"
-                }, status=403)
-            else:
+    if team is not None:
+        if team.leader == user:  # is leader
+            teammates = CustomUser.objects.filter(team=team)
+            new_leader = teammates.first()
+            if new_leader is None:  # 没有队员，战队自动删除
+                team.delete()
+            else:  # 有队员，队长自动分配给队员
+                msg = str(user.username + "将战队转交给了" + new_leader.user.username)
+                for each in teammates:
+                    send_message(new_leader.user.id, each.user.id, msg,
+                                 msg_type=Message.MessageType.CHAT.value)  # CHAT = 1
+                team.leader_id = new_leader.user.id
                 team.member_count -= 1
                 team.save()
-        custom_user.delete()
-        user.delete()
-    except CustomUser.DoesNotExist:
-        user.delete()
-        pass  # 用户的自定义数据不存在，无需处理
+        else:  # not leader
+            team.member_count -= 1
+            team.save()
 
     # 注销用户
     logout(request)
+    custom_user.delete()
+    user.delete()
 
-    return JsonResponse({
-        "ret": "success",
-        "msg": "账号已注销",
-    }, status=204)
+    return success_template("账号已注销", status=204)
 
 
 def user_active(request):
     if request.method != "GET":
-        return JsonResponse({
-            "ret": "error",
-            "msg": "Invalid request method.",
-        }, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
-    token = request.GET.get("token")
-    token = str(token)
-    print("token: " + token)
+    token = str(request.GET.get("token"))
     user = User.objects.get(first_name=token)
     if user is None:
-        return JsonResponse({
-            "ret": "error",
-            "msg": "验证失败",
-        }, status=500)
-    uid = user.id
-    print("uid:" + str(uid))
-    user = User.objects.get(pk=uid)
+        return error_template("验证失败", status=500)
     user.first_name = ""
     user.is_active = True
     user.save()
     # 创建 CustomUser，关联到 User
     custom_user = CustomUser(user_id=user.id, score=0)
     custom_user.save()
-    return JsonResponse({
-        "ret": "success",
-        "msg": str(user.username) + "的账号已激活"
-    }, status=200)
+    return success_template("账号已激活", status=200)
 
 
 

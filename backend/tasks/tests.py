@@ -25,9 +25,8 @@ class SessionTest(TestCase):
 
     def test_main(self):
         self.login()
-        self.list_all()
-        self.list_type()
-        self.query_one()
+        self.list_tasks()
+        self.detail()
         # self.download_attachment()
         self.commit_flag()
         self.list_solved()
@@ -51,18 +50,10 @@ class SessionTest(TestCase):
         self.client.login(username='aa', password='123456')
         pprint.pprint(response.json())
 
-    def list_type(self):
-        print("[INFO]: test list type: ")
+    def list_tasks(self):
+        print("[INFO]: test list tasks ")
         client = self.client
-        response = client.get('http://localhost/api/task/list?action=list_type&type=2')
-        pprint.pprint(response.json())
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.client.session.get('user_id'), None)
-
-    def list_all(self):
-        print("[INFO]: test list all: ")
-        client = self.client
-        response = client.get('http://localhost/api/task/list?action=list_all')
+        response = client.get('http://localhost/api/task/query?action=list&type=2')
         pprint.pprint(response.json())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session.get('user_id'), None)
@@ -81,8 +72,16 @@ class SessionTest(TestCase):
             "action": "commit_flag",
             "data": {
                 "task_id": 1,
-                "user_id": 1,
                 "flag": "aaaa"
+            }
+        }
+        response = self.client.post('http://localhost/api/task/answer', data=payload, content_type='application/json')
+        pprint.pprint(response.json())
+        payload = {
+            "action": "commit_flag",
+            "data": {
+                "task_id": 2,
+                "flag": "bbbb"
             }
         }
         response = self.client.post('http://localhost/api/task/answer', data=payload, content_type='application/json')
@@ -90,17 +89,17 @@ class SessionTest(TestCase):
 
     def rank_user(self):
         print("test rank user: ")
-        response = self.client.get('http://localhost/api/rank/user?action=getrank')
+        response = self.client.get('http://localhost/api/rank/user')
         pprint.pprint(response.json())
 
     def rank_team(self):
         print("test rank team: ")
-        response = self.client.get('http://localhost/api/rank/team?action=getrank')
+        response = self.client.get('http://localhost/api/rank/team')
         pprint.pprint(response.json())
 
-    def query_one(self):
-        print("test query one task: ")
-        response = self.client.get('http://localhost/api/task/list?action=query_one&task_id=1')
+    def detail(self):
+        print("test task detail: ")
+        response = self.client.get('http://localhost/api/task/query?action=detail&task_id=1')
         pprint.pprint(response.json())
 
     def download_attachment(self):
