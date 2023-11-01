@@ -109,6 +109,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # 使用ModelBackend进行用户身份验证
+    # 其他自定义身份验证后端，如果需要的话
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

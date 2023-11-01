@@ -107,8 +107,8 @@ def user_login(request):
             res_data["is_leader"] = True
         else:
             res_data["is_leader"] = False
-    login(request, user)
-    return success_template("登陆成功", data=res_data)
+
+    return success_template("登录成功", data=res_data)
 
 
 def user_logout(request):
