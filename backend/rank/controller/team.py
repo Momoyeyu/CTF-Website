@@ -8,15 +8,15 @@ import traceback
 
 def dispatcher(request):
     action = request.GET.get('action')
-    if action == 'get_rank':
-        return get_rank(request)
+    if action == 'rank':
+        return team_rank(request)
     else:
-        return JsonResponse({'ret': 'error', 'msg': 'Unsupported request!'})
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
-def get_rank(request):
+def team_rank(request):
     if request.method != 'GET':
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     team_list = []
     teams = Team.objects.all()
@@ -34,6 +34,6 @@ def get_rank(request):
         "team_list": team_list,
         "total": len(team_list),
     }
-    return success_template(SuccessEnum.QUERY_SUCCESS, data=res_data, status=405)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
