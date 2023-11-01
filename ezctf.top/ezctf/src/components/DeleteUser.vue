@@ -3,7 +3,7 @@
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>账户注销</h1>
       <input v-model="password" placeholder="请输入密码" /><br><br>
-      <button @click="deleteUser()">确认</button>
+      <button @click="delete_User()">确认</button>
     </div>
 </template>
   
@@ -22,12 +22,12 @@
     },
     methods: {
       ...mapMutations(['setUsername','setModifyUser','setDeleteUser','setIsLogin']),
-      async deleteUser() {
+      async delete_User() {
         try {
           const response = await deleteUserInfo(this.username, this.password);
           console.log('注销账户响应:', response);
           if (response.return === 'success') {
-            alert(response.data.msg);
+            alert(response.msg);
             this.$store.commit('isLogin', false);
             this.$store.commit('deleteUser', false);
           }

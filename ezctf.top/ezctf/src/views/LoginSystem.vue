@@ -25,6 +25,8 @@ export default {
     
 <style>
 #bkg{
-  background-color:#1e1e1e;
+height:87vh;
+background-image:url("../assets/背景.png");
+background-size:cover;
 }
 </style>

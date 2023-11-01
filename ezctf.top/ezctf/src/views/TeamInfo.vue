@@ -55,11 +55,11 @@
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
       close() {
         this.setUserInfoButtonEnabled(true);
-        this.$router.push('/Home');
+        this.$router.push('/');
       },
       quit() {
         //发送退出战队请求到后端
-          this.$router.push("/Home");
+          this.$router.push("/");
       }
     },
   };

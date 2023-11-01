@@ -55,13 +55,6 @@ name:'Navigation',
     return {
       isHovered: false,
       setInfo: true,
-      userInfo: {
-        name: this.$store.state.username,
-        score: '100',
-        team: this.$store.state.teamname,
-        is_Leader: this.$store.state.isLeader, 
-        is_Member: this.$store.state.isMember,
-      }
     };
   },
   computed: {
@@ -80,6 +73,15 @@ name:'Navigation',
                   'createTeam',
                   'joinTeam',
     ]),
+    userInfo() {
+      return {
+        name: this.$store.state.username, 
+        score: this.$store.state.score,
+        team: this.$store.state.teamname, 
+        is_Leader: this.$store.state.isLeader,
+        is_Member: this.$store.state.isMember,
+      };
+    },
   },
   methods: {
     ...mapMutations(['setLoginButtonEnabled',
@@ -136,9 +138,10 @@ name:'Navigation',
     quit() {
       logoutUser()
       .then((response) => {
-        alert(response.data.msg);
+        alert(response.msg);
         console.log('用户退出登录成功', response.data);
         this.setUsername('');
+        this.setTeamname('None');
         this.setScore('');
         this.setIsLeader(false);
         this.setIsMember(false);
@@ -157,7 +160,7 @@ name:'Navigation',
 <style>
 .topborder{
     background-color:#1e1e1e;
-    width:100%;
+    width:1400px;
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;

@@ -41,28 +41,27 @@
           console.log('登录响应:', response);
           if (response.ret === 'success') {
             this.$router.push('/'); 
-            alert(response.data.msg);
-            this.$store.commit('setLoginButtonEnabled', true);
-            this.$store.commit('setUsername', response.data.username);
-            this.$store.commit('setTeamname', response.data.team_name);
-            this.$store.commit('setScore', response.data.score);
-            this.$store.commit('setIsLogin', true);
-            this.$store.commit('setLog', false);
-            if(response.data.team_name =='None') {
-              setIsLeader(false);
-              setIsMember(false);
+            alert(response.msg);
+            this.setLoginButtonEnabled(true);
+            this.setUsername(response.data.username);
+            this.setTeamname(response.data.team_name);
+            this.setScore(response.data.score);
+            this.setIsLogin(true);
+            if(response.data.team_name&&!response.data.is_leader) {
+              this.setIsLeader(false);
+              this.setIsMember(true);
             }
             else if(response.data.is_leader){
-              setIsLeader(true);
-              setIsMember(false);
+              this.setIsLeader(true);
+              this.setIsMember(false);
             }
             else{
-              setIsLeader(false);
-              setIsMember(true);
+              this.setIsLeader(false);
+              this.setIsMember(false);
             }
           }
         } catch (error) {
-          alert(error.response.data.msg);
+          alert(error.response.msg);
           console.error('登录错误:', error);
         }
       },
@@ -80,7 +79,7 @@
     
   <style>
   #loginUser {
-    margin-top:200px;
+    margin-top:180px;
     margin-left:480px;
     position: absolute;
     top: auto;
