@@ -32,7 +32,7 @@
             this.$store.commit('deleteUser', false);
           }
         } catch (error) {
-          alert('错误!');
+          alert(error.response.data.msg);
           console.error('错误:', error);
           console.log(error.response);
         }

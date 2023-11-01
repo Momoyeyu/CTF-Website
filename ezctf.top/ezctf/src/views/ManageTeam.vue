@@ -1,4 +1,5 @@
 <template>
+  <div id="bkg">
     <div id="manageTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
@@ -54,6 +55,7 @@
       <br><br>
       <button @click="deleteTeam()">解散战队</button>
     </div>
+  </div>
 </template>
   
 <script>
@@ -141,6 +143,11 @@
 </script>
 
 <style>
+#bkg{
+height:87vh;
+background-image:url("../assets/背景.png");
+background-size:cover;
+}
 #manageTeam {
     margin-top: 10px;
     margin-left: 5%;
