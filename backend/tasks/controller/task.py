@@ -8,77 +8,20 @@ import traceback
 
 def dispatcher(request):
     action = request.GET.get("action")
-    if action == "list_type":
-        return list_type(request)
-    elif action == "list_all":
-        return list_all(request)
-    elif action == "query_one":
-        return query_one(request)
+    if action == "list":
+        return list_tasks(request)
+    elif action == "detail":
+        return detail(request)
     else:
         return JsonResponse({"ret": "error", "msg": "Unsupported request!"})
 
 
-def list_all(request):
+def list_tasks(request):
     """
     GET
     @param:
     {
-        "action": "list_all",
-    }
-    @return:
-    {
-        "ret": "success" / "error",
-        "msg": "查询成功",
-        "data": [
-            {
-                "task_id": 1,
-                "task_name": "ez misc",
-                "src": "ezctf",
-                "difficulty": 0,
-                "points": 10,
-                "solve_count": 12,
-                "task_type": 0,
-            },
-            {
-                "task_id": 2,
-                "task_name": "ez web",
-                "src": "ezctf",
-                "difficulty": 0,
-                "points": 10,
-                "solve_count": 12,
-                "task_type": 2,
-            },
-        ]
-    }
-    """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
-    qs = Task.objects.all()
-    if not qs:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
-
-    task_list = []
-    for task in qs:
-        task_list.append({
-            "task_id": task.id,
-            "task_name": task.task_name,
-            "src": task.src,
-            "difficulty": task.difficulty,
-            "points": task.points,
-            "solve_count": task.solve_count,
-            "task_type": task.task_type,
-        })
-
-    return success_template("查询成功", data=task_list, status=200)
-
-
-def list_type(request):
-    """
-    GET
-    @param:
-    {
-        "action": "list_task",
+        "action": "list",
         "type": 0,
     }
     @return:
@@ -125,17 +68,18 @@ def list_type(request):
             "difficulty": task.difficulty,
             "points": task.points,
             "solve_count": task.solve_count,
+            "task_type": task.task_type,
         })
 
     return success_template("查询成功", data=task_list, status=200)
 
 
-def query_one(request):
+def detail(request):
     """
     GET
     @param:
     {
-        "action": "query_one",
+        "action": "detail",
         "task_id": 1,
     }
     """
@@ -143,6 +87,8 @@ def query_one(request):
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     task_id = request.GET.get("task_id")
+    if not task_id:
+        return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
     task = Task.objects.get(pk=task_id)
     if task is None:
         return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)

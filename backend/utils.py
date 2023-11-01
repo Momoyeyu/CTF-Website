@@ -49,6 +49,8 @@ class SuccessEnum(Enum):
 
 
 class ExceptionEnum(Enum):
+    # EXIST CONFLICT 409
+    NAME_EXIST = "名称已被使用"
     # METHOD NOT ALLOWED 405
     INVALID_REQUEST_METHOD = "Invalid Request Method!"
     UNSUPPORTED_REQUEST = "Unsupported Request!"
@@ -63,8 +65,8 @@ class ExceptionEnum(Enum):
     NOT_LEADER = "不是队长，权限不足"
     UNAUTHORIZED = "非授权操作"
     USER_NOT_LOGIN = "用户未登录"
-    # EXIST CONFLICT 409
-    NAME_EXIST = "名称已被使用"
+    # 400
+    MISS_PARAMETER = "请求参数不完整"
 
 
 def success_template(msg, data=None, status=200):

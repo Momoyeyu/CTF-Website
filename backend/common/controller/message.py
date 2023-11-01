@@ -36,20 +36,23 @@ def get_messages(request):
     {
         "ret": "success" / "error",
         "msg": "信息查询成功" / "其他报错",
-        "data": [
-            {
-                "receiver": "momoyeyu",
-                "origin": "xx1",
-                "message": "want to join your team"
-                "create_time": "2023-10-27T14:30:00.000Z",
-            },
-            {
-                "receiver": "xx2",
-                "origin": "momoyeyu",
-                "message": "hello",
-                "create_time": "2023-10-27T14:30:00.000Z",
-            },
-        ]
+        "data": {
+            "message_list": [
+                {
+                    "receiver": "momoyeyu",
+                    "origin": "xx1",
+                    "message": "want to join your team"
+                    "create_time": "2023-10-27T14:30:00.000Z",
+                },
+                {
+                    "receiver": "xx2",
+                    "origin": "momoyeyu",
+                    "message": "hello",
+                    "create_time": "2023-10-27T14:30:00.000Z",
+                },
+            ],
+            "total": 2,
+        }
     }
     """
     if request.method != "GET":
@@ -63,8 +66,12 @@ def get_messages(request):
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     messages = Message.objects.filter(receiver=user) | Message.objects.filter(origin=user)
+    res_data = {
+        "message_list": [],
+        "total": 0,
+    }
     if not messages:  # 没有查询到消息，但请求是合法的
-        return success_template("信息查询成功，信息为空", status=200)
+        return success_template("信息查询成功，信息为空", data=res_data, status=200)
 
     messages_list = []
     for message in messages:
@@ -78,7 +85,9 @@ def get_messages(request):
             "create_time": message.create_time.isoformat()
         }
         messages_list.append(info)
-    return success_template("信息查询成功", data=messages_list)
+    res_data["message_list"] = messages_list
+    res_data["total"] = len(messages_list)
+    return success_template("信息查询成功", data=res_data)
 
 
 def get_applications(request):
@@ -92,14 +101,10 @@ def get_applications(request):
     {
         "ret": "success" / "error",
         "msg": "信息查询成功" / "其他报错",
-        "data": [
-            {
-                "applicant": "xx1",
-            },
-            {
-                "applicant": "xx2",
-            },
-        ]
+        "data": {
+            "applicant_list": ["aaa", "bbb"],
+            "total": 2,
+        }
     }
     """
     if request.method != "GET":
@@ -113,20 +118,23 @@ def get_applications(request):
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     #                                                                                 # APPLICATION.value = 3
     messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.APPLICATION.value)
+    res_data = {
+        "applicant_list": [],
+        "total": 0,
+    }
     if not messages:  # 没有查询到消息，但请求是合法的
-        return success_template("信息查询成功，信息为空", status=200)
+        return success_template("信息查询成功，信息为空", data=res_data)
 
     applicant_list = []
     for message in messages:
         if message.origin is None:
             message.delete()
             continue
-        info = {
-            "applicant": message.origin.username,
-        }
-        applicant_list.append(info)
+        applicant_list.append(message.origin.username)
 
-    return success_template("信息查询成功", data=applicant_list, status=200)
+    res_data["applicant_list"] = applicant_list
+    res_data["total"] = len(applicant_list)
+    return success_template("信息查询成功", data=res_data, status=200)
 
 
 def get_invitations(request):
@@ -140,16 +148,19 @@ def get_invitations(request):
     {
         "ret": "success" / "error",
         "msg": "信息查询成功" / "其他报错",
-        "data": [
-            {
-                "inviter": "xx1",
-                "team_name": "EZCTF",
-            },
-            {
-                "inviter": "xx2",
-                "team_name": "GENSHIN",
-            },
-        ]
+        "data": {
+            "invitation_list": [
+                {
+                    "inviter": "xx1",
+                    "team_name": "EZCTF",
+                },
+                {
+                    "inviter": "xx2",
+                    "team_name": "GENSHIN",
+                },
+            ],
+            "total": 2,
+        }
     }
     """
     if request.method != "GET":
@@ -164,8 +175,12 @@ def get_invitations(request):
     #                                                                                 # INVITATION.value = 4
     messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.INVITATION.value)
 
+    res_data = {
+        "invitation_list": [],
+        "total": 0,
+    }
     if not messages:  # 没有查询到消息，但请求是合法的
-        return success_template("信息查询成功，信息为空", status=200)
+        return success_template(SuccessEnum.QUERY_SUCCESS.value, status=200)
 
     invitation_list = []
     for message in messages:
@@ -183,7 +198,9 @@ def get_invitations(request):
         }
         invitation_list.append(info)
 
-    return success_template("信息查询成功", data=invitation_list, status=200)
+    res_data["invitation_list"] = invitation_list
+    res_data["total"] = len(invitation_list)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data, status=200)
 
 
 def check_messages(request):
@@ -205,4 +222,4 @@ def check_messages(request):
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     Message.objects.filter(receiver=user).update(checked=True)
-    return success_template(SuccessEnum.REQUEST_SUCCESS)
+    return success_template(SuccessEnum.REQUEST_SUCCESS.value)

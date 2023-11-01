@@ -100,13 +100,13 @@ class SessionTest(TestCase):
         pprint.pprint(response.json())
 
     def get_applications(self):
-        log_test("get message")
+        log_test("get applications")
         response = self.client.get('http://localhost/api/common/message?action=get_applications')
         self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
     def get_invitations(self):
-        log_test("get message")
+        log_test("get invitations")
         response = self.client.get('http://localhost/api/common/message?action=get_invitations')
         self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())

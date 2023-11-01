@@ -10,7 +10,7 @@ import backend.settings as settings
 from django.utils import timezone
 import os
 import traceback
-from utils import get_request_params, ExceptionEnum, error_template, success_template
+from utils import get_request_params, ExceptionEnum, error_template, success_template, SuccessEnum
 
 
 def dispatcher(request):
@@ -27,7 +27,7 @@ def dispatcher(request):
     elif action == "list_solved":
         return list_solved(request)
     else:
-        return JsonResponse({"ret": 1, "msg": "Unsupported request!"})
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
 def commit_flag(request):
@@ -37,7 +37,6 @@ def commit_flag(request):
     {
         "action" : "commit_flag",
         "data" : {
-            "
             "task_id" : 0,
             "flag" : "Flag:abcdefg"
         }
@@ -61,10 +60,10 @@ def commit_flag(request):
 
     cuser = CustomUser.objects.get(user=user)
 
-    if task.flag != flag:
-        return success_template("回答错误", status=200)
-    elif AnswerRecord.objects.filter(user_id=uid, task=task).exists():
+    if AnswerRecord.objects.filter(user_id=uid, task=task).exists():
         return error_template("重复答题", status=403)
+    if task.flag != flag:
+        return success_template("WRONG", status=200)
     else:
         cuser.score += task.points
         cuser.save()
@@ -73,12 +72,14 @@ def commit_flag(request):
         cuser.last_answer_time = timezone.now()
         cuser.save()
         record = AnswerRecord.objects.create(task_id=task_id, user_id=uid, points=task.points)
+        res_data = {
+            "task_id": task.id,
+            "first_kill": False,
+        }
         if not FirstKill.objects.filter(task_id=task_id).exists():
             FirstKill.objects.create(task_id=task_id, user_id=uid)
-            msg = f"First Killed! Add a new record {record.id}."
-            return success_template(msg)
-        msg = f"Accepted! Add a new record {record.id}."
-        return success_template(msg)
+            res_data["first_kill"] = True
+        return success_template("CORRECT", data=res_data)
 
 
 def download_attachment(request):
@@ -109,7 +110,7 @@ def download_attachment(request):
         # TODO 关闭文件尚未解决
         return response
     else:
-        return HttpResponse("File not found", status=404)
+        return error_template("File not found", status=404)
 
 
 def list_solved(request):
@@ -123,17 +124,9 @@ def list_solved(request):
     {
         "ret": "success" / "error",
         "msg": "",
-        "data": [
-            {
-                "task_id": 1,
-            },
-            {
-                "task_id": 2,
-            },
-            {
-                "task_id": 3,
-            },
-        ]
+        "data": {
+            "solved_list": [0, 2, 3],
+        },
     }
     """
     if request.method != "GET":
@@ -150,7 +143,8 @@ def list_solved(request):
     answered_tasks = AnswerRecord.objects.filter(user=user)
     task_id_list = []
     for task in answered_tasks:
-        task_id_list.append({
-            "task_id": task.id,
-        })
-    return success_template("查询成功", data=task_id_list)
+        task_id_list.append(task.id)
+    res_data = {
+        "solved_list": task_id_list,
+    }
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=task_id_list)
