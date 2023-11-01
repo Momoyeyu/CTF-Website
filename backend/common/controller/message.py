@@ -71,7 +71,7 @@ def get_messages(request):
         "total": 0,
     }
     if not messages:  # 没有查询到消息，但请求是合法的
-        return success_template("信息查询成功，信息为空", data=res_data, status=200)
+        return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
     messages_list = []
     for message in messages:
@@ -87,7 +87,7 @@ def get_messages(request):
         messages_list.append(info)
     res_data["message_list"] = messages_list
     res_data["total"] = len(messages_list)
-    return success_template("信息查询成功", data=res_data)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
 def get_applications(request):
@@ -123,7 +123,7 @@ def get_applications(request):
         "total": 0,
     }
     if not messages:  # 没有查询到消息，但请求是合法的
-        return success_template("信息查询成功，信息为空", data=res_data)
+        return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
     applicant_list = []
     for message in messages:
@@ -134,7 +134,7 @@ def get_applications(request):
 
     res_data["applicant_list"] = applicant_list
     res_data["total"] = len(applicant_list)
-    return success_template("信息查询成功", data=res_data, status=200)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
 def get_invitations(request):
@@ -200,7 +200,7 @@ def get_invitations(request):
 
     res_data["invitation_list"] = invitation_list
     res_data["total"] = len(invitation_list)
-    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data, status=200)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
 def check_messages(request):

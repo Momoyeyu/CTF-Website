@@ -14,11 +14,8 @@ from utils import get_request_params, ExceptionEnum, error_template, success_tem
 
 
 def dispatcher(request):
-    if request.method == "GET":
-        action = request.GET.get("action")
-    else:
-        request.params = get_request_params(request)
-        action = request.params["action"]
+    request.params = get_request_params(request)
+    action = request.params["action"]
 
     if action == "commit_flag":
         return commit_flag(request)
@@ -44,8 +41,8 @@ def commit_flag(request):
     """
     if request.method != "POST":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-    if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    # if not request.user.is_authenticated:
+    #     return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     info = request.params["data"]
     task_id = info["task_id"]
@@ -92,8 +89,8 @@ def download_attachment(request):
     """
     if request.method != "GET":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-    if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    # if not request.user.is_authenticated:
+    #     return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     task_id = request.GET.get("task_id")
     task = Task.objects.get(id=int(task_id))
