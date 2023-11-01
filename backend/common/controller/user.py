@@ -85,7 +85,7 @@ def user_login(request):
         user = authenticate(request, username=username_or_email, password=password)
 
     if user is None:
-        return error_template("登陆失败！请检查你的信息", status=403)
+        return error_template("登录失败！请检查你的信息", status=403)
 
     if user.is_active is False:
         return error_template("用户未激活", status=403)
@@ -108,7 +108,7 @@ def user_login(request):
         else:
             res_data["is_leader"] = False
 
-    return success_template("登陆成功", data=res_data)
+    return success_template("登录成功", data=res_data)
 
 
 def user_logout(request):
