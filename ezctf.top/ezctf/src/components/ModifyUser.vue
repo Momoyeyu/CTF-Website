@@ -34,7 +34,7 @@
             this.$store.commit('setUsername', response.new_username);
           }
         } catch (error) {
-          alert(error.response.msg);
+          alert(error.response.data.msg);
           console.error('错误:', error);
         }
       },
