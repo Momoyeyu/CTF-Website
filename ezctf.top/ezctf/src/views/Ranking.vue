@@ -14,7 +14,7 @@
             </tr>
             <tr v-for="item in sortedUsers" :key="item.score">
                 <td>#{{ item.rank }}</td>
-                <td>{{ item.user_name }}</td>
+                <td>{{ item.username }}</td>
                 <td>{{ item.score }}</td>
                 <td>{{ item.last_commit }}</td>
             </tr>
@@ -57,9 +57,9 @@ data(){
 },
 methods: {  
     fetchUsersData() {  
-      axios.get('http://localhost:80/api/rank/user?action=getrank') 
+      axios.get('http://localhost:80/api/rank/user') 
         .then(response => {  
-          this.users = response.data.retlist;  
+          this.users = response.data.data.user_list;  
           console.log(this.users);
         })  
         .catch(error => {  
@@ -67,9 +67,9 @@ methods: {
         });  
     },
     fetchTeamsData() {  
-      axios.get('http://localhost:80/api/rank/team?action=getrank') 
+      axios.get('http://localhost:80/api/rank/team') 
         .then(response => {  
-          this.teams = response.data.retlist;  
+          this.teams = response.data.data.team_list;  
           console.log(this.teams);
         })  
         .catch(error => {  

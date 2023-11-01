@@ -40,7 +40,7 @@ methods:{
     this.$refs.Popup.showpopup();
 },
 fetchData(param) {
-      axios.get('http://localhost:80/api/task/list?action=query_one&task_id='+param) // 替换为你的后端API地址  
+      axios.get('http://localhost:80/api/task/query?action=detail&task_id='+param) // 替换为你的后端API地址  
         .then(response => {  
           // 将后端返回的数据存储在responseData属性中  
           this.Detail = response.data.data;  
