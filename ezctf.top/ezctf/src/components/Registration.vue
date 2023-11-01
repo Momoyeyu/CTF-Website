@@ -45,14 +45,14 @@
       async Register() {
         try {
           const response = await register( this.user.username, this.user.password, this.user.email);
-          alert(response.data.msg);
+          alert(response.msg);
           console.log('注册响应:', response);
           if (response.ret === 'success') {
             this.$store.commit('setReg', false);
             this.$store.commit('setLog', true);
           }
         } catch (error) {
-          alert(error.response.data.msg);
+          alert(error.response.msg);
           console.error('注册错误:', error);
         }
       },
@@ -72,7 +72,7 @@
   
   <style>
   #registerUser {
-      margin-top:160px;
+      margin-top:150px;
       margin-left:450px;
       position: absolute;
       top: auto;
