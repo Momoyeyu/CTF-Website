@@ -42,6 +42,9 @@ class SessionTest(TestCase):
         # self.user_register()
         # send_email()
         self.login()
+
+        # self.logout()
+
         self.quit_team()
         self.create_team()
         self.del_team()

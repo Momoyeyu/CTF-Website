@@ -19,8 +19,8 @@
               </table>  
               <p class="popup-description">题目描述：{{ Detail.content }}</p>
             <div class="popup-flag">  
-              <input type="text" v-model="inputValue" placeholder="请输入FLAG~~">  
-              <button @click="submitData">提交</button> 
+              <input type="text" v-model="inputData" placeholder="请输入FLAG~~"/>  
+              <button @click="checkInput">提交</button> 
               </div> 
             <div class="popup-download">  
                 <a :href="downloadUrl">附件点击这里下载</a>  
@@ -32,12 +32,20 @@
 
 <script>
 import axios from 'axios';
+import { mapState } from 'vuex';
 export default {
 name:'Popup',
 data:function(){
   return{
     isModalVisible: false,
-    inputValue: '' ,
+    inputData: "",
+    Flag:{
+      "action": "commit_flag",
+      "data": {
+        "task_id" :this.item.task_id,
+        "flag" : this.inputData,
+      }
+    }
   }
 },
 props: {  
@@ -51,8 +59,9 @@ props: {
     }
   },
   computed:{
-    downloadUrl() {  
-      return axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id=1')
+    ...mapState(['isLogin']),
+    downloadUrl() {  //BUG未解决
+      return axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id)
       .then(response =>{
         console.log(response.data);
       })
@@ -63,20 +72,38 @@ props: {
 },
 methods:{
   showpopup() {  
-    this.isModalVisible = !this.isModalVisible;
+
+    if (!this.isLogin)
+    {
+      alert("前面的区域登陆后再来探索吧~~");
+      this.$router.push("/Log");
+    }
+    else this.isModalVisible = !this.isModalVisible;
+
 },
   hidepopup() {  
   this.isModalVisible = false; 
 },
-submitData() {  
-      axios.post('/api/data', {  value: this.inputValue   })  
-      .then(response => {  
-        console.log(response);  
-      })  
-      .catch(error => {  
-        console.error(error);  
-      });  
-      this.inputValue = ''; // 清空输入框  
+checkInput() {  
+      // 检查输入是否为空，如果不为空则提交数据  
+      if (this.inputData.trim() !== "") {          
+        this.Flag.data.flag=this.inputData;
+        this.submitData();  
+
+      } else {  
+        alert("请输入有效的数据！"); 
+      }  
+    }, 
+    submitData() {  //未校验
+      console.log(this.Flag);
+      axios.post('http://localhost:80/api/task/answer?action=commit_flag',this.Flag)  
+        .then(response=>{  
+          console.log(response.data);  
+        })  
+        .catch(function (error) {  
+          console.log(error);  
+        });  
+        this.inputData= "";
     }  
   }  
 }

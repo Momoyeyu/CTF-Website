@@ -160,12 +160,13 @@ name:'Navigation',
 <style>
 .topborder{
     background-color:#1e1e1e;
-    width:1400px;
+    width:1600px;
     height: 80px;
     line-height: 25px;
     color: #b0b0b0;
     font-size: 26px;
     border-radius: 15px;
+    margin: 0 auto;
 }
 .topborder .iconfont{
   font-family: "iconfont" !important;
@@ -192,7 +193,6 @@ name:'Navigation',
   float: right;
 }
 .topborder li{
-  position: relative;
   float: left;
 }
 .topborder a{

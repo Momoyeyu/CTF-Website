@@ -31,7 +31,7 @@ data:function(){
 },
 methods:{
   fetchData(param) {
-      axios.get('http://localhost:80/api/task/list?action=list_type&type='+param) // 替换为你的后端API地址  
+      axios.get('http://localhost:80/api/task/query?action=list&type='+param) // 替换为你的后端API地址  
         .then(response => {  
           // 将后端返回的数据存储在responseData属性中  
           this.retlist = response.data.data;  
