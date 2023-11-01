@@ -39,7 +39,7 @@ def dispatcher(request):
         return accept(request)
 
     else:
-        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST, status=405)
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
 def create_team(request):
@@ -520,8 +520,8 @@ def accept(request):
         msg = "接受邀请"
         res_data = {"team_name": team.team_name, }
         send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
-        return success_template("成功加入战队", data=res_data)
+        return success_template(SuccessEnum.REQUEST_SUCCESS.value, data=res_data)
     else:
         msg = "拒绝邀请"
         send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
-        return success_template("拒绝加入战队")
+        return success_template(SuccessEnum.REQUEST_SUCCESS.value)

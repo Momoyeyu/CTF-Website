@@ -92,6 +92,7 @@ def download_attachment(request):
     """
     if request.method != "GET":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 

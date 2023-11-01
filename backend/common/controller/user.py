@@ -45,7 +45,7 @@ def dispatcher(request):
         return del_account(request)
 
     else:
-        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST, status=405)
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
 def user_login(request):
@@ -107,7 +107,7 @@ def user_login(request):
             res_data["is_leader"] = True
         else:
             res_data["is_leader"] = False
-
+    login(request, user)
     return success_template("登陆成功", data=res_data)
 
 
