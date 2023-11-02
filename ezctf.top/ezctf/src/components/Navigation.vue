@@ -117,10 +117,12 @@ name:'Navigation',
         this.$router.push("/ManageTeam");
       }
       else if(this.userInfo.is_Member){
+        console.log("Navigating to /TeamInfo");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
       }
       else{
+        console.log("No team condition met");
         this.showUserInfo();
         this.setNoTeam(true);
       }
@@ -143,12 +145,13 @@ name:'Navigation',
         alert(response.msg);
         console.log('用户退出登录成功', response.data);
         this.setUsername('');
-        this.setTeamname('None');
+        this.setTeamname('');
         this.setScore('');
         this.setIsLeader(false);
         this.setIsMember(false);
         this.setIsLogin(false);
-        this.isHovered=false
+        this.isHovered=false;
+        sessionStorage.clear();
       })
       .catch((error) => {
         alert(error.response.data.msg);

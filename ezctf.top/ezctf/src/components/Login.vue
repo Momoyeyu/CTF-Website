@@ -46,21 +46,33 @@
             this.$router.push('/'); 
             this.setLoginButtonEnabled(true);
             this.setUsername(response.data.username);
+            sessionStorage.setItem('username', response.data.username);
             this.setTeamname(response.data.team_name);
+            if(response.data.team_name){
+              sessionStorage.setItem('teamname', response.data.team_name);
+            }
             this.setScore(response.data.score);
+            sessionStorage.setItem('score', response.data.score);
             this.setIsLogin(true);
+            sessionStorage.setItem('isLogin', true);
             this.setErr("");
             if(response.data.team_name&&!response.data.is_leader) {
               this.setIsLeader(false);
+              sessionStorage.setItem('isLeader', false);
               this.setIsMember(true);
+              sessionStorage.setItem('isMember', true);
             }
             else if(response.data.is_leader){
               this.setIsLeader(true);
+              sessionStorage.setItem('isLeader', true);
               this.setIsMember(false);
+              sessionStorage.setItem('isMember', false);
             }
             else{
               this.setIsLeader(false);
+              sessionStorage.setItem('isLeader', false);
               this.setIsMember(false);
+              sessionStorage.setItem('isMember', false);
             }
           }
         } catch (error) {
