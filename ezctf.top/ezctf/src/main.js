@@ -25,7 +25,8 @@ const store = new Vuex.Store({
     score: '',
     teamname: '',
     isLeader: false,
-    isMember: false
+    isMember: false,
+    err:'',
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
@@ -82,6 +83,9 @@ const store = new Vuex.Store({
     setRePa(state, value){
       state.RePa =value;
     },
+    setErr(state, value){
+      state.err =value;
+    }
   },
 });
 
