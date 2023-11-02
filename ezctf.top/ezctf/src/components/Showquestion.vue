@@ -110,6 +110,5 @@ methods:{
   top: 80%;
   left: 47%;
 } 
-.Page{
-}
+
 </style>

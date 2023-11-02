@@ -2,7 +2,9 @@
     <div id="registerUser">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>用户注册</h1>
-      <form>
+      <p v-if="err" id="er">{{ err }}</p>
+      <br v-if="!err">
+      <form @submit.prevent="registerUser()">
         <label for="username">用户名:</label>
         <input type="text" id="username" v-model="user.username" required /><br><br>
         <label for="password">密码:</label>
@@ -11,7 +13,7 @@
         <input type="password" id="confirmPassword" v-model="user.confirmPassword" required /><br><br>
         <label for="email">邮箱:</label>
         <input type="email" id="email" v-model="user.email" required /><br><br>
-        <button @click="registerUser()">注册</button><br><br>
+        <button type="submit">注册</button><br><br>
       </form>
     </div>
   </template>
@@ -32,14 +34,15 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled','username','reg','log']),
+    ...mapState(['loginButtonEnabled','username','reg','log','err']),
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog']),
+      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr']),
       close() {
         this.setLoginButtonEnabled(true);
         this.setReg(false);
         this.setLog(true);
+        this.setErr("");
         this.$router.push('/');
       },
       async Register() {
@@ -50,9 +53,10 @@
           if (response.ret === 'success') {
             this.$store.commit('setReg', false);
             this.$store.commit('setLog', true);
+            this.setErr("");
           }
         } catch (error) {
-          alert(error.response.msg);
+          this.setErr(error.response.data.msg);
           console.error('注册错误:', error);
         }
       },

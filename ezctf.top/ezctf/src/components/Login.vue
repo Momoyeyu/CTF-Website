@@ -2,12 +2,14 @@
     <div id="loginUser">
     <button @click="close()" class="close-btn">&#10006;</button>
     <h1>用户登录</h1>
-    <form>
+    <p v-if="err" id="er">{{ err }}</p>
+    <br v-if="!err">
+    <form @submit.prevent="loginUser()">
       <label for="usernameOrEmail">用户名/邮箱:</label>
       <input type="text" id="usernameOrEmail" v-model="loginInfo.usernameOrEmail" required /><br><br>
       <label for="password">密码:</label>
       <input type="password" id="password" v-model="loginInfo.password" required /><br><br>
-      <button @click="loginUser()">登录</button><br><br>
+      <button type="submit">登录</button><br><br>
       <button @click="FoP()" class="btn">忘记密码</button> |
       <button @click="Reg()" class="btn">注册</button>
     </form>
@@ -27,12 +29,13 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled','username','isLogin','log','reg','FoPa','teamname','score','isLeader','isMember']),
+    ...mapState(['loginButtonEnabled','username','isLogin','log','reg','FoPa','teamname','score','isLeader','isMember','err']),
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled','setUsername','setIsLogin','setLog','setReg','setFoPa','setTeamname','setScore','setIsLeader','setIsMember']),
+      ...mapMutations(['setLoginButtonEnabled','setUsername','setIsLogin','setLog','setReg','setFoPa','setTeamname','setScore','setIsLeader','setIsMember','setErr']),
       close() {
         this.setLoginButtonEnabled(true);
+        this.setErr("");
         this.$router.push('/');
       },
       async loginUser() {
@@ -41,12 +44,12 @@
           console.log('登录响应:', response);
           if (response.ret === 'success') {
             this.$router.push('/'); 
-            alert(response.msg);
             this.setLoginButtonEnabled(true);
             this.setUsername(response.data.username);
             this.setTeamname(response.data.team_name);
             this.setScore(response.data.score);
             this.setIsLogin(true);
+            this.setErr("");
             if(response.data.team_name&&!response.data.is_leader) {
               this.setIsLeader(false);
               this.setIsMember(true);
@@ -61,17 +64,19 @@
             }
           }
         } catch (error) {
-          alert(error.response.msg);
+          this.setErr(error.response.data.msg);
           console.error('登录错误:', error);
         }
       },
       Reg() {
         this.setLog(false);
         this.setReg(true);
+        this.setErr("");
       },
       FoP() {
         this.setLog(false);
         this.setFoPa(true);
+        this.setErr("");
       },
     },
   };
@@ -79,13 +84,13 @@
     
   <style>
   #loginUser {
-    margin-top:180px;
+    margin-top:160px;
     margin-left:480px;
     position: absolute;
     top: auto;
     left: auto;
     width: 450px;
-    height: 250px;
+    height: 270px;
     background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
@@ -121,5 +126,10 @@
     top: 10px;
     right: 10px;
     cursor: pointer;
+  }
+  #er{
+    height: 8px;
+    color:red;
+    font-size: small;
   }
   </style>
