@@ -111,6 +111,7 @@ name:'Navigation',
     },
     team() {
       this.setUserInfoButtonEnabled(false);
+      this.setInfo=true;
       if(this.userInfo.is_Leader&&!this.userInfo.is_Member){
         this.showUserInfo();
         this.$router.push("/ManageTeam");
@@ -126,6 +127,7 @@ name:'Navigation',
     },
     message() {
       this.isHovered = !this.isHovered;
+      this.setInfo=true;
       this.setUserInfoButtonEnabled(false);
       this.setInfoBoard(true);
     },
@@ -208,7 +210,7 @@ name:'Navigation',
     box-shadow: none;
     position: relative;
     top: -11px;
-    left: -80px;
+    left: -200px;
     height: 50px;
     width: 50px;
     border-radius: 50%;
