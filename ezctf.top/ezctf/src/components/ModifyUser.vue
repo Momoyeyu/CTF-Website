@@ -32,6 +32,7 @@
             alert(response.msg);
             this.$store.commit('modifyUser', false);
             this.$store.commit('setUsername', response.new_username);
+            sessionStorage.setItem('username', response.new_username)
           }
         } catch (error) {
           alert(error.response.data.msg);
