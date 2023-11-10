@@ -112,17 +112,16 @@ name:'Navigation',
     team() {
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
+      console.log(this.userInfo.is_Member);
       if(this.userInfo.is_Leader&&!this.userInfo.is_Member){
         this.showUserInfo();
         this.$router.push("/ManageTeam");
       }
       else if(this.userInfo.is_Member){
-        console.log("Navigating to /TeamInfo");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
       }
       else{
-        console.log("No team condition met");
         this.showUserInfo();
         this.setNoTeam(true);
       }

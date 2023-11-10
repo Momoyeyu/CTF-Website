@@ -2,9 +2,11 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import Vuex from 'vuex';
+import VueCookies from 'vue-cookies'
 import './assets/index_icon/iconfont.css'
 
 Vue.use(Vuex);
+Vue.use(VueCookies)
 
 const store = new Vuex.Store({
   state: {
