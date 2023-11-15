@@ -14,9 +14,14 @@ def dispatcher(request):
 
     # 经过此函数处理，request.params 里的对象已经转为 python 字典，数据类型也已经经过处理
     request.params = get_request_params(request)
-
+    print("\n=====\n", request, "\n=====\n")
+    print("\n=====\n", request.params, "\n=====\n")
     # 根据不同的action分派给不同的函数进行处理
     action = request.params["action"]
+
+    if not action:
+        return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
+
     if action == "create_team":
         return create_team(request)
     elif action == "del_team":
