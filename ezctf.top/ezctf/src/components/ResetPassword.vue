@@ -2,7 +2,7 @@
     <div id="resetPassword">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>重置密码</h1>
-      <form @submit.prevent="Complete">
+      <form @submit.prevent="Complete()">
         <label for="newPassword">新密码:</label>
         <input type="text" id="newPassword" v-model="ResetPassword.newPassword" required /><br><br>
         <label for="confirmNewPassword">确认新密码:</label>

@@ -38,7 +38,7 @@
 #noTeam {
     margin-top:-200px;
     margin-left:520px;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 250px;

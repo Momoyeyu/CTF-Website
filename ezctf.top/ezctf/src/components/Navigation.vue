@@ -112,11 +112,13 @@ name:'Navigation',
     team() {
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
+      console.log(this.userInfo.is_Member);
       if(this.userInfo.is_Leader&&!this.userInfo.is_Member){
         this.showUserInfo();
         this.$router.push("/ManageTeam");
       }
       else if(this.userInfo.is_Member){
+        console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
       }
@@ -143,12 +145,18 @@ name:'Navigation',
         alert(response.msg);
         console.log('用户退出登录成功', response.data);
         this.setUsername('');
-        this.setTeamname('None');
+        this.setTeamname('');
         this.setScore('');
         this.setIsLeader(false);
         this.setIsMember(false);
         this.setIsLogin(false);
-        this.isHovered=false
+        this.isHovered=false;
+        document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "score=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       })
       .catch((error) => {
         alert(error.response.data.msg);

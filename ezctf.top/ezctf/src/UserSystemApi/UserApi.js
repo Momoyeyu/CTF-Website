@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+axios.defaults.withCredentials = true;
 const BASE_URL = 'http://localhost:80'; 
 
 const api = axios.create({
@@ -74,10 +74,13 @@ export const logoutUser = async () => {
   }
 };
 
-export const deleteUserInfo = async () => {
+export const deleteUserInfo = async (password) => {
   try {
     const requestData = {
       action: 'del_account',
+      data: {
+        password: password
+      },
     };
 
     const response = await api.delete('/api/common/user?action=del_account', requestData);

@@ -43,7 +43,7 @@ export default {
 .message-list {
   margin-top:-300px;
   margin-left:400px;
-  position: fixed;
+  position: absolute;
   top: auto;
   left: auto;
   width: 500px;
