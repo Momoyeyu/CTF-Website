@@ -63,7 +63,7 @@
         try {
           const response = await joinTeam( this.name, teamname);
           if (response.ret === 'success') {
-            alert(response.data.msg);
+            alert(response.msg);
             console.log('成功加入团队:', response.msg);
             this.setJoinTeam(false);
           } else {

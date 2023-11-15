@@ -39,7 +39,7 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
         try {
           const response = await createTeam(this.team.leader_name, this.team.team_name, !this.team.check);
           if(response.ret='success'){
-            alert(response.data.msg);
+            alert(response.msg);
             console.log('创建战队响应', response);
             this.setTeamname(this.team.team_name);
             sessionStorage.setItem('teamname',this.team.team_name);

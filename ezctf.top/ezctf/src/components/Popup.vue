@@ -60,7 +60,9 @@ props: {
   },
   computed:{
     ...mapState(['isLogin']),
-    downloadUrl() {  //BUG未解决
+    downloadUrl() {
+      //BUG未解决,前后端联调一下确保你的后端服务器正确设置了正确的响应头信息，以便告诉浏览器这是一个下载操作而不是一个页面请求。
+      //例如，你可以在后端设置Content-Disposition响应头为attachment来提示浏览器进行下载操作。  
       return axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id)
       .then(response =>{
         console.log(response.data);
@@ -75,7 +77,7 @@ methods:{
 
     if (!this.isLogin)
     {
-      alert("前面的区域登陆后再来探索吧~~");
+      alert("前面的区域登录以后再来探索吧~~");
       this.$router.push("/Log");
     }
     else this.isModalVisible = !this.isModalVisible;
