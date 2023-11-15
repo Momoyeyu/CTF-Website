@@ -28,11 +28,11 @@
         try {
           const response = await modifyUserInfo(this.user_name, this.newUsername,this.password);
           console.log('修改信息响应:', response);
-          if (response.return === 'success') {
+          if (response.ret === 'success') {
             alert(response.msg);
-            this.$store.commit('modifyUser', false);
-            this.$store.commit('setUsername', response.new_username);
-            sessionStorage.setItem('username', response.new_username)
+            this.setModifyUser(false);
+            this.setUsername(response.data.new_username);
+            sessionStorage.setItem('username', response.data.new_username)
           }
         } catch (error) {
           alert(error.response.data.msg);
@@ -47,9 +47,9 @@
 </script>
 <style>
 #modifyUser {
-    margin-top:-250px;
+    margin-top:-180px;
     margin-left:500px;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 250px;

@@ -68,7 +68,7 @@ button{
 #createTeam {
     margin-top:-220px;
     margin-left:470px;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 350px;
