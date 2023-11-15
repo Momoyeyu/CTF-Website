@@ -18,17 +18,23 @@
       };
     },
     computed: {
-    ...mapState(['username','modifyUser','deleteUser','isLogin']),
+    ...mapState(['username','teamname','score','isLeader','isMember','modifyUser','deleteUser','isLogin']),
     },
     methods: {
-      ...mapMutations(['setUsername','setModifyUser','setDeleteUser','setIsLogin']),
+      ...mapMutations(['setUsername','setTeanmane','setIsLeader','setIsMember','setModifyUser','setDeleteUser','setIsLogin']),
       async delete_User() {
         try {
           const response = await deleteUserInfo(this.username, this.password);
           console.log('注销账户响应:', response);
           if (response.return === 'success') {
             alert(response.msg);
-            this.$store.commit('isLogin', false);
+            this.setIsLogin(false);
+            this.setUsername('');
+            this.setTeamname('');
+            this.setScore('');
+            this.setIsLeader(false);
+            this.setIsMember(false);
+            sessionStorage.clear();
             this.$store.commit('deleteUser', false);
           }
         } catch (error) {

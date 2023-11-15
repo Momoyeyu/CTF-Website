@@ -7,7 +7,7 @@
         <input type="text" id="teamname" v-model="team.team_name" required /><br><br>
         <label for="check">审核加入:</label>
         <input type="checkbox" id="check" v-model="team.check" /><br><br>
-        <button type="submit" @click="createteam()">创建</button> |
+        <button type="submit" @click="create_Team()">创建</button> |
         <button @click="Re()" id="R">返回</button>
       </form>
     </div>
@@ -27,10 +27,10 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname','createTeam','noTeam']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','createTeam','noTeam','isLeader']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setCreateTeam','setNoTeam']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setCreateTeam','setNoTeam','setIsLeader']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.setCreateTeam(false);
@@ -38,19 +38,21 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
       async create_Team() {
         try {
           const response = await createTeam(this.team.leader_name, this.team.team_name, !this.team.check);
-          alert(response.data.msg);
-          console.log('创建战队响应', response);
-          setTeamname(this.team.team_name);
+          if(response.ret='success'){
+            alert(response.data.msg);
+            console.log('创建战队响应', response);
+            this.setTeamname(this.team.team_name);
+            sessionStorage.setItem('teamname',this.team.team_name);
+            this.setIsLeader(true);
+            sessionStorage.setItem('isLeader',true);
+            this.setUserInfoButtonEnabled(true);
+            this.setCreateTeam(false);
+          }
         } catch (error) {
           alert(error.response.data.msg);
           console.log('错误：',error);
         }
       }, 
-      createteam() {
-        this.create_Team();
-        this.setUserInfoButtonEnabled(true);
-        this.setCreateTeam(false);
-      },
       Re() {
         this.setCreateTeam(false);
         this.setNoTeam(true);

@@ -112,6 +112,7 @@ name:'Navigation',
     team() {
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
+      console.log(this.userInfo.is_Member);
       if(this.userInfo.is_Leader&&!this.userInfo.is_Member){
         this.showUserInfo();
         this.$router.push("/ManageTeam");
@@ -143,12 +144,13 @@ name:'Navigation',
         alert(response.msg);
         console.log('用户退出登录成功', response.data);
         this.setUsername('');
-        this.setTeamname('None');
+        this.setTeamname('');
         this.setScore('');
         this.setIsLeader(false);
         this.setIsMember(false);
         this.setIsLogin(false);
-        this.isHovered=false
+        this.isHovered=false;
+        sessionStorage.clear();
       })
       .catch((error) => {
         alert(error.response.data.msg);

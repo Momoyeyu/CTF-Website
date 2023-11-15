@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+axios.defaults.withCredentials = true;
 const BASE_URL = 'http://localhost:80'; 
 
 const api = axios.create({
