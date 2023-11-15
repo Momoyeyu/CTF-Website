@@ -36,7 +36,7 @@ def list_tasks(request):
                 "difficulty": 0,
                 "points": 10,
                 "solve_count": 12,
-                "Solved": True,
+                "solved": true,
             },
             {
                 "task_id": 2,
@@ -45,7 +45,7 @@ def list_tasks(request):
                 "difficulty": 0,
                 "points": 10,
                 "solve_count": 12,
-                solved: False,
+                "solved": false,
             },
         ]
     }
