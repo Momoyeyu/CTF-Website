@@ -119,7 +119,7 @@ def user_logout(request):
     if request.method != "GET":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
-    if request.user.is_authenticated:
+    if  request.user.is_authenticated:
         logout(request)
         return success_template("已退出登录")
     else:

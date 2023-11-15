@@ -6,13 +6,26 @@
     </div>
     <div class="rank-body">
         <table class="rank-table">
-            <tr class="table-title">
-                <td>排名</td>
+            <tr v-if="this.isLogin" class="Myrank-title">
+                <td>我的排名</td>
                 <td>姓名</td>
                 <td>得分</td>
                 <td>上次提交</td>
             </tr>
-            <tr v-for="item in sortedUsers" :key="item.score">
+            <tr v-if="this.isLogin" class="Myrank-body">
+              <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。 -->
+                <td>#{{ fetchMy[0].rank }}</td>
+                <td>{{ fetchMy[0].username }}</td>
+                <td>{{ fetchMy[0].score}}</td>
+                <td>{{ fetchMy[0].last_commit }}</td>
+            </tr>
+            <tr class="table-title">
+                <td>总排名</td>
+                <td>姓名</td>
+                <td>得分</td>
+                <td>上次提交</td>
+            </tr>
+            <tr v-for="item in sortedUsers" :key="item.rank">
                 <td>#{{ item.rank }}</td>
                 <td>{{ item.username }}</td>
                 <td>{{ item.score }}</td>
@@ -27,6 +40,19 @@
     </div>
     <div class="rank-body">
         <table class="rank-table">
+          <tr v-if="this.isLeader||this.isMember" class="Myrank-title">
+                <td>我的排名</td>
+                <td>姓名</td>
+                <td>得分</td>
+                <td>上次提交</td>
+            </tr>
+            <tr v-if="this.isLeader||this.isMember" class="Myrank-body">
+              <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。 -->
+                <td>#{{ fetchMyteam[0].rank }}</td>
+                <td>{{ fetchMyteam[0].team_name }}</td>
+                <td>{{ fetchMyteam[0].member_count}}</td>
+                <td>{{ fetchMyteam[0].score }}</td>
+            </tr>
             <tr class="table-title">
                 <td>排名</td>
                 <td>队名</td>
@@ -47,6 +73,7 @@
 
 <script>
 import axios from 'axios';
+import { mapState } from 'vuex';
 export default {
 name:'Ranking',
 data(){
@@ -61,6 +88,7 @@ methods: {
         .then(response => {  
           this.users = response.data.data.user_list;  
           console.log(this.users);
+          console.log(this.fetchMy);
         })  
         .catch(error => {  
           console.error(error);  
@@ -75,15 +103,19 @@ methods: {
         .catch(error => {  
           console.error(error);  
         });  
-    }  
+    },
   }, 
   mounted() {  
-    // 在组件挂载完成后发送请求获取数据  
     this.fetchUsersData();  
     this.fetchTeamsData();  
   }, 
-computed: {  //页面加载完成后自动对数据进行排序并生成排名
-    sortedUsers() { 
+computed: {  
+  ...mapState(['isLogin']),
+  ...mapState(['username']),
+  ...mapState(['teamname']),
+  ...mapState(['isLeader']),
+  ...mapState(['isMember']),
+    sortedUsers() { //页面加载完成后自动对数据进行排序并生成排名
       return this.users.sort((a, b) => b.score - a.score).map((item, index) => ({  
         ...item,  
         rank: index + 1,  
@@ -95,6 +127,14 @@ computed: {  //页面加载完成后自动对数据进行排序并生成排名
         rank: index + 1,  
       })); 
     } ,
+    fetchMy() {  
+      // 根据用户信息查询用户得分排名等排行榜信息，假设你已经有了一个名为this.username的状态来保存用户的用户名  
+      return this.sortedUsers.filter(obj => obj.username === this.username);   
+    },  
+    fetchMyteam() {  
+      // 根据团队名称查询团队得分排名等排行榜信息，假设你已经有了一个名为this.teamname的状态来保存团队的名称  
+      return Myteam = this.sortedTeams.filter(obj => obj.team_name === this.teamname);   
+    }, 
 },
 }
 </script>
