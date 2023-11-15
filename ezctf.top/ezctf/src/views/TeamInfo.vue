@@ -3,7 +3,7 @@
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队信息</h1>
           <p>战队名称:{{ team.name }}</p>
-          <p>队长:{{team.leader_id}}&nbsp;&nbsp;&nbsp;得分:1{{ leader_score }}</p>
+          <p>队长:{{team.leader_id}}&nbsp;&nbsp;&nbsp;得分:{{ team.leader_score }}</p>
           <div class="scrollable-table-container">
             <table class="two-column-table">
               <thead>
@@ -59,7 +59,8 @@
       },
       quit() {
         //发送退出战队请求到后端
-          this.$router.push("/");
+        this.setUserInfoButtonEnabled(true);
+        this.$router.push("/");
       }
     },
   };
@@ -68,8 +69,8 @@
 <style>
 #teaminfo {
   margin-top:100px;
-  margin-left:28%;
-  width: 40%;
+  margin-left:490px;
+  width: 600px;
   position: absolute;
   top: auto;
   left: auto;

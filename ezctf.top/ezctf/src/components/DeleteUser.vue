@@ -51,9 +51,9 @@
 </script>
 <style>
 #deleteUser {
-    margin-top:-220px;
+    margin-top:-180px;
     margin-left:500px;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 250px;

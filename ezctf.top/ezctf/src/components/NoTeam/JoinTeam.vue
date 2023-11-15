@@ -96,7 +96,7 @@ button{
 #jointeam {
     margin-top:-280px;
     margin-left:400px;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 500px;

@@ -43,6 +43,7 @@
           const response = await login(this.loginInfo.usernameOrEmail, this.loginInfo.password);
           console.log('登录响应:', response);
           if (response.ret === 'success') {
+
             this.$router.push('/'); 
             this.setLoginButtonEnabled(true);
             this.setUsername(response.data.username);
