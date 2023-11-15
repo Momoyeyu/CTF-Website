@@ -41,10 +41,10 @@
     <div class="rank-body">
         <table class="rank-table">
           <tr v-if="this.isLeader||this.isMember" class="Myrank-title">
-                <td>我的排名</td>
-                <td>姓名</td>
-                <td>得分</td>
-                <td>上次提交</td>
+                <td>排名</td>
+                <td>队名</td>
+                <td>队伍人数</td>
+                <td>总积分</td>
             </tr>
             <tr v-if="this.isLeader||this.isMember" class="Myrank-body">
               <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。 -->

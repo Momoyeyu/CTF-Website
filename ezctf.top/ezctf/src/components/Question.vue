@@ -9,7 +9,7 @@
         </div>
     </div>
     <div class="question-right">
-        <i v-if="item.is_solved" class="iconfont icon-yiwancheng" :class="['iconfont-green']"></i>
+        <i v-if="item.Solved" class="iconfont icon-yiwancheng" :class="['iconfont-green']"></i>
         <i v-else class="iconfont icon-weiwancheng"></i>
       </div>
 </button>
