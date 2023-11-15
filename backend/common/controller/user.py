@@ -94,6 +94,7 @@ def user_login(request):
         return error_template("用户未激活", status=403)
     login(request, user)
     request.session['username'] = user.username
+    request.session['_auth_user_id'] = user.id
 
     res_data = {
         "username": user.username,
@@ -218,6 +219,13 @@ def modify_user_info(request):
     password = data["password"]
     uid = request.session.get('_auth_user_id')
 
+    # 检查数据合法性
+    if new_username.isspace():
+        return error_template("用户名不能为空", status=400)
+
+    if not is_valid_username(new_username):
+        return error_template("用户名含有非法字符", status=400)
+
     # 获取用户
     user = User.objects.get(pk=uid)
     if user is None:
@@ -225,13 +233,6 @@ def modify_user_info(request):
     user = authenticate(request, username=user.username, password=password)
     if user is None:
         return error_template(ExceptionEnum.WRONG_PASSWORD.value, status=403)
-
-    # 用户验证成功
-    if new_username.isspace():
-        return error_template("用户名不能为空", status=400)
-
-    if not is_valid_username(new_username):
-        return error_template("用户名含有非法字符", status=400)
 
     user.username = new_username
     user.save()
