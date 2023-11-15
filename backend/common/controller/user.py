@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from backend import settings
-from utils import get_request_params, is_valid_username, error_template, success_template, send_message
+from utils import get_request_params, is_valid_username, error_template, success_template, send_message, generate
 from utils import ExceptionEnum, SuccessEnum
 from django.contrib.auth.models import User
 from common.models import CustomUser, Team, Message
@@ -36,6 +36,10 @@ def dispatcher(request):
         return modify_user_info(request)
     elif action == "del_account":
         return del_account(request)
+    elif action == "forget_password":
+        return forget_password(request)
+    elif action == "reset_password":
+        return reset_password(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
@@ -182,7 +186,7 @@ def user_register(request):
     result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
                        html_message=message)
     user.save()
-    res_data = { "username": user.username, }
+    res_data = {"username": user.username, }
     return success_template("注册成功，请验证后登录", data=res_data)
 
 
@@ -313,4 +317,64 @@ def user_active(request):
     return success_template("账号已激活", status=200)
 
 
+def forget_password(request):
+    """
+    POST
+    {
+        "action": "forget_password",
+        "data": {
+            "email": "momoyeyu@outlook.com",
+        }
+    }
+    """
+    if request.method != "POST":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+    data = request.params["data"]
+    email = data["email"]
+    user = User.objects.get(email=email)
+    if user is None or user.is_active is False:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    valid_code = generate(5)
 
+    subject = "ezctf 重置密码"
+    message = """
+              您的验证码：
+              <br> <p style="font-weight: bold;">{}</p>
+              <br> 
+              <br>             ezctf 开发团队
+              """.format(valid_code)
+    result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
+                       html_message=message)
+    user.first_name = valid_code
+    user.save()
+    return success_template(SuccessEnum.REQUEST_SUCCESS.value)
+
+
+def reset_password(request):
+    """
+    PUT
+    {
+        "action": "reset_password",
+        "data":{
+            "valid_code": "65535",
+            "email": "momoyeyu@outlook.com",
+            "new_password": "123",
+        }
+    }
+    """
+    if request.method != "PUT":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+    data = request.params["data"]
+    valid_code = data["valid_code"]
+    new_password = data["new_password"]
+    email = data["email"]
+    user = User.objects.get(email=email)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    if user.first_name != valid_code:
+        user.first_name = None
+        return error_template("验证码错误", status=403)
+    user.password = new_password
+    user.save()
+
+    return success_template(SuccessEnum.MODIFICATION_SUCCESS.value)
