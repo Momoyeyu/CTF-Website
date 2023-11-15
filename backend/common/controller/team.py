@@ -172,10 +172,14 @@ def join_team(request):
     if custom_user.team is not None:
         return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
 
-    if not team.allow_join:
-        response_data = {"leader_email": team.leader.email, }
-        msg = "战队 " + team_name + " 需要队长邀请才能加入"
-        return error_template(msg, data=response_data, status=403)
+    if team.allow_join:  # 允许加入，无需审核
+        custom_user.team = team
+        team.member_count += 1
+        custom_user.save()
+        team.save()
+        send_message(receiver_id=user.id, origin_id=team.leader.id, msg="欢迎加入" + str(team.team_name),
+                     msg_type=Message.MessageType.CHAT.value)
+        return success_template(SuccessEnum.REQUEST_SUCCESS.value)
 
     # 发送加入申请
     if Message.objects.filter(receiver=team.leader, origin=user,  # APPLICATION = 3
