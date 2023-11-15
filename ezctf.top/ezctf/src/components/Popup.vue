@@ -13,12 +13,13 @@
                 </tr>  
                 <tr>  
                   <td>解出人数：{{ item.solve_count }}</td>  
-                  <td v-if="item.Solved">状态：已完成</td>  
+                  <td v-if="item.solved">状态：已完成</td>  
                   <td v-else>状态：未完成</td>  
                 </tr>  
               </table>  
               <p class="popup-description">题目描述：{{ Detail.content }}</p>
-            <div class="popup-flag">  
+              <p v-if="item.solved" class="popup-flag"></p>
+            <div v-else class="popup-flag">  
               <input type="text" v-model="inputData" placeholder="请输入FLAG~~"/>  
               <button @click="checkInput">提交</button> 
               </div> 
@@ -74,7 +75,6 @@ methods:{
 
 },
   hidepopup() {  
-    console.log(this.item.task_id);
   this.isModalVisible = false; 
 },
 checkInput() {  
@@ -87,11 +87,11 @@ checkInput() {
         alert("请输入有效的数据！"); 
       }  
     }, 
-    submitData() {  //未校验
+    submitData() {  
       console.log(this.Flag);
       axios.post('http://localhost:80/api/task/answer?action=commit_flag',this.Flag)  
         .then(response=>{  
-          console.log(response.data);  
+          console.log(response.data);  //答题成功立刻修改（未完成）
           alert(response.data.msg);
         })  
         .catch(function (error) {  
@@ -101,14 +101,15 @@ checkInput() {
     },
     async getDownloadLink() {  
       try {  
-        const response = await axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id, { responseType: 'blob' }); // 发送下载请求，并指定响应类型为blob  
+        const response = await axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id, 
+        { responseType: 'blob' }); // 发送下载请求，并指定响应类型
         this.downloadLink = window.URL.createObjectURL(response.data); // 创建下载链接  
       } catch (error) {  
         console.error('下载链接获取失败：', error);  
       }  
     }, 
     handleDownloadClick(event) {  
-      event.preventDefault();  
+      event.preventDefault();
       if (this.downloadLink) {  
         const link = document.createElement('a');  
         link.href = this.downloadLink;  

@@ -47,11 +47,11 @@
                 <td>总积分</td>
             </tr>
             <tr v-if="this.isLeader||this.isMember" class="Myrank-body">
-              <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。 -->
-                <td>#{{ fetchMyteam[0].rank }}</td>
+              <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。(bug未修复) -->
+                <!-- <td>#{{ fetchMyteam[0].rank }}</td>
                 <td>{{ fetchMyteam[0].team_name }}</td>
                 <td>{{ fetchMyteam[0].member_count}}</td>
-                <td>{{ fetchMyteam[0].score }}</td>
+                <td>{{ fetchMyteam[0].score }}</td> -->
             </tr>
             <tr class="table-title">
                 <td>排名</td>
@@ -88,7 +88,6 @@ methods: {
         .then(response => {  
           this.users = response.data.data.user_list;  
           console.log(this.users);
-          console.log(this.fetchMy);
         })  
         .catch(error => {  
           console.error(error);  
@@ -133,7 +132,7 @@ computed: {
     },  
     fetchMyteam() {  
       // 根据团队名称查询团队得分排名等排行榜信息，假设你已经有了一个名为this.teamname的状态来保存团队的名称  
-      return Myteam = this.sortedTeams.filter(obj => obj.team_name === this.teamname);   
+      return this.sortedTeams.filter(obj => obj.team_name === this.teamname);   
     }, 
 },
 }
