@@ -27,13 +27,12 @@ export const createTeam = async (leaderId, teamName, allowJoin) => {
 };
   
 
-export const deleteTeam = async (leaderId, teamName) => {
+export const delete_Team = async (password) => {
     try {
       const response = await api.post('/api/common/team?action=del_team', {
         action: 'del_team',
         data: {
-          leader_id: leaderId,
-          team_name: teamName,
+          password: password
         },
       });
       return response.data;

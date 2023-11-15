@@ -43,37 +43,36 @@
           const response = await login(this.loginInfo.usernameOrEmail, this.loginInfo.password);
           console.log('登录响应:', response);
           if (response.ret === 'success') {
-
             this.$router.push('/'); 
             this.setLoginButtonEnabled(true);
             this.setUsername(response.data.username);
-            sessionStorage.setItem('username', response.data.username);
+            document.cookie = `username=${response.data.username}; path=/`;
             this.setTeamname(response.data.team_name);
             if(response.data.team_name){
-              sessionStorage.setItem('teamname', response.data.team_name);
+              document.cookie = `teamname=${response.data.team_name}; path=/`;
             }
             this.setScore(response.data.score);
-            sessionStorage.setItem('score', response.data.score);
+            document.cookie = `score=${response.data.score}; path=/`;
             this.setIsLogin(true);
-            sessionStorage.setItem('isLogin', true);
-            this.setErr("");
+            document.cookie = `isLogin=${true}; path=/`;
+            this.setErr("");          
             if(response.data.team_name&&!response.data.is_leader) {
               this.setIsLeader(false);
-              sessionStorage.setItem('isLeader', false);
+              document.cookie = `isLeader=${false}; path=/`;
               this.setIsMember(true);
-              sessionStorage.setItem('isMember', true);
+              document.cookie = `isMember=${true}; path=/`;
             }
             else if(response.data.is_leader){
               this.setIsLeader(true);
-              sessionStorage.setItem('isLeader', true);
+              document.cookie = `isLeader=${true}; path=/`;
               this.setIsMember(false);
-              sessionStorage.setItem('isMember', false);
+              document.cookie = `isMember=${false}; path=/`;
             }
             else{
               this.setIsLeader(false);
-              sessionStorage.setItem('isLeader', false);
+              document.cookie = `isLeader=${false}; path=/`;
               this.setIsMember(false);
-              sessionStorage.setItem('isMember', false);
+              document.cookie = `isMember=${false}; path=/`;
             }
           }
         } catch (error) {

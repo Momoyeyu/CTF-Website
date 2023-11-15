@@ -1,59 +1,59 @@
 <template>
-    <div id="modifyUser">
+    <div id="deleteTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
-      <h1>修改信息</h1>
-      <input v-model="newUsername" placeholder="请输入新用户名" /><br><br>
+      <h1>解散战队</h1>
       <input v-model="password" placeholder="请输入密码" /><br><br>
-      <button @click="modify_User()">确认</button>
+      <button @click="delete_team()">确认</button>
     </div>
 </template>
   
 <script>
   import { mapState, mapMutations } from 'vuex';
-  import { modifyUserInfo } from '@/UserSystemApi/UserApi';
+  import { delete_Team } from '@/UserSystemApi/TeamApi';
   export default {
     data() {
       return {
-        user_name:this.$store.state.username,
-        newUsername: "",
         password: "",
       };
     },
     computed: {
-    ...mapState(['username','teamname','modifyUser']),
+    ...mapState(['teamname','isLeader','deleteTeam']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeamname','setModifyUser']),
-      async modify_User() {
+      ...mapMutations(['setTeanmane','setIsLeader','setDeleteTeam']),
+      async delete_team() {
         try {
-          const response = await modifyUserInfo(this.user_name, this.newUsername,this.password);
-          console.log('修改信息响应:', response);
-          if (response.ret === 'success') {
+          const response = await delete_Team(this.password);
+          console.log('解散战队响应:', response);
+          if (response.return === 'success') {
             alert(response.msg);
-            this.setModifyUser(false);
-            this.setUsername(response.data.new_username);
-            document.cookie = `username=${response.new_username}; path=/`;
+            this.setTeamname('');
+            this.setIsLeader(false);
+            document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = `isLeader=${false}; path=/`;
+            this.setDeleteTeam(false);
           }
         } catch (error) {
           alert(error.response.data.msg);
           console.error('错误:', error);
+          console.log(error.response);
         }
       },
       close() {
-        this.setModifyUser(false);
+        this.setDeleteTeam(false);
       },
     },
   };
 </script>
 <style>
-#modifyUser {
-    margin-top:-180px;
-    margin-left:500px;
+#deleteTeam {
+    margin-top:200px;
+    margin-left:670px;
     position: absolute;
     top: auto;
     left: auto;
     width: 250px;
-    height: 200px;
+    height: 170px;
     background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
@@ -65,6 +65,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     text-align: center;
     color:white;
+    z-index: 10;
 }
 .close-btn {
     text-decoration: none;
