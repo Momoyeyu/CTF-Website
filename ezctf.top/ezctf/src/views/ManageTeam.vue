@@ -103,7 +103,9 @@
           if(response.ret=='success'){
             alert(response.msg);
             this.setTeamname('None');
+            sessionStorage.setItem('teamname','');
             this,setIsLeader(false);
+            sessionStorage.setItem('isLeader',false);
             this.$router.push("/");
           }
         } catch (error) {
@@ -118,7 +120,9 @@
           if(response.ret=='success'){
             alert(response.msg);
             this.setIsLeader(false);
+            sessionStorage.setItem('isLeader',false);
             this.setIsMember(true);
+            sessionStorage.setItem('isMember',true);
             this.$router.push("/");
           }
         } catch (error) {

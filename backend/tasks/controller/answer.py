@@ -48,6 +48,8 @@ def commit_flag(request):
     task_id = info["task_id"]
     flag = info["flag"]
     uid = request.session.get("_auth_user_id")
+    print(uid)
+
     user = User.objects.get(pk=uid)
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)

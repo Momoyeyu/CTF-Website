@@ -2,9 +2,11 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import Vuex from 'vuex';
+import VueCookies from 'vue-cookies'
 import './assets/index_icon/iconfont.css'
 
 Vue.use(Vuex);
+Vue.use(VueCookies)
 
 const store = new Vuex.Store({
   state: {
@@ -13,7 +15,7 @@ const store = new Vuex.Store({
     modifyUser: false,
     deleteUser: false,
     infoBoard: false,
-    isLogin: false,
+    isLogin: sessionStorage.getItem('isLogin') || false,
     noTeam: false,
     createTeam: false,
     joinTeam: false,
@@ -21,11 +23,11 @@ const store = new Vuex.Store({
     reg: false,
     FoPa: false,
     RePa: false,
-    username: '',
-    score: '',
-    teamname: '',
-    isLeader: false,
-    isMember: false,
+    username: sessionStorage.getItem('username') || '',
+    score: sessionStorage.getItem('score') || '',
+    teamname: sessionStorage.getItem('teamname') || '',
+    isLeader: sessionStorage.getItem('isLeader') || false,
+    isMember: sessionStorage.getItem('isMember') || false,
     err:'',
   },
   mutations: {

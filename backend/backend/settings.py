@@ -140,6 +140,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS跨域资源共享
 CORS_ALLOW_ALL_ORIGINS = True
 
+CORS_ALLOW_CREDENTIALS = True
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8080",
+#     "http://localhost:8000",
+#     "http://localhost:80",
+#     # 允许其他需要的域名
+# ]
+
+
 # session
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 

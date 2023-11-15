@@ -26,6 +26,7 @@ export default {
 <style>
 #bkg{
 height:87vh;
+width: 1600px;
 background-image:url("../assets/背景.png");
 background-size:cover;
 }
