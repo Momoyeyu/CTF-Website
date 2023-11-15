@@ -26,20 +26,6 @@ export const createTeam = async (leaderId, teamName, allowJoin) => {
     }
 };
   
-
-export const delete_Team = async (password) => {
-    try {
-      const response = await api.post('/api/common/team?action=del_team', {
-        action: 'del_team',
-        data: {
-          password: password
-        },
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-};
   
 export const joinTeam = async (username, teamname) => {
   try {
@@ -83,6 +69,20 @@ export const changeTeamLeader = async (username,newLeaderName) => {
     };
 
     const response = await api.put('/api/common/team?action=change_team_leader', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const delete_Team = async (password) => {
+  try {
+    const response = await api.delete('/api/common/team?action=del_team', {
+      action: 'del_team',
+      data: {
+        password: password
+      },
+    });
     return response.data;
   } catch (error) {
     throw error;

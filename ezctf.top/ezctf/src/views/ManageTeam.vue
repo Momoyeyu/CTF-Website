@@ -62,7 +62,7 @@
 <script>
   import DeleteTeam from '@/components/DeleteTeam.vue'
   import { mapState, mapMutations } from 'vuex';
-  import { changeTeamLeader,deleteTeam } from '@/UserSystemApi/TeamApi';
+  import { changeTeamLeader } from '@/UserSystemApi/TeamApi';
   export default {
     components:{DeleteTeam},
     data() {

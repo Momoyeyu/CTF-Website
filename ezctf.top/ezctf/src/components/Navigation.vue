@@ -118,6 +118,7 @@ name:'Navigation',
         this.$router.push("/ManageTeam");
       }
       else if(this.userInfo.is_Member){
+        console.log(this.userInfo.is_Member);
         console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
