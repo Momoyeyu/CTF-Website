@@ -13,20 +13,19 @@
   export default {
     data() {
       return {
-        username:this.$store.state.username,
         password: "",
       };
     },
     computed: {
-    ...mapState(['username','teamname','score','isLeader','isMember','modifyUser','deleteUser','isLogin']),
+    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeanmane','setIsLeader','setIsMember','setModifyUser','setDeleteUser','setIsLogin']),
+      ...mapMutations(['setUsername','setTeanmane','setIsLeader','setIsMember','setDeleteUser','setIsLogin']),
       async delete_User() {
         try {
-          const response = await deleteUserInfo(this.username, this.password);
+          const response = await deleteUserInfo(this.password);
           console.log('注销账户响应:', response);
-          if (response.return === 'success') {
+          if (response.ret === 'success') {
             alert(response.msg);
             this.setIsLogin(false);
             this.setUsername('');
@@ -34,8 +33,13 @@
             this.setScore('');
             this.setIsLeader(false);
             this.setIsMember(false);
-            sessionStorage.clear();
-            this.$store.commit('deleteUser', false);
+            document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "score=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            this.setDeleteUser(false);
           }
         } catch (error) {
           alert(error.response.data.msg);
@@ -51,9 +55,9 @@
 </script>
 <style>
 #deleteUser {
-    margin-top:-220px;
+    margin-top:-180px;
     margin-left:500px;
-    position: fixed;
+    position: absolute;
     top: auto;
     left: auto;
     width: 250px;

@@ -20,16 +20,9 @@ import json
 
 def dispatcher(request):
     # 将请求参数统一放入request 的 params 属性中，方便后续处理
-
     request.params = get_request_params(request)
-    """# GET请求 参数在url中，同过request 对象的 GET属性获取
-    if request.method == "GET":
-        request.params = request.GET
-
-    # POST/PUT/DELETE 请求 参数 从 request 对象的 body 属性中获取
-    elif request.method in ["POST", "PUT", "DELETE"]:
-        # 根据接口，POST/PUT/DELETE 请求的消息体都是 json格式
-        request.params = json.loads(request.body)"""
+    print("\n=====\n", request, "\n=====\n")
+    print("\n=====\n", request.params, "\n=====\n")
 
     # 根据不同的action分派给不同的函数进行处理
     action = request.params["action"]
@@ -89,9 +82,12 @@ def user_login(request):
 
     if user.is_active is False:
         return error_template("用户未激活", status=403)
-    login(request, user)
-    request.session["username"] = user.username
     custom_user = CustomUser.objects.get(user_id=user.id)
+    if custom_user is None:
+        return error_template("用户未激活", status=403)
+    login(request, user)
+    request.session['username'] = user.username
+    request.session['_auth_user_id'] = user.id
 
     res_data = {
         "username": user.username,
@@ -118,8 +114,8 @@ def user_logout(request):
     """
     if request.method != "GET":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if request.user.is_authenticated:
+        del request.session['_auth_user_id']
         logout(request)
         return success_template("已退出登录")
     else:
@@ -215,6 +211,13 @@ def modify_user_info(request):
     password = data["password"]
     uid = request.session.get('_auth_user_id')
 
+    # 检查数据合法性
+    if new_username.isspace():
+        return error_template("用户名不能为空", status=400)
+
+    if not is_valid_username(new_username):
+        return error_template("用户名含有非法字符", status=400)
+
     # 获取用户
     user = User.objects.get(pk=uid)
     if user is None:
@@ -222,13 +225,6 @@ def modify_user_info(request):
     user = authenticate(request, username=user.username, password=password)
     if user is None:
         return error_template(ExceptionEnum.WRONG_PASSWORD.value, status=403)
-
-    # 用户验证成功
-    if new_username.isspace():
-        return error_template("用户名不能为空", status=400)
-
-    if not is_valid_username(new_username):
-        return error_template("用户名含有非法字符", status=400)
 
     user.username = new_username
     user.save()

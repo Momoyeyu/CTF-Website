@@ -8,6 +8,18 @@ import './assets/index_icon/iconfont.css'
 Vue.use(Vuex);
 Vue.use(VueCookies)
 
+Vue.config.productionTip = false
+const getCookie = function(name) {
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith(name + '=')) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+  return '';
+};
+
 const store = new Vuex.Store({
   state: {
     loginButtonEnabled: true,
@@ -15,20 +27,21 @@ const store = new Vuex.Store({
     modifyUser: false,
     deleteUser: false,
     infoBoard: false,
-    isLogin: sessionStorage.getItem('isLogin') || false,
+    isLogin: getCookie('isLogin') || false, 
     noTeam: false,
     createTeam: false,
     joinTeam: false,
+    deleteTeam: false,
     log: true,
     reg: false,
     FoPa: false,
     RePa: false,
-    username: sessionStorage.getItem('username') || '',
-    score: sessionStorage.getItem('score') || '',
-    teamname: sessionStorage.getItem('teamname') || '',
-    isLeader: sessionStorage.getItem('isLeader') || false,
-    isMember: sessionStorage.getItem('isMember') || false,
-    err:'',
+    username: getCookie('username') || '', 
+    score: getCookie('score') || '', 
+    teamname: getCookie('teamname') || '', 
+    isLeader: getCookie('isLeader') || false, 
+    isMember: getCookie('isMember') || false, 
+    err: '',
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
@@ -73,6 +86,9 @@ const store = new Vuex.Store({
     setJoinTeam(state, value){
       state.joinTeam =value;
     },
+    setDeleteTeam(state, value) {
+      state.deleteTeam = value;
+    },
     setLog(state, value){
       state.log =value;
     },
@@ -90,8 +106,6 @@ const store = new Vuex.Store({
     }
   },
 });
-
-Vue.config.productionTip = false
 
 new Vue({
   router,

@@ -118,6 +118,8 @@ name:'Navigation',
         this.$router.push("/ManageTeam");
       }
       else if(this.userInfo.is_Member){
+        console.log(this.userInfo.is_Member);
+        console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
       }
@@ -150,7 +152,12 @@ name:'Navigation',
         this.setIsMember(false);
         this.setIsLogin(false);
         this.isHovered=false;
-        sessionStorage.clear();
+        document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "score=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       })
       .catch((error) => {
         alert(error.response.data.msg);

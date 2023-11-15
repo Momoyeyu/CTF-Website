@@ -1,6 +1,7 @@
 <template>
   <div id="bkg">
-    <div id="manageTeam">
+    <DeleteTeam v-if="deleteTeam"/>
+    <div id="manageTeam" v-if="!deleteTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
       <p>
@@ -53,15 +54,17 @@
         </table>
       </div>
       <br><br>
-      <button @click="deleteTeam()">解散战队</button>
+      <button @click="delete_Team()">解散战队</button>
     </div>
   </div>
 </template>
   
 <script>
+  import DeleteTeam from '@/components/DeleteTeam.vue'
   import { mapState, mapMutations } from 'vuex';
-  import { changeTeamLeader,deleteTeam } from '@/UserSystemApi/TeamApi';
+  import { changeTeamLeader } from '@/UserSystemApi/TeamApi';
   export default {
+    components:{DeleteTeam},
     data() {
       return {
         members: [
@@ -74,44 +77,30 @@
           { id: 1, name: "张三", score: 59 },
           { id: 2, name: "李四", score: 99 },
         ],
+        team: {},
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember']),
-    teamInfo(){
-      return{
-      team: {
-            leader_name: this.$store.state.username,
-            name: this.$store.state.teamname,
-            membernum:'4',
-            maxnum:'10',
-            check:true
-        },
+    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam']),
+    teamInfo() {
+      this.team = {
+        leader_name: this.$store.state.username,
+        name: this.$store.state.teamname,
+        membernum: '4',
+        maxnum: '10',
+        check: true
       };
+      return { team: this.team };
     },
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/');
       },
-      async deleteTeam() {
-        try {
-          const response = await deleteTeam(this.team.name);
-          console.log('删除队伍响应:', response);
-          if(response.ret=='success'){
-            alert(response.msg);
-            this.setTeamname('None');
-            sessionStorage.setItem('teamname','');
-            this,setIsLeader(false);
-            sessionStorage.setItem('isLeader',false);
-            this.$router.push("/");
-          }
-        } catch (error) {
-          alert(error.response.msg);
-          console.error('错误:', error);
-        }
+      delete_Team(){
+        this.setDeleteTeam(true);
       },
       async changeTeamLeader(memberName) {
         try {
@@ -153,12 +142,12 @@ background-image:url("../assets/背景.png");
 background-size:cover;
 }
 #manageTeam {
-    margin-top: 10px;
-    margin-left: 5%;
+    margin-top: 100px;
+    margin-left: 390px;
     position: absolute;
     top: auto;
     left: auto;
-    width: 80%;
+    width: 800px;
     justify-content: center;
     align-items: center;
     background-color: #1e1e1e;
