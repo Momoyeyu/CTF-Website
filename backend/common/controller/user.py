@@ -89,9 +89,11 @@ def user_login(request):
 
     if user.is_active is False:
         return error_template("用户未激活", status=403)
-    login(request, user)
-    request.session["username"] = user.username
     custom_user = CustomUser.objects.get(user_id=user.id)
+    if custom_user is None:
+        return error_template("用户未激活", status=403)
+    login(request, user)
+    request.session['username'] = user.username
 
     res_data = {
         "username": user.username,
@@ -118,8 +120,9 @@ def user_logout(request):
     """
     if request.method != "GET":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
-    if request.user.is_authenticated:
+    if True:
+    # if request.user.is_authenticated:
+        del request.session['_auth_user_id']
         logout(request)
         return success_template("已退出登录")
     else:

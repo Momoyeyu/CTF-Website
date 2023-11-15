@@ -61,6 +61,8 @@ def create_team(request):
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
+    if uid is not None:
+        print("read session uid: " + str(uid))
     team_name = data["team_name"]
     allow_join = data["allow_join"]
 
