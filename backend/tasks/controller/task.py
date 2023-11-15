@@ -36,6 +36,7 @@ def list_tasks(request):
                 "difficulty": 0,
                 "points": 10,
                 "solve_count": 12,
+                "Solved": True,
             },
             {
                 "task_id": 2,
@@ -44,6 +45,7 @@ def list_tasks(request):
                 "difficulty": 0,
                 "points": 10,
                 "solve_count": 12,
+                solved: False,
             },
         ]
     }
@@ -59,8 +61,22 @@ def list_tasks(request):
     if task_type:
         qs = qs.filter(task_type=int(task_type))  # MISC = 0
 
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+
+    dic = {}
+    for task in qs:
+        dic[task.id] = False
+
+    if user is not None:
+        answered_tasks = AnswerRecord.objects.filter(user=user)
+        for solved_task in answered_tasks:
+            dic[solved_task.task_id] = True
+
+
     task_list = []
     for task in qs:
+        solved = dic[task.id]
         task_list.append({
             "task_id": task.id,
             "task_name": task.task_name,
@@ -69,6 +85,7 @@ def list_tasks(request):
             "points": task.points,
             "solve_count": task.solve_count,
             "task_type": task.task_type,
+            "solved": solved,
         })
 
     return success_template("查询成功", data=task_list, status=200)
