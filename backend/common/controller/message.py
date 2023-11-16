@@ -193,7 +193,7 @@ def get_invitations(request):
             continue
         info = {
             "inviter": user.username,
-            "team_name": custom_user.team.team_name,
+            "team_name": message.msg,
         }
         invitation_list.append(info)
 

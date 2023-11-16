@@ -452,7 +452,7 @@ def invite(request):
     user = User.objects.get(pk=uid)
     invitee = User.objects.get_by_natural_key(invitee_name)
     if user is None or user.is_active is False:
-        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+        return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
     if invitee is None or invitee.is_active is False:
         res_data = {"username": invitee_name, }
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=res_data, status=404)
@@ -468,7 +468,7 @@ def invite(request):
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     if msg is None:
-        msg = str("希望你能加入" + team.team_name)
+        msg = str(team.team_name)
     send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION.value)  # INVITATION.value = 4
     return success_template(SuccessEnum.POST_SUCCESS.value)
 
@@ -480,6 +480,7 @@ def accept(request):
         "action": "accept",
         "data": {
             "inviter": "juanboy",
+            "team_name": "ezctf",
             "accept": true,
         }
     }
@@ -493,6 +494,7 @@ def accept(request):
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
     inviter_name = data["inviter"]
+    team_name = data["team_name"]
     accept_or_not = data["accept"]
     # check users
     user = User.objects.get(pk=uid)
@@ -515,7 +517,7 @@ def accept(request):
 
     custom_user = CustomUser.objects.get(user=user)
     custom_origin = CustomUser.objects.get(user=inviter)
-    team = Team.objects.get(pk=custom_origin.team.id)
+    team = Team.objects.get(team_name=team_name)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
