@@ -5,7 +5,7 @@
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
       <p>
-        战队名称：{{ team.name }}  &nbsp; 战队人数: {{ team.membernum }}/{{ team.maxnum }}
+        战队名称：{{ teamInfo.name }}  &nbsp; 战队人数: {{ teamInfo.membernum }}/{{ teamInfo.maxnum }}
         <button @click="changeteaminfo()">修改名称</button>
       </p>
       <h2>战队成员</h2>
@@ -62,7 +62,7 @@
 <script>
   import DeleteTeam from '@/components/DeleteTeam.vue'
   import { mapState, mapMutations } from 'vuex';
-  import { changeTeamLeader } from '@/UserSystemApi/TeamApi';
+  import { changeTeamLeader, changeTeamname } from '@/UserSystemApi/TeamApi';
   export default {
     components:{DeleteTeam},
     data() {
@@ -83,14 +83,13 @@
     computed: {
     ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam']),
     teamInfo() {
-      this.team = {
-        leader_name: this.$store.state.username,
-        name: this.$store.state.teamname,
-        membernum: '4',
-        maxnum: '10',
-        check: true
-      };
-      return { team: this.team };
+      return{
+          leader_name: this.$store.state.username,
+          name: this.$store.state.teamname,
+          membernum: '4',
+          maxnum: '10',
+          check: true
+      }
     },
     },
     methods: {

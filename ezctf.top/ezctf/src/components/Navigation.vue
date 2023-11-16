@@ -54,7 +54,6 @@ name:'Navigation',
   data() {
     return {
       isHovered: false,
-      setInfo: true,
     };
   },
   computed: {
@@ -67,6 +66,7 @@ name:'Navigation',
                   'isMember',
                   'modifyUser',
                   'deleteUser',
+                  'setInfo',
                   'infoboard',
                   'isLogin',
                   'noTeam',
@@ -93,6 +93,7 @@ name:'Navigation',
                       'setIsMember',
                       'setModifyUser',
                       'setDeleteUser',
+                      'setSetInfo',
                       'setInfoBoard',
                       'setIsLogin',
                       'setNoTeam',
@@ -107,7 +108,7 @@ name:'Navigation',
       this.isHovered = !this.isHovered;
     },
     setinfo() {
-      this.setInfo=!this.setInfo;
+      this.setSetInfo(!this.$store.state.setInfo);
     },
     team() {
       this.setUserInfoButtonEnabled(false);

@@ -20,13 +20,13 @@
     ...mapState(['teamname','isLeader','deleteTeam']),
     },
     methods: {
-      ...mapMutations(['setTeanmane','setIsLeader','setDeleteTeam']),
+      ...mapMutations(['setTeamname','setIsLeader','setDeleteTeam']),
       async delete_team() {
         try {
           const response = await delete_Team(this.password);
           console.log('解散战队响应:', response);
-          if (response.return === 'success') {
-            alert(response.msg);
+          if (response === 204) {
+            alert("成功解散战队");
             this.setTeamname('');
             this.setIsLeader(false);
             document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
