@@ -77,12 +77,28 @@ export const changeTeamLeader = async (username,newLeaderName) => {
 
 export const delete_Team = async (password) => {
   try {
-    const response = await api.delete('/api/common/team?action=del_team', {
+    const response = await api.delete('/api/common/team?action=del_team', {data:{
       action: 'del_team',
       data: {
         password: password
       },
-    });
+  }});
+    return response.status;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const changeTeamname = async (newTeamName) => {
+  try {
+    const requestData = {
+      action: 'change_team_name',
+      data: {
+          new_team_name: newTeamName
+      },
+    };
+
+    const response = await api.put('/api/common/team?action=change_team_name', requestData);
     return response.data;
   } catch (error) {
     throw error;

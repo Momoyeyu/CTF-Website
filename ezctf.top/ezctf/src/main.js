@@ -28,6 +28,7 @@ const store = new Vuex.Store({
     deleteUser: false,
     infoBoard: false,
     isLogin: getCookie('isLogin') || false, 
+    setInfo: true,
     noTeam: false,
     createTeam: false,
     joinTeam: false,
@@ -76,6 +77,9 @@ const store = new Vuex.Store({
     },
     setIsLogin(state, value){
       state.isLogin = value;
+    },
+    setSetInfo(state, value){
+      state.setInfo = value;
     },
     setNoTeam(state, value){
       state.noTeam =value;

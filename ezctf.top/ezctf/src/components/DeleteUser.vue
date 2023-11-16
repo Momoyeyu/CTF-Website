@@ -17,16 +17,16 @@
       };
     },
     computed: {
-    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin']),
+    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin','setInfo']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeanmane','setIsLeader','setIsMember','setDeleteUser','setIsLogin']),
+      ...mapMutations(['setUsername','setTeamname','setIsLeader','setScore','setIsMember','setDeleteUser','setIsLogin','setSetInfo']),
       async delete_User() {
         try {
           const response = await deleteUserInfo(this.password);
           console.log('注销账户响应:', response);
-          if (response.ret === 'success') {
-            alert(response.msg);
+          if (response===204) {
+            alert("成功注销账号");
             this.setIsLogin(false);
             this.setUsername('');
             this.setTeamname('');
@@ -40,9 +40,9 @@
             document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             this.setDeleteUser(false);
+            this.setSetInfo(!this.$store.state.setInfo);
           }
         } catch (error) {
-          alert(error.response.data.msg);
           console.error('错误:', error);
           console.log(error.response);
         }

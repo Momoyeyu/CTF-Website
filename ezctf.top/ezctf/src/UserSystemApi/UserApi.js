@@ -76,15 +76,15 @@ export const logoutUser = async () => {
 
 export const deleteUserInfo = async (password) => {
   try {
-    const requestData = {
+    const requestData = {data:{
       action: 'del_account',
       data: {
         password: password
       },
-    };
+    }};
 
     const response = await api.delete('/api/common/user?action=del_account', requestData);
-    return response.data;
+    return response.status;
   } catch (error) {
     throw error;
   }
