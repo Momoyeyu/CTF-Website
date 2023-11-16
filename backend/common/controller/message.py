@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 from utils import get_request_params, error_template, success_template, ExceptionEnum, SuccessEnum
 from common.models import Message, CustomUser
 from django.contrib.auth.models import User

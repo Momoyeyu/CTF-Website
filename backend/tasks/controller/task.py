@@ -1,9 +1,7 @@
-from django.http import HttpResponse
 from django.http import JsonResponse
 from utils import get_request_params, ExceptionEnum, error_template, success_template
 from tasks.models import Task, AnswerRecord
 from django.contrib.auth.models import User
-import traceback
 
 
 def dispatcher(request):
@@ -13,7 +11,7 @@ def dispatcher(request):
     elif action == "detail":
         return detail(request)
     else:
-        return JsonResponse({"ret": "error", "msg": "Unsupported request!"})
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
 def list_tasks(request):
@@ -115,5 +113,6 @@ def detail(request):
         "task_id": task.id,
         "task_name": task.task_name,
         "content": task.content,
+        "task_type": task.task_type,
     }
     return success_template("查询成功", data=task_data)

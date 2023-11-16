@@ -1,15 +1,11 @@
-from django.http import HttpResponse
-from django.http import JsonResponse
 from tasks.models import Task, AnswerRecord
 from common.models import CustomUser
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.http import FileResponse
 from rank.models import FirstKill
 import backend.settings as settings
 from django.utils import timezone
 import os
-import traceback
 from utils import get_request_params, ExceptionEnum, error_template, success_template, SuccessEnum
 
 

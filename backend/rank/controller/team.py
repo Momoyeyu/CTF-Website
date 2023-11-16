@@ -1,9 +1,5 @@
-from django.http import HttpResponse
-from django.http import JsonResponse
 from utils import get_request_params, error_template, success_template, ExceptionEnum, SuccessEnum
 from common.models import Team, CustomUser
-import json
-import traceback
 
 
 def dispatcher(request):

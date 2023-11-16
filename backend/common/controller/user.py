@@ -1,17 +1,10 @@
-import uuid
 from django.core.mail import send_mail
-from django.http import HttpResponse
-from django.http import JsonResponse
-from django.shortcuts import redirect
-from django.urls import reverse
 from backend import settings
 from utils import get_request_params, is_valid_username, error_template, success_template, send_message, generate
 from utils import ExceptionEnum, SuccessEnum
 from django.contrib.auth.models import User
 from common.models import CustomUser, Team, Message
 from django.contrib.auth import authenticate, login, logout
-from django.core.exceptions import ObjectDoesNotExist
-import json
 
 """
 此文件仅处理 user表 数据
@@ -40,6 +33,8 @@ def dispatcher(request):
         return forget_password(request)
     elif action == "reset_password":
         return reset_password(request)
+    elif action == "user_active":
+        return user_active(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
@@ -171,20 +166,17 @@ def user_register(request):
     user = User.objects.create_user(username=username, password=password, email=email)
     user.is_active = False
 
-    token = str(uuid.uuid4()).replace("-", "")
-    user.first_name = token  # 将 token 存在 user 中
-    path = "http://localhost/user/active?token={}".format(token)
+    valid_code = generate(5)
 
     subject = "ezctf 激活邮件"
     message = """
-           欢迎来到 ezctf！ 
-           <br> <a href='{}'>点击激活</a>  
-           <br> 若链接不可用，请复制链接到浏览器激活: 
-           <br> {}
-           <br>                 ezctf 开发团队
-           """.format(path, path)
+              您的验证码：<p style="font-weight: bold;">{}</p>
+              <br> 
+              <br>             ezctf 开发团队
+              """.format(valid_code)
     result = send_mail(subject=subject, message="", from_email=settings.EMAIL_HOST_USER, recipient_list=[email, ],
                        html_message=message)
+    user.first_name = valid_code
     user.save()
     res_data = {"username": user.username, }
     return success_template("注册成功，请验证后登录", data=res_data)
@@ -301,14 +293,31 @@ def del_account(request):
 
 
 def user_active(request):
-    if request.method != "GET":
+    """
+    POST
+    {
+        "action": "user_active",
+        "data": {
+            "username": "momoyeyu",
+            "valid_code": "65535",
+        },
+    }
+    """
+    if request.method != "POST":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
-    token = str(request.GET.get("token"))
-    user = User.objects.get(first_name=token)
+    data = request.params["data"]
+    username = data["username"]
+    valid_code = data["valid_code"]
+    if not valid_code or not username:
+        return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
+    user = User.objects.get_by_natural_key(username)
     if user is None:
-        return error_template("验证失败", status=500)
-    user.first_name = ""
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    if user.first_name != valid_code:
+        user.first_name = None
+        return error_template("验证码错误", status=403)
+    user.first_name = None
     user.is_active = True
     user.save()
     # 创建 CustomUser，关联到 User
@@ -338,8 +347,7 @@ def forget_password(request):
 
     subject = "ezctf 重置密码"
     message = """
-              您的验证码：
-              <br> <p style="font-weight: bold;">{}</p>
+              您的验证码：<p style="font-weight: bold;">{}</p>
               <br> 
               <br>             ezctf 开发团队
               """.format(valid_code)

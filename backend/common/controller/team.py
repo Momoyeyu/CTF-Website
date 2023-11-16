@@ -1,8 +1,4 @@
 from django.contrib.auth import authenticate
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
-from django.http import HttpResponse
-from django.http import JsonResponse
 from utils import get_request_params
 from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
