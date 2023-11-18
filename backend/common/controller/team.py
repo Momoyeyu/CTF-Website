@@ -10,8 +10,6 @@ def dispatcher(request):
 
     # 经过此函数处理，request.params 里的对象已经转为 python 字典，数据类型也已经经过处理
     request.params = get_request_params(request)
-    print("\n=====\n", request, "\n=====\n")
-    print("\n=====\n", request.params, "\n=====\n")
     # 根据不同的action分派给不同的函数进行处理
     action = request.params["action"]
 
@@ -38,6 +36,8 @@ def dispatcher(request):
         return invite(request)
     elif action == "accept":
         return accept(request)
+    elif action == "kick_out":
+        return kick_out(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
@@ -471,6 +471,43 @@ def invite(request):
         msg = str(team.team_name)
     send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION.value)  # INVITATION.value = 4
     return success_template(SuccessEnum.POST_SUCCESS.value)
+
+
+def kick_out(request):
+    """
+    POST
+    {
+        "action": "kick_out",
+        "data": {
+            "username": "momoyeyu",
+        }
+    }
+    """
+    data = request.params["data"]
+    username = data["username"]
+    uid = request.session.get("_auth_user_id")
+    if uid is None:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    user = User.objects.get(pk=uid)
+    if user is None:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    if user.custom_user.team is None or user.custom_user.team.leader != user:
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
+    team = Team.objects.get(pk=user.custom_user.team_id)
+    if user.username == username:
+        return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
+    kick = User.objects.get_by_natural_key(username)
+    if kick is None or kick.is_active is False:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    c_kick = CustomUser.objects.get(user=kick)
+    if c_kick.team != team:
+        return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
+    c_kick.team = None
+    team.member_count -= 1
+    c_kick.save()
+    team.save()
+    send_message(receiver_id=kick.id, origin_id=user.id, msg=team.team_name, msg_type=Message.MessageType.KICKOUT.value)
+    return success_template(SuccessEnum.REQUEST_SUCCESS.value)
 
 
 def accept(request):
