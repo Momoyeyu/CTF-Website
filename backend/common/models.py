@@ -56,6 +56,7 @@ class Message(models.Model):
         SYSTEM = 2
         APPLICATION = 3
         INVITATION = 4
+        KICKOUT = 5
 
     # receiver: 接收者
     # origin: 发送者
