@@ -89,7 +89,7 @@ export const delete_Team = async (password) => {
   }
 };
 
-export const changeTeamname = async (newTeamName) => {
+export const changeTeamName = async (newTeamName) => {
   try {
     const requestData = {
       action: 'change_team_name',

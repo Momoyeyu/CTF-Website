@@ -3,12 +3,16 @@
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>忘记密码</h1>
       <form @submit.prevent="forgetPassword">
+        <label for="newPassword">新密码:</label>
+        <input type="text" id="newPassword" v-model="newPassword" required /><br><br>
+        <label for="confirmNewPassword">确认新密码:</label>
+        <input type="text" id="confirmNewPassword" v-model="confirmNewPassword" required /><br><br>
         <label for="email">邮箱:</label>
-        <input type="text" id="email" v-model="ForgetPassword.email" required />
+        <input type="text" id="email" v-model="email" required />
         <button type="submit" @click="getVcode()">发送验证码</button><br><br>
-        <label for="Vcode">验证码:</label>
-        <input type="text" id="Vcode" v-model="Vcode.Vcode" required /><br><br>
-        <button @click="next()">下一步</button><br><br>
+        <label for="code">验证码:</label>
+        <input type="text" id="code" v-model="code" required /><br><br>
+        <button @click="next()">完成</button><br><br>
       </form>
     </div>
 </template>
@@ -18,12 +22,10 @@
     export default {
       data() {
         return {
-          ForgetPassword: {
-            email: '',
-          },
-          Vcode: {
-            Vcode:'',
-          },
+          newPassword:"",
+          confirmNewPassword:"",
+          email: '',
+          code:'',
         };
       },
       computed: {
@@ -35,27 +37,19 @@
           this.setFoPa(false);
           this.setLog(true);
         },
-        getVcode() {
-          // 发送获取验证码请求到后端
-        },
-        next() {
-            //发送验证码，验证是否正确
-            this.setRePa(true);
-            this.setFoPa(false);
-        }
       },
     };
 </script>
     
 <style>
 #forgetPassword {
-    margin-top:180px;
+    margin-top:150px;
     margin-left:480px;
     position: absolute;
     top: auto;
     left: auto;
     width: 450px;
-    height: 220px;
+    height: 300px;
     justify-content: center;
     align-items: center;
     background-color: #1e1e1e;

@@ -33,6 +33,8 @@ const store = new Vuex.Store({
     createTeam: false,
     joinTeam: false,
     deleteTeam: false,
+    changeTeamname: false,
+    manageTeam: true,
     log: true,
     reg: false,
     FoPa: false,
@@ -92,6 +94,12 @@ const store = new Vuex.Store({
     },
     setDeleteTeam(state, value) {
       state.deleteTeam = value;
+    },
+    setChangeTeamname(state, value) {
+      state.changeTeamname = value;
+    },
+    setManageTeam(state, value) {
+      state.manageTeam = value;
     },
     setLog(state, value){
       state.log =value;

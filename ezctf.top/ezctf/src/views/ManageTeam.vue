@@ -1,7 +1,8 @@
 <template>
   <div id="bkg">
     <DeleteTeam v-if="deleteTeam"/>
-    <div id="manageTeam" v-if="!deleteTeam">
+    <ChangeTeamname v-if="changeTeamname"/>
+    <div id="manageTeam" v-if="manageTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
       <p>
@@ -61,10 +62,11 @@
   
 <script>
   import DeleteTeam from '@/components/DeleteTeam.vue'
+  import ChangeTeamname from '@/components/ChangeTeamname.vue'
   import { mapState, mapMutations } from 'vuex';
   import { changeTeamLeader, changeTeamname } from '@/UserSystemApi/TeamApi';
   export default {
-    components:{DeleteTeam},
+    components:{DeleteTeam,ChangeTeamname},
     data() {
       return {
         members: [
@@ -81,7 +83,7 @@
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam','changeTeamname','manageTeam']),
     teamInfo() {
       return{
           leader_name: this.$store.state.username,
@@ -93,13 +95,14 @@
     },
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/');
       },
       delete_Team(){
         this.setDeleteTeam(true);
+        this.setManageTeam(false);
       },
       async changeTeamLeader(memberName) {
         try {
@@ -117,6 +120,10 @@
           alert(error.response.msg);
           console.error('错误:', error);
         }
+      },
+      changeteaminfo(){
+        this.setChangeTeamname(true);
+        this.setManageTeam(false);
       },
       removeMember(memberId) {
         // 从战队移出成员的逻辑

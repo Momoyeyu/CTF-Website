@@ -1,63 +1,61 @@
 <template>
-    <div id="modifyUser">
+    <div id="changeTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
-      <h1>修改信息</h1>
+      <h1>修改战队名称</h1>
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
-      <input v-model="newUsername" placeholder="请输入新用户名" /><br><br>
-      <input v-model="password" placeholder="请输入密码" /><br><br>
-      <button @click="modify_User()">确认</button>
+      <input v-model="newTeamname" placeholder="请输入新战队名" /><br><br>
+      <button @click="change_Team()">确认</button>
     </div>
 </template>
   
 <script>
   import { mapState, mapMutations } from 'vuex';
-  import { modifyUserInfo } from '@/UserSystemApi/UserApi';
+  import { changeTeamName } from '@/UserSystemApi/TeamApi';
   export default {
     data() {
       return {
-        user_name:this.$store.state.username,
-        newUsername: "",
-        password: "",
+        newTeamname: "",
       };
     },
     computed: {
-    ...mapState(['username','teamname','modifyUser','err']),
+    ...mapState(['teamname','changeTeamname','manageTeam','err']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeamname','setModifyUser','setErr']),
-      async modify_User() {
+      ...mapMutations(['setTeamname','setChangeTeamname','setManageTeam','setErr']),
+      async change_Team() {
         try {
-          const response = await modifyUserInfo(this.user_name, this.newUsername,this.password);
+          const response = await changeTeamName(this.newTeamname);
           console.log('修改信息响应:', response);
           if (response.ret === 'success') {
             alert(response.msg);
-            this.setModifyUser(false);
-            this.setUsername(response.data.new_username);
-            document.cookie = `username=${response.new_username}; path=/`;
+            this.setChangeTeamname(false);
+            this.setManageTeam(true);
+            this.setTeamname(response.data.team_name);
+            document.cookie = `teamname=${response.data.team_name}; path=/`;
             this.setErr("");
           }
         } catch (error) {
           this.setErr(error.response.data.msg);
-          console.error('错误:', error);
         }
       },
       close() {
-        this.setModifyUser(false);
+        this.setChangeTeamname(false);
+        this.setManageTeam(true);
         this.setErr("");
       },
     },
   };
 </script>
 <style>
-#modifyUser {
-    margin-top:-200px;
-    margin-left:500px;
+#changeTeam {
+    margin-top:200px;
+    margin-left:660px;
     position: absolute;
     top: auto;
     left: auto;
     width: 250px;
-    height: 220px;
+    height: 180px;
     background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
@@ -69,6 +67,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     text-align: center;
     color:white;
+    z-index: 10;
 }
 .close-btn {
     text-decoration: none;
