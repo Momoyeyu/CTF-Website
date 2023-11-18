@@ -55,6 +55,7 @@
           const response = await register( this.user.username, this.user.password, this.user.email);
           console.log('注册响应:', response);
           if (response.ret === 'success') {
+            alert(response.msg);
             this.btn=true;
           }
         } catch (error) {

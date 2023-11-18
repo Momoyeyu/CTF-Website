@@ -61,6 +61,39 @@ export const validateCode = async (username, valid_code) => {
   }
 };
 
+export const forgetPassword = async (email) => {
+  try {
+    const requestData = {
+      action: 'forget_password',
+      data: {
+        email: email,
+      },
+    };
+
+    const response = await api.post('/api/common/user?action=forget_password', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const resetPassword = async (valid_code,email,new_password) => {
+  try {
+    const requestData = {
+      action: 'reset_password',
+      data: {
+        valid_code: valid_code,
+        email: email,
+        new_password: new_password,
+      },
+    };
+
+    const response = await api.post('/api/common/user?action=reset_password', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const modifyUserInfo = async (old_username,new_username,password) => {
   try {
