@@ -44,16 +44,11 @@ def generate(n):
     # 使用ord方法，可以获取一个字符对应的编码
     for j in range(97, 123):  # 小写字母a-z
         li_code.append(chr(j))
-    for k in range(0, 10):  # 数字0-9
+    for k in range(48, 58):  # 数字0-9
         li_code.append(chr(k))
     code = random.sample(li_code, n)  # 从列表中选择n个随机且独立的元素放入列表中
     ran_code = "".join(code)  # 可以把列表或者元组快速的转变成为字符串，并且以指定的字符分隔
 
-    '''
-    txt = '_'
-    print(txt.join(['hi','hello','good'])) #hi_hello_good
-    print(txt.join(('good','hi','hello'))) #good_hi_hello
-    '''
     return ran_code
 
 

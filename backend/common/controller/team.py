@@ -530,14 +530,14 @@ def accept(request):
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
+    if uid is None:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
     inviter_name = data["inviter"]
     team_name = data["team_name"]
     accept_or_not = data["accept"]
     # check users
     user = User.objects.get(pk=uid)
     inviter = User.objects.get_by_natural_key(inviter_name)
-    if user is None or user.is_active is False:
-        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     if inviter is None or inviter.is_active is False:
         res_data = {"username": inviter_name, }
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=res_data, status=404)
