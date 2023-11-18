@@ -541,10 +541,10 @@ def accept(request):
     if inviter is None or inviter.is_active is False:
         res_data = {"username": inviter_name, }
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=res_data, status=404)
-    # check messages                                                                           # INVITATION.value = 4
+    # check messages
     invitations = Message.objects.filter(receiver=user,
                                          origin=inviter,
-                                         msg_type=Message.MessageType.INVITATION.value,
+                                         msg_type=Message.MessageType.INVITATION.value,  # INVITATION.value = 4
                                          is_active=True)
     if not invitations:
         return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, status=404)
