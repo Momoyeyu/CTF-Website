@@ -4,7 +4,7 @@
       <h1>用户注册</h1>
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
-      <form @submit.prevent="registerUser()">
+      <form @submit.prevent="ValidateCode()">
         <label for="username">用户名:</label>
         <input type="text" id="username" v-model="user.username" required /><br><br>
         <label for="password">密码:</label>
@@ -12,14 +12,17 @@
         <label for="password">确认密码:</label>
         <input type="password" id="confirmPassword" v-model="user.confirmPassword" required /><br><br>
         <label for="email">邮箱:</label>
-        <input type="email" id="email" v-model="user.email" required /><br><br>
-        <button type="submit">注册</button><br><br>
+        <input type="email" id="email" v-model="user.email" required />
+        <button @click="Register()">获取验证码</button><br><br>
+        <label for="username">验证码:</label>
+        <input type="text" id="code" v-model="code" required /><br><br>
+        <button type="submit" :disabled="!btn">注册</button><br><br>
       </form>
     </div>
   </template>
     
   <script>
-  import { register } from '../UserSystemApi/UserApi.js';
+  import { register,validateCode } from '../UserSystemApi/UserApi.js';
   import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
@@ -30,7 +33,8 @@
           confirmPassword:'',
           email: '',
         },
-        code: ''
+        code: '',
+        btn: false,
       };
     },
     computed: {
@@ -39,6 +43,7 @@
     methods: {
       ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr']),
       close() {
+        this.btn=false;
         this.setLoginButtonEnabled(true);
         this.setReg(false);
         this.setLog(true);
@@ -48,12 +53,9 @@
       async Register() {
         try {
           const response = await register( this.user.username, this.user.password, this.user.email);
-          alert(response.msg);
           console.log('注册响应:', response);
           if (response.ret === 'success') {
-            this.$store.commit('setReg', false);
-            this.$store.commit('setLog', true);
-            this.setErr("");
+            this.btn=true;
           }
         } catch (error) {
           this.setErr(error.response.data.msg);
@@ -70,19 +72,35 @@
           alert("密码设置失败，请重新设置密码！");
         }
       },
+      async ValidateCode() {
+        try {
+          const response = await validateCode( this.user.username, this.code);
+          alert(response.msg);
+          console.log('注册响应:', response);
+          if (response.ret === 'success') {
+            this.btn=false;
+            this.$store.commit('setReg', false);
+            this.$store.commit('setLog', true);
+            this.setErr("");
+          }
+        } catch (error) {
+          this.setErr(error.response.data.msg);
+          console.error('注册错误:', error);
+        }
+      }
     },
   };
   </script>
   
   <style>
   #registerUser {
-      margin-top:150px;
+      margin-top:130px;
       margin-left:450px;
       position: absolute;
       top: auto;
       left: auto;
       width: 500px;
-      height: 300px;
+      height: 350px;
       justify-content: center;
       align-items: center;
       background-color: #1e1e1e;

@@ -44,6 +44,24 @@ export const register = async (username, password, email) => {
   }
 };
 
+export const validateCode = async (username, valid_code) => {
+  try {
+    const requestData = {
+      action: 'user_active',
+      data: {
+        username: username,
+        valid_code: valid_code,
+      },
+    };
+
+    const response = await api.post('/api/common/user?action=user_active', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 export const modifyUserInfo = async (old_username,new_username,password) => {
   try {
     const requestData = {

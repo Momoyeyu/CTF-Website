@@ -72,6 +72,7 @@ name:'Navigation',
                   'noTeam',
                   'createTeam',
                   'joinTeam',
+                  'manageTeam',
     ]),
     userInfo() {
       return {
@@ -99,6 +100,7 @@ name:'Navigation',
                       'setNoTeam',
                       'setCreateTeam',
                       'setJoinTeam',
+                      'setManageTeam'
     ]),
     log() {
       this.setLoginButtonEnabled(false);
@@ -116,6 +118,7 @@ name:'Navigation',
       console.log(this.userInfo.is_Member);
       if(this.userInfo.is_Leader&&!this.userInfo.is_Member){
         this.showUserInfo();
+        this.setManageTeam(true);
         this.$router.push("/ManageTeam");
       }
       else if(this.userInfo.is_Member){
@@ -241,6 +244,7 @@ nav {
 #ScoreAndTeam {
   margin-left: 40px;
   text-align: left;
+  font-size: large;
 }
 
 .user-info {
@@ -249,7 +253,7 @@ nav {
   top: 40px;
   right: -105px;
   width: 200px;
-  height: 465px;
+  height: 450px;
   justify-content: center;
   align-items: center;
   background-color: #1e1e1e;

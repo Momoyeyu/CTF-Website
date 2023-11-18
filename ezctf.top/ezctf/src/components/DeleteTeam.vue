@@ -2,6 +2,8 @@
     <div id="deleteTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>解散战队</h1>
+      <p v-if="err" id="er">{{ err }}</p>
+      <br v-if="!err">
       <input v-model="password" placeholder="请输入密码" /><br><br>
       <button @click="delete_team()">确认</button>
     </div>
@@ -17,10 +19,10 @@
       };
     },
     computed: {
-    ...mapState(['teamname','isLeader','deleteTeam']),
+    ...mapState(['teamname','isLeader','deleteTeam','manageTeam','userInfoButtonEnabled','err']),
     },
     methods: {
-      ...mapMutations(['setTeamname','setIsLeader','setDeleteTeam']),
+      ...mapMutations(['setTeamname','setIsLeader','setDeleteTeam','setManageTeam','setUserInfoButtonEnabled','setErr']),
       async delete_team() {
         try {
           const response = await delete_Team(this.password);
@@ -32,15 +34,19 @@
             document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie = `isLeader=${false}; path=/`;
             this.setDeleteTeam(false);
+            this.setManageTeam(false);
+            this.$router.push('/'); 
+            this.setUserInfoButtonEnabled(true);
+            this.setErr("");
           }
         } catch (error) {
-          alert(error.response.data.msg);
-          console.error('错误:', error);
-          console.log(error.response);
+          this.setErr(error.response.data.msg);
         }
       },
       close() {
         this.setDeleteTeam(false);
+        this.setManageTeam(true);
+        this.setErr("");
       },
     },
   };
@@ -74,6 +80,11 @@
     top: 10px;
     right: 10px;
     cursor: pointer;
+}
+#er{
+    height: 8px;
+    color:red;
+    font-size: small;
 }
 </style>
  
