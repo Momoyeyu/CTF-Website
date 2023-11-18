@@ -53,8 +53,6 @@
     
 <style>
 #resetPassword {
-    margin-top:180px;
-    margin-left:480px;
     position: absolute;
     top: auto;
     left: auto;

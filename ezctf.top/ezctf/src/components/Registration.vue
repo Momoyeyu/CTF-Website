@@ -48,7 +48,7 @@
         this.setReg(false);
         this.setLog(true);
         this.setErr("");
-        this.$router.push('/');
+        this.$router.push('/');//这里关闭注册直接返回主页是不是有点突兀？
       },
       async Register() {
         try {
@@ -94,8 +94,6 @@
   
   <style>
   #registerUser {
-      margin-top:130px;
-      margin-left:450px;
       position: absolute;
       top: auto;
       left: auto;

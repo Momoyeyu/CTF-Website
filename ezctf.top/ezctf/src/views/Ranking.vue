@@ -14,10 +14,10 @@
             </tr>
             <tr v-if="this.isLogin" class="Myrank-body">
               <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。 -->
-                <td>#{{ fetchMy[0].rank }}</td>
-                <td>{{ fetchMy[0].username }}</td>
-                <td>{{ fetchMy[0].score}}</td>
-                <td>{{ fetchMy[0].last_commit }}</td>
+                <td>#{{ fetchMy.rank }}</td>
+                <td>{{ fetchMy.username }}</td>
+                <td>{{ fetchMy.score}}</td>
+                <td>{{ fetchMy.last_commit }}</td>
             </tr>
             <tr class="table-title">
                 <td>总排名</td>
@@ -48,10 +48,10 @@
             </tr>
             <tr v-if="this.isLeader||this.isMember" class="Myrank-body">
               <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。(bug未修复) -->
-                <!-- <td>#{{ fetchMyteam[0].rank }}</td>
-                <td>{{ fetchMyteam[0].team_name }}</td>
-                <td>{{ fetchMyteam[0].member_count}}</td>
-                <td>{{ fetchMyteam[0].score }}</td> -->
+                <td>#{{ fetchMyteam.rank }}</td>
+                <td>{{ fetchMyteam.team_name }}</td>
+                <td>{{ fetchMyteam.member_count}}</td>
+                <td>{{ fetchMyteam.score }}</td>
             </tr>
             <tr class="table-title">
                 <td>排名</td>
@@ -114,6 +114,12 @@ computed: {
   ...mapState(['teamname']),
   ...mapState(['isLeader']),
   ...mapState(['isMember']),
+    fetchMy() {  
+      return this.sortedUsers.find(obj => obj.username === this.username);   
+    },  
+    fetchMyteam() {  
+      return this.sortedTeams.find(obj => obj.team_name === this.teamname);   
+    }, 
     sortedUsers() { //页面加载完成后自动对数据进行排序并生成排名
       return this.users.sort((a, b) => b.score - a.score).map((item, index) => ({  
         ...item,  
@@ -125,15 +131,7 @@ computed: {
         ...item,  
         rank: index + 1,  
       })); 
-    } ,
-    fetchMy() {  
-      // 根据用户信息查询用户得分排名等排行榜信息，假设你已经有了一个名为this.username的状态来保存用户的用户名  
-      return this.sortedUsers.filter(obj => obj.username === this.username);   
-    },  
-    fetchMyteam() {  
-      // 根据团队名称查询团队得分排名等排行榜信息，假设你已经有了一个名为this.teamname的状态来保存团队的名称  
-      return this.sortedTeams.filter(obj => obj.team_name === this.teamname);   
-    }, 
+    },
 },
 }
 </script>

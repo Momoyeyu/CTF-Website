@@ -182,6 +182,7 @@ name:'Navigation',
     font-size: 26px;
     border-radius: 15px;
     margin: 0 auto;
+    margin-top: 5px;
 }
 .topborder .iconfont{
   font-family: "iconfont" !important;
@@ -261,6 +262,7 @@ nav {
   text-align: center;
   color:white;
   border-radius: 5px;
+  z-index: 1000;
 }
 
 #hiddenInfo {

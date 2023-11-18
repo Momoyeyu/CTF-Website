@@ -43,8 +43,6 @@
     
 <style>
 #forgetPassword {
-    margin-top:150px;
-    margin-left:480px;
     position: absolute;
     top: auto;
     left: auto;
