@@ -160,7 +160,11 @@ def user_register(request):
         else:
             return error_template(ExceptionEnum.NAME_EXIST.value, status=409)
     if User.objects.filter(email=email).exists():
-        return error_template("邮箱已被使用", status=409)
+        user = User.objects.get(email=email)
+        if not user.is_active:
+            user.delete()
+        else:
+            return error_template("邮箱已被使用", status=409)
 
     # 创建 User，create_user() 会自动处理密码的加密
     user = User.objects.create_user(username=username, password=password, email=email)
@@ -315,9 +319,10 @@ def user_active(request):
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     if user.first_name != valid_code:
-        user.first_name = None
+        user.first_name = ""
+        user.save()
         return error_template("验证码错误", status=403)
-    user.first_name = None
+    user.first_name = ""
     user.is_active = True
     user.save()
     # 创建 CustomUser，关联到 User
@@ -380,9 +385,11 @@ def reset_password(request):
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     if user.first_name != valid_code:
-        user.first_name = None
+        user.first_name = ""
+        user.save()
         return error_template("验证码错误", status=403)
     user.password = new_password
+    user.first_name = ""
     user.save()
 
     return success_template(SuccessEnum.MODIFICATION_SUCCESS.value)

@@ -1,6 +1,6 @@
 <template>
 <div class="container-right">
-    <div class="outline">Notice</div>
+    <div class="outline">Latest News</div>
     <div class="notice">
         <ul>
             <li>1.THis</li>

@@ -20,7 +20,7 @@ name:'Banner',
 .banner-box{
   width: 1200px;
   height: 400px;
-  margin: 5px auto;
+  margin: 10px auto;
   background-image: url('../assets/1.png');
   background-size: 100%;
   animation: banner 6s linear infinite;

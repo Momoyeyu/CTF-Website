@@ -56,7 +56,7 @@ fetchData(param) {
 
 <style>
 .iconfont-green {  
-  color:#61cd61;
+  color:#3fb950;
 } 
 .question{
   margin-left:38px;

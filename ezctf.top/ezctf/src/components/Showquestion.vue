@@ -7,12 +7,15 @@
         <div class="block"><button id="sendRequest3" @click="currentdiv='div4';fetchData(3)">Reverse</button><div class="triangle" v-show="currentdiv==='div4'" ></div></div>
         <div class="block"><button id="sendRequest4" @click="currentdiv='div5';fetchData(4)">Pwn</button><div class="triangle" v-show="currentdiv==='div5'" ></div></div>
     </div>
-    <div class="content">
+    <div v-if="this.isLogin" class="content1">
       <div class="Page" v-show="currentdiv==='div1'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
       <div class="Page" v-show="currentdiv==='div2'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
       <div class="Page" v-show="currentdiv==='div3'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
       <div class="Page" v-show="currentdiv==='div4'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
       <div class="Page" v-show="currentdiv==='div5'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
+    </div>    
+    <div v-else class="content2">
+      <h1>前面的区域登录以后再来探索吧!!</h1>
     </div>
 </div>
 </template>
@@ -20,6 +23,7 @@
 <script>
 import axios from 'axios';
 import Question from './Question.vue';
+import { mapState } from 'vuex';
 export default {
 name:'Showquestion',
 components:{Question},
@@ -42,6 +46,9 @@ methods:{
         });  
     },  
   },
+  computed:{
+    ...mapState(['isLogin']),
+},
   mounted() {  
     // 在页面加载完成后执行函数  
     this.fetchData(0);  
@@ -64,7 +71,7 @@ methods:{
   height: 80px;
   border: 0px;
   font-size: 24px;
-  color: #b0b0b0;
+  color: #7d8590;
   background-color: transparent;
   cursor: pointer;
   text-decoration:none
@@ -78,12 +85,10 @@ methods:{
   float: left;
   width: 200px;
   height: 80px;
-  border-left: 1px solid #2f81f7;
-  border-right: 1px solid #2f81f7;
   font-size: 24px;
   text-align: center;
   line-height: 80px;
-  border-collapse: collapse;
+  border-radius: 5px;
 }
 .block button{
   width: 200px;
@@ -92,12 +97,36 @@ methods:{
   font-size: 24px;
   color: #b0b0b0;
   background-color: transparent;
+  transition: color 0.3s ease; 
+  transition: background-color 0.3s ease; 
   cursor: pointer;
+  border-radius: 5px;
 }
-.content{
-  width: 1006.65px;
+.block button:hover {  
+  color: #ffffff;
+  background-color: #1f6feb;  
+}
+.active{
+  color: #ffffff;
+  background-color: #1f6feb;  
+}
+.content1{
+  width: 1000px;
   background-color:antiquewhite;
   padding-bottom: 30px;
+  margin-top: 1px;
+}
+.content2{
+  width: 1000px;
+  background-color:antiquewhite;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  color: #0d1117;
+  margin-top: 1px;
+}
+.content2 h1{
+  margin: 0 0;
+  text-align: center;
 }
 /* 点击切换题库内容 */
 .triangle{

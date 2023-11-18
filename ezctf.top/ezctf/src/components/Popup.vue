@@ -48,7 +48,7 @@ data:function(){
       }
     },
     downloadLink:"",
-    fileDownloadName:"附件.txt",
+    fileDownloadName:"附件.rar",
   }
 },
 props: {  
@@ -92,7 +92,12 @@ checkInput() {
       axios.post('http://localhost:80/api/task/answer?action=commit_flag',this.Flag)  
         .then(response=>{  
           console.log(response.data);  //答题成功立刻修改（未完成）
-          alert(response.data.msg);
+          if (response.data.msg==="CORRECT"){
+            alert("回答正确！！！")
+          }
+          else{
+            alert("很可惜回答错误...")
+          }
         })  
         .catch(function (error) {  
           console.log(error);  

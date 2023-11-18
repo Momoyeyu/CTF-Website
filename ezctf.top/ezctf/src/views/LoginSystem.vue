@@ -27,7 +27,11 @@ export default {
 #bkg{
 height:87vh;
 width: 1600px;
+margin: 0 auto;
 background-image:url("../assets/背景.png");
 background-size:cover;
+display: flex;  
+justify-content: center;  
+align-items: center; 
 }
 </style>
