@@ -2,7 +2,7 @@
 <div class="topborder">
         <div class="wrap">
         <ul class="header-left">
-            <li><a href="#/home"><i class="iconfont icon-weiruan"></i>Logo</a><span>|</span></li>
+            <li><a href="#/home"><i class="iconfont icon-xE990"></i>EZCTF</a><span>|</span></li>
             <li><a href="#/ranking"><i class="iconfont icon-paixingbang"></i>Ranking</a></li>
         </ul>
         <ul class="header-right">
@@ -180,6 +180,7 @@ name:'Navigation',
     line-height: 25px;
     color: #b0b0b0;
     font-size: 26px;
+    border: 1px solid #161b22;
     border-radius: 15px;
     margin: 0 auto;
     margin-top: 5px;
@@ -210,6 +211,7 @@ name:'Navigation',
 }
 .topborder li{
   float: left;
+  letter-spacing: 0.05em;
 }
 .topborder a{
     color: #bbb;

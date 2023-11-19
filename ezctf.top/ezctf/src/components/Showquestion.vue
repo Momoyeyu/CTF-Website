@@ -1,11 +1,11 @@
 <template>
 <div class="container-left">
     <div class="topbar">
-        <div class="block"><button id="sendRequest0" @click="currentdiv='div1';fetchData(0)">Misc</button><div class="triangle" v-show="currentdiv==='div1'" ></div></div>
-        <div class="block"><button id="sendRequest1" @click="currentdiv='div2';fetchData(1)">Crypto</button><div class="triangle" v-show="currentdiv==='div2'" ></div></div>
-        <div class="block"><button id="sendRequest2" @click="currentdiv='div3';fetchData(2)">Web</button><div class="triangle" v-show="currentdiv==='div3'" ></div></div>
-        <div class="block"><button id="sendRequest3" @click="currentdiv='div4';fetchData(3)">Reverse</button><div class="triangle" v-show="currentdiv==='div4'" ></div></div>
-        <div class="block"><button id="sendRequest4" @click="currentdiv='div5';fetchData(4)">Pwn</button><div class="triangle" v-show="currentdiv==='div5'" ></div></div>
+        <div class="block"><button class="blockbutton active" @click="changediv(0);changeCSS()">Misc</button><div class="triangle" v-show="currentdiv==='div1'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="changediv(1);changeCSS()">Crypto</button><div class="triangle" v-show="currentdiv==='div2'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="changediv(2);changeCSS()">Web</button><div class="triangle" v-show="currentdiv==='div3'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="changediv(3);changeCSS()">Reverse</button><div class="triangle" v-show="currentdiv==='div4'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="changediv(4);changeCSS()">Pwn</button><div class="triangle" v-show="currentdiv==='div5'" ></div></div>
     </div>
     <div v-if="this.isLogin" class="content1">
       <div class="Page" v-show="currentdiv==='div1'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
@@ -45,13 +45,31 @@ methods:{
           console.error(error);  
         });  
     },  
+    changediv(param)
+    {
+      this.currentdiv='div'+(param+1);
+      this.fetchData(param);
+    },
+    changeCSS(){  
+      for(let i=0;i<5;i++){
+    let buttons = document.getElementsByClassName('blockbutton');  
+    buttons[i].onclick=function(){
+    for (let j = 0; j < buttons.length; j++) {  
+      if (buttons[j] == this) {  
+        buttons[j].classList.add('active');  
+      } else {  
+        buttons[j].classList.remove('active');  
+      }  
+      }}}
+    },
   },
   computed:{
     ...mapState(['isLogin']),
 },
   mounted() {  
     // 在页面加载完成后执行函数  
-    this.fetchData(0);  
+    this.changediv(0);  
+    this.changeCSS();  
   },  
 }
 </script>
@@ -80,7 +98,7 @@ methods:{
   color: #fff;
 }
 .block{
-  background-color:#0d1117; 
+  background-color:#161b22; 
   position: relative;
   float: left;
   width: 200px;
@@ -88,21 +106,21 @@ methods:{
   font-size: 24px;
   text-align: center;
   line-height: 80px;
-  border-radius: 5px;
+  border-radius: 3px;
 }
-.block button{
+.blockbutton{
   width: 200px;
   height: 80px;
   border: 0px;
   font-size: 24px;
-  color: #b0b0b0;
+  color: #c0c0c0;
   background-color: transparent;
   transition: color 0.3s ease; 
   transition: background-color 0.3s ease; 
   cursor: pointer;
   border-radius: 5px;
 }
-.block button:hover {  
+.blockbutton:hover {  
   color: #ffffff;
   background-color: #1f6feb;  
 }
@@ -112,17 +130,18 @@ methods:{
 }
 .content1{
   width: 1000px;
-  background-color:antiquewhite;
+  background-color:#0d1117;
   padding-bottom: 30px;
-  margin-top: 1px;
+  border-top: 1px solid #5b5959;
+  overflow: hidden;
 }
 .content2{
   width: 1000px;
-  background-color:antiquewhite;
+  background-color:#0d1117;
   padding-top: 30px;
   padding-bottom: 30px;
-  color: #0d1117;
-  margin-top: 1px;
+  color: #fff;
+  border-top: 1px solid #5b5959;
 }
 .content2 h1{
   margin: 0 0;

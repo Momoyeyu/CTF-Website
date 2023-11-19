@@ -24,6 +24,8 @@ name:'Banner',
   background-image: url('../assets/1.png');
   background-size: 100%;
   animation: banner 6s linear infinite;
+  border: 2px solid #161b22;
+  border-radius: 5px;
 } 
 .banner-box:hover{
   animation-play-state: paused;

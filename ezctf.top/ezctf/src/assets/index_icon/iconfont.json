@@ -6,13 +6,6 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "1440",
-      "name": "微软",
-      "font_class": "weiruan",
-      "unicode": "f01ff",
-      "unicode_decimal": 983551
-    },
-    {
       "icon_id": "1098543",
       "name": "排行榜",
       "font_class": "paixingbang",
@@ -27,18 +20,18 @@
       "unicode_decimal": 58898
     },
     {
-      "icon_id": "4933375",
-      "name": "人物-人",
-      "font_class": "renwu-ren",
-      "unicode": "e749",
-      "unicode_decimal": 59209
-    },
-    {
       "icon_id": "5743181",
       "name": "未完成",
       "font_class": "weiwancheng",
       "unicode": "e817",
       "unicode_decimal": 59415
+    },
+    {
+      "icon_id": "24893456",
+      "name": "xE990",
+      "font_class": "xE990",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
     }
   ]
 }

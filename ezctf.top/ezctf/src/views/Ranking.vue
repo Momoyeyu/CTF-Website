@@ -6,19 +6,18 @@
     </div>
     <div class="rank-body">
         <table class="rank-table">
-            <tr v-if="this.isLogin" class="Myrank-title">
+            <!-- <tr v-if="this.isLogin" class="Myrank-title">
                 <td>我的排名</td>
                 <td>姓名</td>
                 <td>得分</td>
                 <td>上次提交</td>
             </tr>
             <tr v-if="this.isLogin" class="Myrank-body">
-              <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。 -->
                 <td>#{{ fetchMy.rank }}</td>
                 <td>{{ fetchMy.username }}</td>
                 <td>{{ fetchMy.score}}</td>
                 <td>{{ fetchMy.last_commit }}</td>
-            </tr>
+            </tr> -->
             <tr class="table-title">
                 <td>总排名</td>
                 <td>姓名</td>
@@ -40,19 +39,18 @@
     </div>
     <div class="rank-body">
         <table class="rank-table">
-          <tr v-if="this.isLeader||this.isMember" class="Myrank-title">
+          <!-- <tr v-if="this.isLeader||this.isMember" class="Myrank-title">
                 <td>排名</td>
                 <td>队名</td>
                 <td>队伍人数</td>
                 <td>总积分</td>
             </tr>
             <tr v-if="this.isLeader||this.isMember" class="Myrank-body">
-              <!-- 在模板或者计算属性中尝试访问一个对象的 'rank' 属性，但是那个对象在那个时刻是未定义的。(bug未修复) -->
                 <td>#{{ fetchMyteam.rank }}</td>
                 <td>{{ fetchMyteam.team_name }}</td>
                 <td>{{ fetchMyteam.member_count}}</td>
                 <td>{{ fetchMyteam.score }}</td>
-            </tr>
+            </tr> -->
             <tr class="table-title">
                 <td>排名</td>
                 <td>队名</td>
