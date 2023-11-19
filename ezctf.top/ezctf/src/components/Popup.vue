@@ -94,6 +94,8 @@ checkInput() {
           console.log(response.data);  //答题成功立刻修改（未完成）
           if (response.data.msg==="CORRECT"){
             alert("回答正确！！！")
+            // this.hidepopup();
+            window.location.reload();  
           }
           else{
             alert("很可惜回答错误...")
@@ -145,7 +147,7 @@ checkInput() {
 }
 .popup{
   width: 700px;
-  padding: 10px;
+  padding: 5px;
   position: absolute;  
   top: 50%;  
   left: 50%;  
@@ -190,7 +192,7 @@ checkInput() {
   /* border-radius: 50%; */
 }
 .close:hover{
-  color: blue;
+  color: #fff;
 }
 .describe{
   width: 100%;

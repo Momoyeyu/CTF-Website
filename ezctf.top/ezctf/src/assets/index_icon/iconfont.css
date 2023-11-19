@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id  */
-  src: url('iconfont.ttf?t=1698062124954') format('truetype');
+  src: url('iconfont.ttf?t=1700396731075') format('truetype');
 }
 
 .iconfont {
@@ -11,10 +11,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-weiruan:before {
-  content: "\f01ff";
-}
-
 .icon-paixingbang:before {
   content: "\e64b";
 }
@@ -23,11 +19,11 @@
   content: "\e612";
 }
 
-.icon-renwu-ren:before {
-  content: "\e749";
-}
-
 .icon-weiwancheng:before {
   content: "\e817";
+}
+
+.icon-xE990:before {
+  content: "\e60f";
 }
 
