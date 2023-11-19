@@ -13,7 +13,7 @@
         <div id="ava">
           <button  @click="showUserInfo()" :disabled="!userInfoButtonEnabled" id="avab"><CreateAvatar :username="userInfo.name" id="avac"/></button>
         </div>
-        <div v-if="isHovered" class="user-info">
+        <div v-if="isHover" class="user-info">
           <div>
             <CreateAvatar :username="userInfo.name" />
             <p>{{ userInfo.name }}</p>
@@ -51,14 +51,10 @@ name:'Navigation',
  components: {
     CreateAvatar,
   },
-  data() {
-    return {
-      isHovered: false,
-    };
-  },
   computed: {
     ...mapState(['loginButtonEnabled',
                   'userInfoButtonEnabled',
+                  'isHover',
                   'username',
                   'teamname',
                   'score',
@@ -83,10 +79,27 @@ name:'Navigation',
         is_Member: this.$store.state.isMember,
       };
     },
+    isHover: {
+      get() {
+        return this.$store.state.isHover;
+      },
+      set(value) {
+        this.setIsHover(value);
+      }
+    },
+    setInfo: {
+      get() {
+        return this.$store.state.setInfo;
+      },
+      set(value) {
+        this.setSetInfo(value);
+      }
+    },
   },
   methods: {
     ...mapMutations(['setLoginButtonEnabled',
                       'setUserInfoButtonEnabled',
+                      'setIsHover',
                       'setUsername',
                       'setTeamname',
                       'setScore',
@@ -107,7 +120,7 @@ name:'Navigation',
       this.$router.push("/Log");
     },
     showUserInfo() {
-      this.isHovered = !this.isHovered;
+      this.setIsHover(!this.$store.state.isHover);
     },
     setinfo() {
       this.setSetInfo(!this.$store.state.setInfo);
@@ -133,7 +146,7 @@ name:'Navigation',
       }
     },
     message() {
-      this.isHovered = !this.isHovered;
+      this.setIsHover(!this.$store.state.isHover);
       this.setInfo=true;
       this.setUserInfoButtonEnabled(false);
       this.setInfoBoard(true);
@@ -155,7 +168,7 @@ name:'Navigation',
         this.setIsLeader(false);
         this.setIsMember(false);
         this.setIsLogin(false);
-        this.isHovered=false;
+        this.setIsHover(false);
         document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";

@@ -52,7 +52,7 @@
 <style>
 #modifyUser {
     margin-top:-200px;
-    margin-left:500px;
+    margin-left:200px;
     position: absolute;
     top: auto;
     left: auto;

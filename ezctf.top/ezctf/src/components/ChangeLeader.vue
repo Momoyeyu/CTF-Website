@@ -1,39 +1,35 @@
 <template>
-    <div id="deleteTeam">
+    <div id="changeleader">
       <button @click="close()" class="close-btn">&#10006;</button>
-      <h1>解散战队</h1>
+      <h1>权限转让</h1>
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
-      <input v-model="password" placeholder="请输入密码" /><br><br>
-      <button @click="delete_team()">确认</button>
+      <p>是否将队长转让给{{ newLeader }}?</p><br>
+      <button @click="change_leader()">确认</button>
     </div>
 </template>
   
 <script>
   import { mapState, mapMutations } from 'vuex';
-  import { delete_Team } from '@/UserSystemApi/TeamApi';
+  import { changeTeamLeader } from '@/UserSystemApi/TeamApi';
   export default {
-    data() {
-      return {
-        password: "",
-      };
-    },
     computed: {
-    ...mapState(['teamname','isLeader','deleteTeam','manageTeam','userInfoButtonEnabled','err']),
+    ...mapState(['changeLeader','manageTeam','newLeader','err','isMember','isLeader']),
     },
     methods: {
-      ...mapMutations(['setTeamname','setIsLeader','setDeleteTeam','setManageTeam','setUserInfoButtonEnabled','setErr']),
-      async delete_team() {
+      ...mapMutations(['setChangeLeader','setManageTeam','setNewLeader','setErr','setIsMember','setIsLeader']),
+      async change_leader() {
         try {
-          const response = await delete_Team(this.password);
+          const response = await changeTeamLeader(this.$store.state.newLeader);
           console.log('解散战队响应:', response);
-          if (response === 204) {
-            alert("成功解散战队");
-            this.setTeamname('');
+          if (response.ret === "success") {
+            alert("队长权限转让成功");
+            this.setIsMember(true);
             this.setIsLeader(false);
-            document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = `isMember=${true}; path=/`;
             document.cookie = `isLeader=${false}; path=/`;
-            this.setDeleteTeam(false);
+            this.setChangeLeader(false);
+            this.setNewLeader("");
             this.setManageTeam(true);
             this.$router.push('/'); 
             this.setUserInfoButtonEnabled(true);
@@ -44,7 +40,8 @@
         }
       },
       close() {
-        this.setDeleteTeam(false);
+        this.setChangeLeader(false);
+        this.setNewLeader("");
         this.setManageTeam(true);
         this.setErr("");
       },
@@ -52,14 +49,14 @@
   };
 </script>
 <style>
-#deleteTeam {
+#changeleader {
     margin-top:200px;
     margin-left:670px;
     position: absolute;
     top: auto;
     left: auto;
     width: 250px;
-    height: 170px;
+    height: 200px;
     background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
