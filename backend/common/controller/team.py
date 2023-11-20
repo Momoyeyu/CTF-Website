@@ -273,7 +273,12 @@ def search_team(request):
         }
         team_list.append(team_info)
 
-    return success_template("查询成功", data=team_list)
+    res_data = {
+        "team_list": team_list,
+        "total": len(team_list)
+    }
+
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
 @login_required

@@ -146,6 +146,7 @@ CORS_ALLOW_CREDENTIALS = True
 #     "http://localhost:8080",
 #     "http://localhost:8000",
 #     "http://localhost:80",
+#     "ezctf.top",
 #     # 允许其他需要的域名
 # ]
 
