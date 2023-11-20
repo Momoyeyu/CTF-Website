@@ -3,20 +3,22 @@
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>加入战队</h1>
       <label for="search">搜索战队:</label>
-      <input id="search" v-model="searchQuery" placeholder="请输入战队名称" /><br><br>
+      <input id="search" v-model="searchQuery" placeholder="请输入战队名称" @input="filter()"/><br><br>
       <div class="scrollable-table-container">
         <table class="three-column-table">
           <thead>
             <tr>
             <th>战队名称</th>
+            <th>队长</th>
             <th>积分</th>
             <th>人数</th>
             <th>操作</th>
             </tr>
             </thead>
             <tbody>
-              <tr v-for="team in filteredTeams" :key="team.id">
+              <tr v-for="team in filteredTeams" :key="team.team_name">
               <td>{{ team.team_name }}</td>
+              <td>{{ team.leader_name }}</td>
               <td>{{ team.team_points }}</td>
               <td>{{ team.team_member }}/{{ maxnum }}</td>
               <td>
@@ -39,15 +41,26 @@
         name: this.$store.state.username,
         searchQuery: "",
         teams: [
-
+          {
+            team_name:"",
+            leader_name: "",
+            leader_email: "",
+            team_points:"",
+            team_member:"",
+          }
         ],
         maxnum: 10,
       };
     },
     computed: {
       filteredTeams() {
-        const query = this.searchQuery.toLowerCase();
-        return this.teams.filter((team) => team.name.toLowerCase().includes(query));
+        if(this.searchQuery!=''){
+          const query = this.searchQuery.toLowerCase();
+          return this.teams.filter((team) => team.team_name.toLowerCase().includes(query));
+        }
+        else{
+          return this.teams;
+        }
       },
       ...mapState(['userInfoButtonEnabled','username','teamname','joinTeam','noTeam']),
     },
@@ -83,7 +96,8 @@
           const response = await searchTeam(name);
           console.log('搜索战队响应', response);
           if(response.ret==='success'){
-            this.teams=response.data.team_list;
+            this.teams=response.data;
+            console.log(response.data);
           }
         } catch (error) {
           console.error('错误:', error);
@@ -99,11 +113,11 @@ button{
 }
 #jointeam {
     margin-top:-260px;
-    margin-left:400px;
+    margin-left:350px;
     position: absolute;
     top: auto;
     left: auto;
-    width: 500px;
+    width: 600px;
     height: 360px;
     justify-content: center;
     align-items: center;
@@ -133,8 +147,7 @@ button{
 }
 
 .three-column-table {
-  width: 60%;
-  margin-left: 20%;
+  width: 100%;
 }
 
 .three-column-table th,
@@ -149,5 +162,10 @@ button{
   text-align: center;
 }
 
+#Return{
+  left:300px;
+  bottom:20px;
+  position: absolute;
+}
 </style>
   

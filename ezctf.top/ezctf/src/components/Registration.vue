@@ -80,10 +80,6 @@
           alert(response.msg);
           console.log('注册响应:', response);
           if (response.ret === 'success') {
-            this.btn=false;
-            this.$store.commit('setReg', false);
-            this.$store.commit('setLog', true);
-            this.setErr("");
             this.loginUser();
           }
         } catch (error) {
@@ -110,7 +106,10 @@
             document.cookie = `score=${response.data.score}; path=/`;
             this.setIsLogin(true);
             document.cookie = `isLogin=${true}; path=/`;
-            this.setErr("");          
+            this.setErr("");
+            this.btn=false;
+            this.$store.commit('setReg', false);
+            this.$store.commit('setLog', true);        
             if(response.data.team_name&&!response.data.is_leader) {
               this.setIsLeader(false);
               document.cookie = `isLeader=${false}; path=/`;

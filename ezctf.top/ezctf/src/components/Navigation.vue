@@ -153,14 +153,17 @@ name:'Navigation',
     },
     modify() {
       this.setModifyUser(true);
+      this.setIsHover(false);
+      this.setUserInfoButtonEnabled(false);
     },
     Delete() {
       this.setDeleteUser(true);
+      this.setIsHover(false);
+      this.setUserInfoButtonEnabled(false);
     },
     quit() {
       logoutUser()
       .then((response) => {
-        alert(response.msg);
         console.log('用户退出登录成功', response.data);
         this.setUsername('');
         this.setTeamname('');

@@ -4,7 +4,7 @@
       <h1>忘记密码</h1>
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
-      <form @submit.prevent="reset_password">
+      <div>
         <label for="newPassword">新密码:</label>
         <input type="text" id="newPassword" v-model="newPassword" required /><br><br>
         <label for="confirmNewPassword">确认新密码:</label>
@@ -14,8 +14,8 @@
         <button type="submit" @click="Forgetpassword()">发送验证码</button><br><br>
         <label for="code">验证码:</label>
         <input type="text" id="code" v-model="code" /><br><br>
-        <button type="submit" :disabled="!btn">完成</button><br><br>
-      </form>
+        <button @click="reset_password()" :disabled="!btn">完成</button><br><br>
+      </div>
     </div>
 </template>
     
@@ -76,7 +76,8 @@
             if (response.ret === 'success') {
               this.btn=false;
               this.setErr("");
-              this.$router.push('/');
+              this.setLog(true);
+              this.setFoPa(false);
               this.setLoginButtonEnabled(true);
             }
           } catch (error) {

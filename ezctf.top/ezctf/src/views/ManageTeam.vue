@@ -141,8 +141,8 @@ background-image:url("../assets/背景.png");
 background-size:cover;
 }
 #manageTeam {
-    margin-top: 100px;
-    margin-left: 300px;
+    top: auto;
+    left: auto;
     position: absolute;
     top: auto;
     left: auto;

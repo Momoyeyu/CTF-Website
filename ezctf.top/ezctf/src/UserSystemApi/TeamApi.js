@@ -44,20 +44,14 @@ export const joinTeam = async (teamname) => {
 };
 
 export const searchTeam = async (key_word) => {
-    try {
-      const requestData = {
-        action: 'search_team',
-        data: {
-          keyword: key_word,
-        }
-      };
-
-      const response = await api.get('/api/common/team?action=search_team', requestData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+  try {
+    const response = await api.get(`/api/common/team?action=search_team&keyword=${key_word}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
+
 
 export const changeTeamLeader = async (newLeaderName) => {
   try {
