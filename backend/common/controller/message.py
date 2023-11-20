@@ -1,6 +1,7 @@
 from utils import get_request_params, error_template, success_template, ExceptionEnum, SuccessEnum
 from common.models import Message, CustomUser
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 
 def dispatcher(request):
@@ -24,6 +25,7 @@ def dispatcher(request):
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
+@login_required
 def get_messages(request):
     """
     GET
@@ -89,6 +91,7 @@ def get_messages(request):
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
+@login_required
 def get_applications(request):
     """
     GET
@@ -136,6 +139,7 @@ def get_applications(request):
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
+@login_required
 def get_invitations(request):
     """
     GET
@@ -202,6 +206,7 @@ def get_invitations(request):
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
+@login_required
 def check_messages(request):
     """
     PUT

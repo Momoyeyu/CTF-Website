@@ -3,6 +3,7 @@ from utils import get_request_params
 from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
 from utils import ExceptionEnum, error_template, success_template, send_message, SuccessEnum
+from django.contrib.auth.decorators import login_required
 
 
 def dispatcher(request):
@@ -43,6 +44,7 @@ def dispatcher(request):
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
+@login_required
 def create_team(request):
     """
     队长创建战队
@@ -95,6 +97,7 @@ def create_team(request):
     return success_template("成功创建战队", data=response_data)
 
 
+@login_required
 def del_team(request):
     """
     DELETE
@@ -136,6 +139,7 @@ def del_team(request):
     return success_template("成功删除团队", status=204)
 
 
+@login_required
 def join_team(request):
     """
     用户加入队伍
@@ -187,6 +191,7 @@ def join_team(request):
     return success_template("申请发送成功")
 
 
+@login_required
 def quit_team(request):
     """
     用户退出队伍
@@ -271,6 +276,7 @@ def search_team(request):
     return success_template("查询成功", data=team_list)
 
 
+@login_required
 def change_team_name(request):
     """
     队长更改战队名称
@@ -313,6 +319,7 @@ def change_team_name(request):
     return success_template(SuccessEnum.MODIFICATION_SUCCESS.value, data=response_data)
 
 
+@login_required
 def change_team_leader(request):
     """
     队长更改战队名称
@@ -359,6 +366,7 @@ def change_team_leader(request):
     return success_template(SuccessEnum.MODIFICATION_SUCCESS.value, data=response_data, status=200)
 
 
+@login_required
 def verify_apply(request):
     """
     POST
@@ -426,6 +434,7 @@ def verify_apply(request):
     return success_template("审核已生效", status=200)
 
 
+@login_required
 def invite(request):
     """
     POST
@@ -469,6 +478,7 @@ def invite(request):
     return success_template(SuccessEnum.POST_SUCCESS.value)
 
 
+@login_required
 def kick_out(request):
     """
     POST
@@ -506,6 +516,7 @@ def kick_out(request):
     return success_template(SuccessEnum.REQUEST_SUCCESS.value)
 
 
+@login_required
 def accept(request):
     """
     POST

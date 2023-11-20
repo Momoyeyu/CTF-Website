@@ -5,6 +5,7 @@ from utils import ExceptionEnum, SuccessEnum
 from django.contrib.auth.models import User
 from common.models import CustomUser, Team, Message
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 """
 此文件仅处理 user表 数据
@@ -106,6 +107,7 @@ def user_login(request):
     return success_template("登录成功", data=res_data)
 
 
+@login_required
 def user_logout(request):
     """
     用户退出登录
@@ -186,6 +188,7 @@ def user_register(request):
     return success_template("注册成功，请验证后登录", data=res_data)
 
 
+@login_required
 def modify_user_info(request):
     """
     处理用户更新信息
@@ -233,6 +236,7 @@ def modify_user_info(request):
     return success_template("用户信息更新成功", data=res_data, status=200)
 
 
+@login_required
 def del_account(request):
     """
     用户注销账号，删除数据库中与该用户有关的所有数据
