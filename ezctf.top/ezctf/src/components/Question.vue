@@ -9,8 +9,8 @@
         </div>
     </div>
     <div class="question-right">
-        <i v-if="item.is_solved" class="iconfont icon-yiwancheng" :class="['iconfont-green']"></i>
-        <i v-else class="iconfont icon-weiwancheng"></i>
+        <i v-if="item.solved" class="iconfont icon-yiwancheng" :class="['iconfont-green']"></i>
+        <i v-else class="iconfont icon-weiwancheng" :class="['iconfont-white']"></i>
       </div>
 </button>
 <Popup :item="item" :Detail="Detail" ref="Popup"/>
@@ -56,35 +56,41 @@ fetchData(param) {
 
 <style>
 .iconfont-green {  
-  color:#61cd61;
+  color:#3fb950;
+} 
+.iconfont-white {  
+  color:#fff;
 } 
 .question{
   margin-left:38px;
   margin-top:30px;
-  border: 1px solid #2f81f7;
+  border: 1px solid #5b5959;
   width: 438px;
   height: 180px;
   display: inline-block;
+  background-color: #161b22;
+  border-radius: 15px;
+  padding: 5px;
 }
 .question button{
   border: 0px;
   padding: 0px;
   cursor: pointer;
+  background-color:transparent;
 }
 .question-left{
 float: left;
 width: 300px;
 height: 180px;
-border-right: 1px solid red;
+border-right: 1px solid #5b5959;
 }
 .question-name{
   width: 300px;
   height: 91px;
-  border-bottom: 1px solid red;
+  border-bottom: 1px solid #5b5959;
   text-align: center;
   line-height: 90px;
-  /* padding-left: 16px; */
-  color: #272e3b;
+  color: #fff;
   font-size: 24px;
   font-weight: 600;
   text-shadow: 0px 6px 13px rgba(0,0,0,.1);
@@ -92,34 +98,29 @@ border-right: 1px solid red;
 .question-source{
   width: 300px;
   height: 44px;
-  border-bottom: 1px solid red;
+  border-bottom: 1px solid #5b5959;
   text-align: center;
   line-height: 44px;
-  /* padding-left: 16px; */
-  color: #6b7784;
+  color: #aaa;
 }
 .question-message{
   width: 300px;
   height: 43px;
   border-bottom: 1px solid transparent;
-  color: #242e3b;
+  color: #fff;
 }
 .question-score{
   float: left;
   width: 149px;
-  /* height:44px; */
-  border-right: 1px solid red;
+  border-right: 1px solid #5b5959;
   text-align: center;
   line-height: 44px;
-  /* padding-left: 16px; */
 }
 .question-amount{
   float: left;
   width: 150px;
-  /* height:44px; */
   text-align: center;
   line-height: 44px;
-  /* padding-left: 16px; */
 }
 .question-right{
 float:right;
@@ -135,87 +136,4 @@ line-height: 180px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.popup-wrap{
-  position: fixed;  
-  top: 0;  
-  left: 0;  
-  width: 100%;  
-  height: 100%;  
-  background-color: rgba(0, 0, 0, 0.7);  
-  z-index: 9999; 
-}
-.popup{
-  width: 700px;
-  padding: 10px;
-  position: absolute;  
-  top: 50%;  
-  left: 50%;  
-  transform: translate(-50%, -50%);  
-  background-color: #bbb;  
-  border-radius: 5px;  
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-.popup-header{
-  width: 700px;
-  height: 30px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  background-color: #fff;
-  text-align: center;
-  position: relative;
-}
-.popup-content{
-  color: #000;
-  width: 652px;
-  height: 400px;
-  padding: 24px;
-  background-color: #fff;
-}
-.TITLE{
-  color: #000;
-  font-size: 24px;
-  font-weight: bold;
-  float: left;
-  margin-left: 20px;
-}
-.close{
-  float: right;
-  height: 24px;
-  border: 0 solid transparent;
-  background:transparent;
-  color: #000;
-  cursor: pointer;
-  margin-right: 10px;
-  padding: 2px;
-  font-size: 26px;             
-  /* border-radius: 50%; */
-}
-.close:hover{
-  color: blue;
-}
-.describe{
-  width: 100%;
-}
-.popup-table {  
-  width: 100%;  
-  border-collapse: collapse;  
-} 
-.popup-table td {  
-  padding: 20px;
-  border-bottom: 1px solid #ccc;
-} 
-.popup-flag{
-  text-align: center;  
-  margin-top: 150px; 
-}
-.popup-flag input{
-  border: 1px solid #000;
-  width:200px;
-  height: 30px;
-  border-radius: 5px;
-}
-.popup-download {  
-  text-align: center;  
-  margin-top: 10px;  
-} 
 </style>

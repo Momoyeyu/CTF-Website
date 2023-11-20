@@ -165,3 +165,5 @@ EMAIL_HOST_PASSWORD = 'sdxuhyrrvzvkcide'
 # 媒体文件
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_URL = 'http://localhost:8080/#/Login'

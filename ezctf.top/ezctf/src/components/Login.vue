@@ -96,8 +96,6 @@
     
   <style>
   #loginUser {
-    margin-top:160px;
-    margin-left:480px;
     position: absolute;
     top: auto;
     left: auto;

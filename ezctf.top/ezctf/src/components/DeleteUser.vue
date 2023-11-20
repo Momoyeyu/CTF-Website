@@ -2,6 +2,8 @@
     <div id="deleteUser">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>账户注销</h1>
+      <p v-if="err" id="er">{{ err }}</p>
+      <br v-if="!err">
       <input v-model="password" placeholder="请输入密码" /><br><br>
       <button @click="delete_User()">确认</button>
     </div>
@@ -17,22 +19,23 @@
       };
     },
     computed: {
-    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin']),
+    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin','setInfo','err','isHover']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeanmane','setIsLeader','setIsMember','setDeleteUser','setIsLogin']),
+      ...mapMutations(['setUsername','setTeamname','setIsLeader','setScore','setIsMember','setDeleteUser','setIsLogin','setSetInfo','setErr','setIsHover']),
       async delete_User() {
         try {
           const response = await deleteUserInfo(this.password);
           console.log('注销账户响应:', response);
-          if (response.ret === 'success') {
-            alert(response.msg);
+          if (response===204) {
+            alert("成功注销账号");
             this.setIsLogin(false);
             this.setUsername('');
             this.setTeamname('');
             this.setScore('');
             this.setIsLeader(false);
             this.setIsMember(false);
+            this.setIsHover(false);
             document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -40,15 +43,16 @@
             document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             this.setDeleteUser(false);
+            this.setSetInfo(!this.$store.state.setInfo);
+            this.setErr("");
           }
         } catch (error) {
-          alert(error.response.data.msg);
-          console.error('错误:', error);
-          console.log(error.response);
+          this.setErr(error.response.data.msg);
         }
       },
       close() {
         this.setDeleteUser(false);
+        this.setErr("");
       },
     },
   };
@@ -81,6 +85,11 @@
     top: 10px;
     right: 10px;
     cursor: pointer;
+}
+#er{
+    height: 8px;
+    color:red;
+    font-size: small;
 }
 </style>
  

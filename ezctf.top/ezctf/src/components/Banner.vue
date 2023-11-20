@@ -20,10 +20,12 @@ name:'Banner',
 .banner-box{
   width: 1200px;
   height: 400px;
-  margin: 5px auto;
+  margin: 10px auto;
   background-image: url('../assets/1.png');
   background-size: 100%;
   animation: banner 6s linear infinite;
+  border: 2px solid #161b22;
+  border-radius: 5px;
 } 
 .banner-box:hover{
   animation-play-state: paused;

@@ -13,17 +13,18 @@
                 </tr>  
                 <tr>  
                   <td>解出人数：{{ item.solve_count }}</td>  
-                  <td v-if="item.is_solved">状态：已完成</td>  
+                  <td v-if="item.solved">状态：已完成</td>  
                   <td v-else>状态：未完成</td>  
                 </tr>  
               </table>  
               <p class="popup-description">题目描述：{{ Detail.content }}</p>
-            <div class="popup-flag">  
+              <p v-if="item.solved" class="popup-flag"></p>
+            <div v-else class="popup-flag">  
               <input type="text" v-model="inputData" placeholder="请输入FLAG~~"/>  
               <button @click="checkInput">提交</button> 
               </div> 
             <div class="popup-download">  
-                <a :href="downloadUrl">附件点击这里下载</a>  
+                <a :href="downloadLink" @click="handleDownloadClick">点击下载附件</a>  
               </div>  
         </div>
     </div>
@@ -45,7 +46,9 @@ data:function(){
         "task_id" :this.item.task_id,
         "flag" : this.inputData,
       }
-    }
+    },
+    downloadLink:"",
+    fileDownloadName:"附件.rar",
   }
 },
 props: {  
@@ -60,21 +63,9 @@ props: {
   },
   computed:{
     ...mapState(['isLogin']),
-    downloadUrl() {
-      //BUG未解决,前后端联调一下确保你的后端服务器正确设置了正确的响应头信息，以便告诉浏览器这是一个下载操作而不是一个页面请求。
-      //例如，你可以在后端设置Content-Disposition响应头为attachment来提示浏览器进行下载操作。  
-      return axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id)
-      .then(response =>{
-        console.log(response.data);
-      })
-      .catch(error => {  
-          console.error(error);  
-        });  
-  },
 },
 methods:{
   showpopup() {  
-
     if (!this.isLogin)
     {
       alert("前面的区域登录以后再来探索吧~~");
@@ -96,18 +87,51 @@ checkInput() {
         alert("请输入有效的数据！"); 
       }  
     }, 
-    submitData() {  //未校验
+    submitData() {  
       console.log(this.Flag);
       axios.post('http://localhost:80/api/task/answer?action=commit_flag',this.Flag)  
         .then(response=>{  
-          console.log(response.data);  
+          console.log(response.data);  //答题成功立刻修改（未完成）
+          if (response.data.msg==="CORRECT"){
+            alert("回答正确！！！")
+            // this.hidepopup();
+            window.location.reload();  
+          }
+          else{
+            alert("很可惜回答错误...")
+          }
         })  
         .catch(function (error) {  
           console.log(error);  
         });  
         this.inputData= "";
-    }  
-  }  
+    },
+    async getDownloadLink() {  
+      try {  
+        const response = await axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id, 
+        { responseType: 'blob' }); // 发送下载请求，并指定响应类型
+        this.downloadLink = window.URL.createObjectURL(response.data); // 创建下载链接  
+      } catch (error) {  
+        console.error('下载链接获取失败：', error);  
+      }  
+    }, 
+    handleDownloadClick(event) {  
+      event.preventDefault();
+      if (this.downloadLink) {  
+        const link = document.createElement('a');  
+        link.href = this.downloadLink;  
+        link.setAttribute('download', this.fileDownloadName);  
+        document.body.appendChild(link);  
+        link.click();  
+        document.body.removeChild(link);  
+      } else {  
+        alert('下载链接不存在！');  
+      }  
+    },
+  },
+  mounted() {  
+    this.getDownloadLink(); // 在组件挂载后获取下载链接  
+  },
 }
 </script>
 
@@ -123,7 +147,7 @@ checkInput() {
 }
 .popup{
   width: 700px;
-  padding: 10px;
+  padding: 5px;
   position: absolute;  
   top: 50%;  
   left: 50%;  
@@ -168,7 +192,7 @@ checkInput() {
   /* border-radius: 50%; */
 }
 .close:hover{
-  color: blue;
+  color: #fff;
 }
 .describe{
   width: 100%;

@@ -2,7 +2,9 @@
     <div id="createTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>创建战队</h1>
-      <form @submit.prevent="createTeam">
+      <p v-if="err" id="er">{{ err }}</p>
+      <br v-if="!err">
+      <form @submit.prevent="create_Team">
         <label for="teamname">战队名称:</label>
         <input type="text" id="teamname" v-model="team.team_name" required /><br><br>
         <label for="check">审核加入:</label>
@@ -27,10 +29,10 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname','createTeam','noTeam','isLeader']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','createTeam','noTeam','isLeader','err']),
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setCreateTeam','setNoTeam','setIsLeader']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setCreateTeam','setNoTeam','setIsLeader','setErr']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.setCreateTeam(false);
@@ -42,20 +44,21 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
             alert(response.msg);
             console.log('创建战队响应', response);
             this.setTeamname(this.team.team_name);
-            sessionStorage.setItem('teamname',this.team.team_name);
+            document.cookie = `teamname=${this.team.team_name}; path=/`;
             this.setIsLeader(true);
-            sessionStorage.setItem('isLeader',true);
+            document.cookie = `isLeader=${true}; path=/`;
             this.setUserInfoButtonEnabled(true);
             this.setCreateTeam(false);
+            this.setErr("");
           }
         } catch (error) {
-          alert(error.response.data.msg);
-          console.log('错误：',error);
+          this.setErr(error.response.data.msg);
         }
       }, 
       Re() {
         this.setCreateTeam(false);
         this.setNoTeam(true);
+        this.setErr("");
       }
     },
   };
@@ -72,7 +75,7 @@ button{
     top: auto;
     left: auto;
     width: 350px;
-    height: 200px;
+    height: 220px;
     justify-content: center;
     align-items: center;
     background-color: #1e1e1e;
@@ -92,6 +95,11 @@ button{
     top: 10px;
     right: 10px;
     cursor: pointer;
+}
+#er{
+    height: 8px;
+    color:red;
+    font-size: small;
 }
 </style>
   

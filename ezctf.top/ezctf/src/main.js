@@ -24,14 +24,18 @@ const store = new Vuex.Store({
   state: {
     loginButtonEnabled: true,
     userInfoButtonEnabled: true,
+    isHover: false,
     modifyUser: false,
     deleteUser: false,
     infoBoard: false,
     isLogin: getCookie('isLogin') || false, 
+    setInfo: true,
     noTeam: false,
     createTeam: false,
     joinTeam: false,
     deleteTeam: false,
+    changeTeamname: false,
+    manageTeam: true,
     log: true,
     reg: false,
     FoPa: false,
@@ -41,6 +45,10 @@ const store = new Vuex.Store({
     teamname: getCookie('teamname') || '', 
     isLeader: getCookie('isLeader') || false, 
     isMember: getCookie('isMember') || false, 
+    newLeader:'',
+    changeLeader: false,
+    kickMember: false,
+    kMember:'',
     err: '',
   },
   mutations: {
@@ -49,6 +57,9 @@ const store = new Vuex.Store({
     },
     setUserInfoButtonEnabled(state, value) {
       state.userInfoButtonEnabled = value;
+    },
+    setIsHover(state, value){
+      state.isHover = value;
     },
     setUsername(state, value) {
       state.username = value;
@@ -77,6 +88,9 @@ const store = new Vuex.Store({
     setIsLogin(state, value){
       state.isLogin = value;
     },
+    setSetInfo(state, value){
+      state.setInfo = value;
+    },
     setNoTeam(state, value){
       state.noTeam =value;
     },
@@ -89,6 +103,12 @@ const store = new Vuex.Store({
     setDeleteTeam(state, value) {
       state.deleteTeam = value;
     },
+    setChangeTeamname(state, value) {
+      state.changeTeamname = value;
+    },
+    setManageTeam(state, value) {
+      state.manageTeam = value;
+    },
     setLog(state, value){
       state.log =value;
     },
@@ -100,6 +120,18 @@ const store = new Vuex.Store({
     },
     setRePa(state, value){
       state.RePa =value;
+    },
+    setNewLeader(state, value){
+      state.newLeader =value;
+    },
+    setChangeLeader(state, value){
+      state.changeLeader =value;
+    },
+    setKickMember(state, value){
+      state.kickMember=value;
+    },
+    setKMember(state, value){
+      state.kMember=value;
     },
     setErr(state, value){
       state.err =value;

@@ -2,32 +2,36 @@
     <div id="jointeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>加入战队</h1>
-      <input v-model="searchQuery" placeholder="搜索战队" @input="searchTeams" />
-      <button @click="searchTeams()">搜索</button><br><br>
+      <label for="search">搜索战队:</label>
+      <input id="search" v-model="searchQuery" placeholder="请输入战队名称" /><br><br>
       <div class="scrollable-table-container">
-        <table class="two-column-table">
+        <table class="three-column-table">
           <thead>
             <tr>
             <th>战队名称</th>
+            <th>积分</th>
+            <th>人数</th>
             <th>操作</th>
             </tr>
             </thead>
             <tbody>
               <tr v-for="team in filteredTeams" :key="team.id">
-              <td>{{ team.name }}</td>
+              <td>{{ team.team_name }}</td>
+              <td>{{ team.team_points }}</td>
+              <td>{{ team.team_member }}/{{ maxnum }}</td>
               <td>
-                <button @click="jointeam(team.name)">加入</button>
+                <button @click="jointeam(team.team_name)">加入</button>
               </td>
               </tr>
           </tbody>
         </table>
       </div><br><br>
-      <button @click="Re()">返回</button>
+      <button id="Return" @click="Re()">返回</button>
     </div>
   </template>
   
   <script>
-  import { joinTeam } from '/src/UserSystemApi/TeamApi.js';
+  import { searchTeam,joinTeam } from '/src/UserSystemApi/TeamApi.js';
   import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
@@ -35,11 +39,9 @@
         name: this.$store.state.username,
         searchQuery: "",
         teams: [
-          { id: 1, name: "jwf" },
-          { id: 2, name: "yyl" },
-          { id: 3, name: "lwk" },
-          { id: 4, name: "sjj" },
+
         ],
+        maxnum: 10,
       };
     },
     computed: {
@@ -48,6 +50,9 @@
         return this.teams.filter((team) => team.name.toLowerCase().includes(query));
       },
       ...mapState(['userInfoButtonEnabled','username','teamname','joinTeam','noTeam']),
+    },
+    mounted() {
+      this.searchTeams("");
     },
     methods: {
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setJoinTeam','setNoTeam']),
@@ -59,29 +64,28 @@
         this.setJoinTeam(false);
         this.setNoTeam(true);
       },
-      async joinTeamRequest(teamname) {
+      async jointeam(teamname) {
         try {
-          const response = await joinTeam( this.name, teamname);
+          const response = await joinTeam(teamname);
           if (response.ret === 'success') {
             alert(response.msg);
-            console.log('成功加入团队:', response.msg);
+            console.log('发送申请响应:', response.msg);
             this.setJoinTeam(false);
-          } else {
-            alert(response.data.msg);
-            console.error('加入团队失败:', response.msg);
+            this.setUserInfoButtonEnabled(true);
           }
         } catch (error) {
           alert(error.response.data.msg);
           console.error('网络请求失败:', error);
         }
       },
-      async searchTeams() {
+      async searchTeams(name) {
         try {
-          const response = await searchTeam(this.searchQuery);
-          alert(response.data.msg);
+          const response = await searchTeam(name);
           console.log('搜索战队响应', response);
+          if(response.ret==='success'){
+            this.teams=response.data.team_list;
+          }
         } catch (error) {
-          alert(error.response.data.msg);
           console.error('错误:', error);
         }
       },
@@ -94,13 +98,13 @@ button{
   cursor: pointer;
 }
 #jointeam {
-    margin-top:-280px;
+    margin-top:-260px;
     margin-left:400px;
     position: absolute;
     top: auto;
     left: auto;
     width: 500px;
-    height: 350px;
+    height: 360px;
     justify-content: center;
     align-items: center;
     background-color: #1e1e1e;
@@ -128,22 +132,22 @@ button{
   overflow-y: auto; 
 }
 
-.two-column-table {
-  margin-left: 30%;
-  width: 40%;
-  table-layout: fixed;
+.three-column-table {
+  width: 60%;
+  margin-left: 20%;
 }
 
-.two-column-table th,
-.two-column-table td {
+.three-column-table th,
+.three-column-table td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
 }
 
-.two-column-table th:first-child,
-.two-column-table td:first-child {
+.three-column-table th:first-child,
+.three-column-table td:first-child {
   text-align: center;
 }
+
 </style>
   

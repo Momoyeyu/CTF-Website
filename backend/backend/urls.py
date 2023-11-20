@@ -17,7 +17,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
-from common.controller.user import user_active
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +25,4 @@ urlpatterns = [
 
     path('api/common/', include('common.urls')),
 
-    # 用户激活
-    path('user/active', user_active)
 ]

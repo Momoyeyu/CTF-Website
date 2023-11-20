@@ -1,11 +1,14 @@
 <template>
   <div id="bkg">
     <DeleteTeam v-if="deleteTeam"/>
-    <div id="manageTeam" v-if="!deleteTeam">
+    <ChangeTeamname v-if="changeTeamname"/>
+    <ChangeLeader v-if="changeLeader"/>
+    <KickMember v-if="kickMember"/>
+    <div id="manageTeam" v-if="manageTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
       <p>
-        战队名称：{{ team.name }}  &nbsp; 战队人数: {{ team.membernum }}/{{ team.maxnum }}
+        战队名称：{{ teamInfo.name }}  &nbsp; 战队人数: {{ teamInfo.membernum }}/{{ teamInfo.maxnum }}
         <button @click="changeteaminfo()">修改名称</button>
       </p>
       <h2>战队成员</h2>
@@ -24,7 +27,7 @@
             <td>{{ member.score }}</td>
             <td>
                 <button @click="changeTeamLeader(member.name)">队长转让</button> |
-                <button @click="removeMember(member.id)">移出战队</button>
+                <button @click="kickmember(member.name)">移出战队</button>
             </td>
             </tr>
         </tbody>
@@ -61,10 +64,13 @@
   
 <script>
   import DeleteTeam from '@/components/DeleteTeam.vue'
+  import ChangeTeamname from '@/components/ChangeTeamname.vue'
+  import ChangeLeader from '@/components/ChangeLeader.vue'
+  import KickMember from '@/components/KickMember.vue'
   import { mapState, mapMutations } from 'vuex';
-  import { changeTeamLeader } from '@/UserSystemApi/TeamApi';
+  import { changeTeamname } from '@/UserSystemApi/TeamApi';
   export default {
-    components:{DeleteTeam},
+    components:{DeleteTeam,ChangeTeamname,ChangeLeader,KickMember},
     data() {
       return {
         members: [
@@ -81,47 +87,40 @@
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam','changeTeamname','manageTeam','newLeader','changeLeader','kickMember','kMember']),
     teamInfo() {
-      this.team = {
-        leader_name: this.$store.state.username,
-        name: this.$store.state.teamname,
-        membernum: '4',
-        maxnum: '10',
-        check: true
-      };
-      return { team: this.team };
+      return{
+          leader_name: this.$store.state.username,
+          name: this.$store.state.teamname,
+          membernum: '4',
+          maxnum: '10',
+          check: true
+      }
     },
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/');
       },
       delete_Team(){
         this.setDeleteTeam(true);
+        this.setManageTeam(false);
       },
-      async changeTeamLeader(memberName) {
-        try {
-          const response = await changeTeamLeader(this.leader_name,memberName);
-          console.log('队长转让响应:', response);
-          if(response.ret=='success'){
-            alert(response.msg);
-            this.setIsLeader(false);
-            sessionStorage.setItem('isLeader',false);
-            this.setIsMember(true);
-            sessionStorage.setItem('isMember',true);
-            this.$router.push("/");
-          }
-        } catch (error) {
-          alert(error.response.msg);
-          console.error('错误:', error);
-        }
+      changeTeamLeader(name){
+        this.setChangeLeader(true);
+        this.setManageTeam(false);
+        this.setNewLeader(name);
       },
-      removeMember(memberId) {
-        // 从战队移出成员的逻辑
-        console.log(`成员 ${memberId} 已被移出战队`);
+      changeteaminfo(){
+        this.setChangeTeamname(true);
+        this.setManageTeam(false);
+      },
+      kickmember(name) {
+        this.setKickMember(true);
+        this.setManageTeam(false);
+        this.setKMember(name);
       },
       approveMember(memberId) {
         // 审核通过新成员的逻辑
@@ -143,7 +142,7 @@ background-size:cover;
 }
 #manageTeam {
     margin-top: 100px;
-    margin-left: 390px;
+    margin-left: 300px;
     position: absolute;
     top: auto;
     left: auto;
