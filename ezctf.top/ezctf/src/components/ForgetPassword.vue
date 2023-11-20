@@ -90,8 +90,8 @@
     
 <style>
 #ForgetPassword {
-    margin-top:150px;
-    margin-left:480px;
+    top: auto;
+    left: auto;
     position: absolute;
     top: auto;
     left: auto;

@@ -52,7 +52,7 @@
       ...mapState(['userInfoButtonEnabled','username','teamname','joinTeam','noTeam']),
     },
     mounted() {
-      this.searchTeams();
+      this.searchTeams("");
     },
     methods: {
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setJoinTeam','setNoTeam']),
@@ -78,9 +78,9 @@
           console.error('网络请求失败:', error);
         }
       },
-      async searchTeams() {
+      async searchTeams(name) {
         try {
-          const response = await searchTeam();
+          const response = await searchTeam(name);
           console.log('搜索战队响应', response);
           if(response.ret==='success'){
             this.teams=response.data.team_list;

@@ -43,10 +43,13 @@ export const joinTeam = async (teamname) => {
   }
 };
 
-export const searchTeam = async () => {
+export const searchTeam = async (key_word) => {
     try {
       const requestData = {
         action: 'search_team',
+        data: {
+          keyword: key_word,
+        }
       };
 
       const response = await api.get('/api/common/team?action=search_team', requestData);
@@ -96,6 +99,22 @@ export const changeTeamName = async (newTeamName) => {
     };
 
     const response = await api.put('/api/common/team?action=change_team_name', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const kickoutMember = async (username) => {
+  try {
+    const requestData = {
+      action: 'kick_out',
+      data: {
+          username: username
+      },
+    };
+
+    const response = await api.post('/api/common/team?action=kick_out', requestData);
     return response.data;
   } catch (error) {
     throw error;
