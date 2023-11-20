@@ -388,7 +388,7 @@ def reset_password(request):
         user.first_name = ""
         user.save()
         return error_template("验证码错误", status=403)
-    user.password = new_password
+    user.set_password(new_password)
     user.first_name = ""
     user.save()
 
