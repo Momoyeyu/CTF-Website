@@ -39,6 +39,8 @@ def dispatcher(request):
         return accept(request)
     elif action == "kick_out":
         return kick_out(request)
+    elif action == "team_detail":
+        return team_detail(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
@@ -535,10 +537,10 @@ def accept(request):
     }
     """
     if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
@@ -583,3 +585,37 @@ def accept(request):
         msg = "拒绝邀请"
         send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
         return success_template(SuccessEnum.REQUEST_SUCCESS.value)
+
+
+def team_detail(request):
+    """
+    /api/common/team?action=team_detail&team_name=ezctf
+    GET
+    {
+        "action": "team_detail",
+        "team_name": "ezctf",
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+    team_name = request.params["team_name"]
+    if team_name == "":
+        return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
+    team = Team.objects.get(team_name=team_name)
+    if team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+    members = CustomUser.objects.filter(team=team)
+    member_list = []
+    for member in members:
+        member_info = {
+            "username": member.user.username,
+            "score": member.score,
+        }
+        member_list.append(member_info)
+    res_data = {
+        "team_name": team_name,
+        "leader": team.leader,
+        "leader_score": team.leader.custom_user.score,
+        "team_member": team.member_count,
+        "members": member_list,
+    }
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)

@@ -98,7 +98,7 @@ def success_template(msg, data=None, status=200):
         }, status=status)
 
 
-def error_template(msg, data=None, status=500):
+def error_template(msg, data=None, status=400):
     if data is None:
         return JsonResponse({
             "ret": "error",
