@@ -24,6 +24,7 @@ const store = new Vuex.Store({
   state: {
     loginButtonEnabled: true,
     userInfoButtonEnabled: true,
+    isHover: false,
     modifyUser: false,
     deleteUser: false,
     infoBoard: false,
@@ -44,6 +45,10 @@ const store = new Vuex.Store({
     teamname: getCookie('teamname') || '', 
     isLeader: getCookie('isLeader') || false, 
     isMember: getCookie('isMember') || false, 
+    newLeader:'',
+    changeLeader: false,
+    kickMember: false,
+    kMember:'',
     err: '',
   },
   mutations: {
@@ -52,6 +57,9 @@ const store = new Vuex.Store({
     },
     setUserInfoButtonEnabled(state, value) {
       state.userInfoButtonEnabled = value;
+    },
+    setIsHover(state, value){
+      state.isHover = value;
     },
     setUsername(state, value) {
       state.username = value;
@@ -112,6 +120,18 @@ const store = new Vuex.Store({
     },
     setRePa(state, value){
       state.RePa =value;
+    },
+    setNewLeader(state, value){
+      state.newLeader =value;
+    },
+    setChangeLeader(state, value){
+      state.changeLeader =value;
+    },
+    setKickMember(state, value){
+      state.kickMember=value;
+    },
+    setKMember(state, value){
+      state.kMember=value;
     },
     setErr(state, value){
       state.err =value;

@@ -2,6 +2,8 @@
   <div id="bkg">
     <DeleteTeam v-if="deleteTeam"/>
     <ChangeTeamname v-if="changeTeamname"/>
+    <ChangeLeader v-if="changeLeader"/>
+    <KickMember v-if="kickMember"/>
     <div id="manageTeam" v-if="manageTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
@@ -25,7 +27,7 @@
             <td>{{ member.score }}</td>
             <td>
                 <button @click="changeTeamLeader(member.name)">队长转让</button> |
-                <button @click="removeMember(member.id)">移出战队</button>
+                <button @click="kickmember(member.name)">移出战队</button>
             </td>
             </tr>
         </tbody>
@@ -63,10 +65,12 @@
 <script>
   import DeleteTeam from '@/components/DeleteTeam.vue'
   import ChangeTeamname from '@/components/ChangeTeamname.vue'
+  import ChangeLeader from '@/components/ChangeLeader.vue'
+  import KickMember from '@/components/KickMember.vue'
   import { mapState, mapMutations } from 'vuex';
-  import { changeTeamLeader, changeTeamname } from '@/UserSystemApi/TeamApi';
+  import { changeTeamname } from '@/UserSystemApi/TeamApi';
   export default {
-    components:{DeleteTeam,ChangeTeamname},
+    components:{DeleteTeam,ChangeTeamname,ChangeLeader,KickMember},
     data() {
       return {
         members: [
@@ -83,7 +87,7 @@
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam','changeTeamname','manageTeam']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam','changeTeamname','manageTeam','newLeader','changeLeader','kickMember','kMember']),
     teamInfo() {
       return{
           leader_name: this.$store.state.username,
@@ -95,7 +99,7 @@
     },
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/');
@@ -104,30 +108,19 @@
         this.setDeleteTeam(true);
         this.setManageTeam(false);
       },
-      async changeTeamLeader(memberName) {
-        try {
-          const response = await changeTeamLeader(this.leader_name,memberName);
-          console.log('队长转让响应:', response);
-          if(response.ret=='success'){
-            alert(response.msg);
-            this.setIsLeader(false);
-            sessionStorage.setItem('isLeader',false);
-            this.setIsMember(true);
-            sessionStorage.setItem('isMember',true);
-            this.$router.push("/");
-          }
-        } catch (error) {
-          alert(error.response.msg);
-          console.error('错误:', error);
-        }
+      changeTeamLeader(name){
+        this.setChangeLeader(true);
+        this.setManageTeam(false);
+        this.setNewLeader(name);
       },
       changeteaminfo(){
         this.setChangeTeamname(true);
         this.setManageTeam(false);
       },
-      removeMember(memberId) {
-        // 从战队移出成员的逻辑
-        console.log(`成员 ${memberId} 已被移出战队`);
+      kickmember(name) {
+        this.setKickMember(true);
+        this.setManageTeam(false);
+        this.setKMember(name);
       },
       approveMember(memberId) {
         // 审核通过新成员的逻辑
@@ -149,7 +142,7 @@ background-size:cover;
 }
 #manageTeam {
     margin-top: 100px;
-    margin-left: 390px;
+    margin-left: 300px;
     position: absolute;
     top: auto;
     left: auto;

@@ -2,7 +2,7 @@
 <div class="topborder">
         <div class="wrap">
         <ul class="header-left">
-            <li><a href="#/home"><i class="iconfont icon-weiruan"></i>Logo</a><span>|</span></li>
+            <li><a href="#/home"><i class="iconfont icon-xE990"></i>EZCTF</a><span>|</span></li>
             <li><a href="#/ranking"><i class="iconfont icon-paixingbang"></i>Ranking</a></li>
         </ul>
         <ul class="header-right">
@@ -13,7 +13,7 @@
         <div id="ava">
           <button  @click="showUserInfo()" :disabled="!userInfoButtonEnabled" id="avab"><CreateAvatar :username="userInfo.name" id="avac"/></button>
         </div>
-        <div v-if="isHovered" class="user-info">
+        <div v-if="isHover" class="user-info">
           <div>
             <CreateAvatar :username="userInfo.name" />
             <p>{{ userInfo.name }}</p>
@@ -51,14 +51,10 @@ name:'Navigation',
  components: {
     CreateAvatar,
   },
-  data() {
-    return {
-      isHovered: false,
-    };
-  },
   computed: {
     ...mapState(['loginButtonEnabled',
                   'userInfoButtonEnabled',
+                  'isHover',
                   'username',
                   'teamname',
                   'score',
@@ -83,10 +79,27 @@ name:'Navigation',
         is_Member: this.$store.state.isMember,
       };
     },
+    isHover: {
+      get() {
+        return this.$store.state.isHover;
+      },
+      set(value) {
+        this.setIsHover(value);
+      }
+    },
+    setInfo: {
+      get() {
+        return this.$store.state.setInfo;
+      },
+      set(value) {
+        this.setSetInfo(value);
+      }
+    },
   },
   methods: {
     ...mapMutations(['setLoginButtonEnabled',
                       'setUserInfoButtonEnabled',
+                      'setIsHover',
                       'setUsername',
                       'setTeamname',
                       'setScore',
@@ -107,7 +120,7 @@ name:'Navigation',
       this.$router.push("/Log");
     },
     showUserInfo() {
-      this.isHovered = !this.isHovered;
+      this.setIsHover(!this.$store.state.isHover);
     },
     setinfo() {
       this.setSetInfo(!this.$store.state.setInfo);
@@ -133,7 +146,7 @@ name:'Navigation',
       }
     },
     message() {
-      this.isHovered = !this.isHovered;
+      this.setIsHover(!this.$store.state.isHover);
       this.setInfo=true;
       this.setUserInfoButtonEnabled(false);
       this.setInfoBoard(true);
@@ -155,7 +168,7 @@ name:'Navigation',
         this.setIsLeader(false);
         this.setIsMember(false);
         this.setIsLogin(false);
-        this.isHovered=false;
+        this.setIsHover(false);
         document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -180,8 +193,10 @@ name:'Navigation',
     line-height: 25px;
     color: #b0b0b0;
     font-size: 26px;
+    border: 1px solid #161b22;
     border-radius: 15px;
     margin: 0 auto;
+    margin-top: 5px;
 }
 .topborder .iconfont{
   font-family: "iconfont" !important;
@@ -209,6 +224,7 @@ name:'Navigation',
 }
 .topborder li{
   float: left;
+  letter-spacing: 0.05em;
 }
 .topborder a{
     color: #bbb;
@@ -261,6 +277,7 @@ nav {
   text-align: center;
   color:white;
   border-radius: 5px;
+  z-index: 1000;
 }
 
 #hiddenInfo {

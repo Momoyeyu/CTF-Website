@@ -22,7 +22,7 @@
   </template>
     
   <script>
-  import { register,validateCode } from '../UserSystemApi/UserApi.js';
+  import { register,validateCode,login } from '../UserSystemApi/UserApi.js';
   import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
@@ -38,23 +38,25 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled','username','reg','log','err']),
+    ...mapState(['loginButtonEnabled','username','reg','log','err','isLogin','teamname','score','isLeader','isMember',]),
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr']),
+      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr','setIsLogin','setTeamname','setScore','setIsLeader','setIsMember',]),
       close() {
         this.btn=false;
         this.setLoginButtonEnabled(true);
         this.setReg(false);
         this.setLog(true);
         this.setErr("");
-        this.$router.push('/');
+        this.$router.push('/');//这里关闭注册直接返回主页是不是有点突兀？
       },
       async Register() {
         try {
           const response = await register( this.user.username, this.user.password, this.user.email);
           console.log('注册响应:', response);
           if (response.ret === 'success') {
+            this.setErr("");
+            alert(response.msg);
             this.btn=true;
           }
         } catch (error) {
@@ -82,20 +84,63 @@
             this.$store.commit('setReg', false);
             this.$store.commit('setLog', true);
             this.setErr("");
+            this.loginUser();
           }
         } catch (error) {
           this.setErr(error.response.data.msg);
           console.error('注册错误:', error);
         }
-      }
+      },
+      async loginUser() {
+        try {
+          const response = await login(this.user.username, this.user.password);
+          console.log('登录响应:', response);
+          if (response.ret === 'success') {
+            this.$router.push('/'); 
+            this.setLoginButtonEnabled(true);
+            this.setLog(true);
+            this.setReg(false);
+            this.setUsername(response.data.username);
+            document.cookie = `username=${response.data.username}; path=/`;
+            this.setTeamname(response.data.team_name);
+            if(response.data.team_name){
+              document.cookie = `teamname=${response.data.team_name}; path=/`;
+            }
+            this.setScore(response.data.score);
+            document.cookie = `score=${response.data.score}; path=/`;
+            this.setIsLogin(true);
+            document.cookie = `isLogin=${true}; path=/`;
+            this.setErr("");          
+            if(response.data.team_name&&!response.data.is_leader) {
+              this.setIsLeader(false);
+              document.cookie = `isLeader=${false}; path=/`;
+              this.setIsMember(true);
+              document.cookie = `isMember=${true}; path=/`;
+            }
+            else if(response.data.is_leader){
+              this.setIsLeader(true);
+              document.cookie = `isLeader=${true}; path=/`;
+              this.setIsMember(false);
+              document.cookie = `isMember=${false}; path=/`;
+            }
+            else{
+              this.setIsLeader(false);
+              document.cookie = `isLeader=${false}; path=/`;
+              this.setIsMember(false);
+              document.cookie = `isMember=${false}; path=/`;
+            }
+          }
+        } catch (error) {
+          this.setErr(error.response.data.msg);
+          console.error('登录错误:', error);
+        }
+      },
     },
   };
   </script>
   
   <style>
   #registerUser {
-      margin-top:130px;
-      margin-left:450px;
       position: absolute;
       top: auto;
       left: auto;

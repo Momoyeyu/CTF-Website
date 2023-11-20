@@ -27,12 +27,11 @@ export const createTeam = async (leaderId, teamName, allowJoin) => {
 };
   
   
-export const joinTeam = async (username, teamname) => {
+export const joinTeam = async (teamname) => {
   try {
     const requestData = {
       action: 'join_team',
       data: {
-        username: username,
         team_name: teamname,
       },
     };
@@ -44,26 +43,27 @@ export const joinTeam = async (username, teamname) => {
   }
 };
 
-export const searchTeam = async (keyword) => {
+export const searchTeam = async (key_word) => {
     try {
-      const response = await api.get('/api/common/team?action=search_team', {
-        params: {
-          action: 'search_team',
-          keyword: keyword,
-        },
-      });
+      const requestData = {
+        action: 'search_team',
+        data: {
+          keyword: key_word,
+        }
+      };
+
+      const response = await api.get('/api/common/team?action=search_team', requestData);
       return response.data;
     } catch (error) {
       throw error;
     }
 };
 
-export const changeTeamLeader = async (username,newLeaderName) => {
+export const changeTeamLeader = async (newLeaderName) => {
   try {
     const requestData = {
       action: 'change_team_leader',
       data: {
-          username: username,
           new_leader_name: newLeaderName
       },
     };
@@ -99,6 +99,22 @@ export const changeTeamName = async (newTeamName) => {
     };
 
     const response = await api.put('/api/common/team?action=change_team_name', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const kickoutMember = async (username) => {
+  try {
+    const requestData = {
+      action: 'kick_out',
+      data: {
+          username: username
+      },
+    };
+
+    const response = await api.post('/api/common/team?action=kick_out', requestData);
     return response.data;
   } catch (error) {
     throw error;

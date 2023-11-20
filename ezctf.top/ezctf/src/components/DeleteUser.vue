@@ -19,10 +19,10 @@
       };
     },
     computed: {
-    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin','setInfo','err']),
+    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin','setInfo','err','isHover']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeamname','setIsLeader','setScore','setIsMember','setDeleteUser','setIsLogin','setSetInfo','setErr']),
+      ...mapMutations(['setUsername','setTeamname','setIsLeader','setScore','setIsMember','setDeleteUser','setIsLogin','setSetInfo','setErr','setIsHover']),
       async delete_User() {
         try {
           const response = await deleteUserInfo(this.password);
@@ -35,6 +35,7 @@
             this.setScore('');
             this.setIsLeader(false);
             this.setIsMember(false);
+            this.setIsHover(false);
             document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
