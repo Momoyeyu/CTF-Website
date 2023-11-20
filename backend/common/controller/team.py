@@ -248,11 +248,10 @@ def search_team(request):
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
     keyword = request.params["keyword"]
-
-    if keyword:
+    if keyword != "":
         teams = Team.objects.filter(team_name__icontains=keyword)
     else:
-        teams = Team.objects.values()
+        teams = Team.objects.all()
 
     if not teams:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
@@ -434,7 +433,6 @@ def invite(request):
         "action": "invite",
         "data": {
             "invitee": "juanboy",  # 受邀用户的用户名
-            "invite_msg": "加入我们吧",
         }
     }
     """
@@ -447,7 +445,6 @@ def invite(request):
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
     invitee_name = data["invitee"]
-    msg = data["invite_msg"]
 
     user = User.objects.get(pk=uid)
     invitee = User.objects.get_by_natural_key(invitee_name)
@@ -467,8 +464,7 @@ def invite(request):
     if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
-    if msg is None:
-        msg = str(team.team_name)
+    msg = str(team.team_name)
     send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION.value)  # INVITATION.value = 4
     return success_template(SuccessEnum.POST_SUCCESS.value)
 

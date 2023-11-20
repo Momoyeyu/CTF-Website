@@ -33,9 +33,9 @@ class SessionTest(TestCase):
         self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10,
                                        solve_count=0, task_type=2)
 
-        self.obj = Message.objects.create(receiver_id=1, origin_id=3, msg="申请加入战队",
+        self.obj = Message.objects.create(receiver_id=1, origin_id=3, msg="ez",
                                           msg_type=Message.MessageType.APPLICATION.value)
-        self.obj = Message.objects.create(receiver_id=3, origin_id=1, msg="邀请加入战队",
+        self.obj = Message.objects.create(receiver_id=3, origin_id=1, msg="ezctf",
                                           msg_type=Message.MessageType.INVITATION.value)
 
     def test_create_del(self):
@@ -253,7 +253,8 @@ class SessionTest(TestCase):
 
     def search_team(self):
         print("[INFO]: test serach team")
-        response = self.client.get('http://localhost/api/common/team?action=search_team&keyword=ez')
+        keyword = ""
+        response = self.client.get('http://localhost/api/common/team?action=search_team&keyword={}'.format(keyword))
         self.assertEqual(response.status_code, 200)
         pprint.pprint(response.json())
 
@@ -306,7 +307,6 @@ class SessionTest(TestCase):
             "action": "invite",
             "data": {
                 "invitee": "ccc",  # 受邀用户的用户名
-                "invite_msg": "加入我们吧",
             }
         }
         response = self.client.post('http://localhost/api/common/team?action=invite',
@@ -321,6 +321,7 @@ class SessionTest(TestCase):
             "action": "accept",
             "data": {
                 "inviter": "aaa",
+                "team_name": "ez",
                 "accept": True,
             }
         }
