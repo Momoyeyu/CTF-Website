@@ -266,11 +266,16 @@ def search_team(request):
     team_list = []
     for team in teams:
         leader = User.objects.get(pk=team.leader.id)
+        members = team.user_group.all()
+        total_score = 0
+        for member in members:
+            total_score += member.score
         team_info = {
             "team_name": team.team_name,
             "leader_name": leader.username,
             "leader_email": leader.email,
-            "member_count": team.member_count,
+            "team_points": total_score,
+            "team_member": team.member_count,
             "allow_join": team.allow_join,
         }
         team_list.append(team_info)
@@ -605,7 +610,9 @@ def team_detail(request):
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
     members = CustomUser.objects.filter(team=team)
     member_list = []
+    total_score = 0
     for member in members:
+        total_score += member.score
         member_info = {
             "username": member.user.username,
             "score": member.score,
@@ -613,7 +620,8 @@ def team_detail(request):
         member_list.append(member_info)
     res_data = {
         "team_name": team_name,
-        "leader": team.leader,
+        "team_points": total_score,
+        "leader": team.leader.username,
         "leader_score": team.leader.custom_user.score,
         "team_member": team.member_count,
         "members": member_list,
