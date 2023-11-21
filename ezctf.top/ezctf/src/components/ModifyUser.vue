@@ -22,10 +22,10 @@
       };
     },
     computed: {
-    ...mapState(['username','teamname','modifyUser','err']),
+    ...mapState(['username','teamname','modifyUser','err','setInfo','userInfoButtonEnabled']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeamname','setModifyUser','setErr']),
+      ...mapMutations(['setUsername','setTeamname','setModifyUser','setErr','setSetInfo','setUserInfoButtonEnabled']),
       async modify_User() {
         try {
           const response = await modifyUserInfo(this.user_name, this.newUsername,this.password);
@@ -36,6 +36,8 @@
             this.setUsername(response.data.new_username);
             document.cookie = `username=${response.new_username}; path=/`;
             this.setErr("");
+            this.setSetInfo(true);
+            this.setUserInfoButtonEnabled(true);
           }
         } catch (error) {
           this.setErr(error.response.data.msg);
@@ -45,6 +47,8 @@
       close() {
         this.setModifyUser(false);
         this.setErr("");
+        this.setSetInfo(true);
+        this.setUserInfoButtonEnabled(true);
       },
     },
   };
@@ -52,7 +56,7 @@
 <style>
 #modifyUser {
     margin-top:-200px;
-    margin-left:200px;
+    margin-left:520px;
     position: absolute;
     top: auto;
     left: auto;

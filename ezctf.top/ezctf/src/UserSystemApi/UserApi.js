@@ -88,7 +88,7 @@ export const resetPassword = async (valid_code,email,new_password) => {
       },
     };
 
-    const response = await api.post('/api/common/user?action=reset_password', requestData);
+    const response = await api.put('/api/common/user?action=reset_password', requestData);
     return response.data;
   } catch (error) {
     throw error;

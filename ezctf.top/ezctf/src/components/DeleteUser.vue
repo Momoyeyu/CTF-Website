@@ -19,10 +19,10 @@
       };
     },
     computed: {
-    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin','setInfo','err','isHover']),
+    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin','setInfo','err','isHover','userInfoButtonEnabled']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeamname','setIsLeader','setScore','setIsMember','setDeleteUser','setIsLogin','setSetInfo','setErr','setIsHover']),
+      ...mapMutations(['setUsername','setTeamname','setIsLeader','setScore','setIsMember','setDeleteUser','setIsLogin','setSetInfo','setErr','setIsHover','setUserInfoButtonEnabled']),
       async delete_User() {
         try {
           const response = await deleteUserInfo(this.password);
@@ -45,6 +45,7 @@
             this.setDeleteUser(false);
             this.setSetInfo(!this.$store.state.setInfo);
             this.setErr("");
+            this.setUserInfoButtonEnabled(true);
           }
         } catch (error) {
           this.setErr(error.response.data.msg);
@@ -53,6 +54,8 @@
       close() {
         this.setDeleteUser(false);
         this.setErr("");
+        this.setSetInfo(true);
+        this.setUserInfoButtonEnabled(true);
       },
     },
   };
@@ -60,7 +63,7 @@
 <style>
 #deleteUser {
     margin-top:-180px;
-    margin-left:500px;
+    margin-left:520px;
     position: absolute;
     top: auto;
     left: auto;

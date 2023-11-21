@@ -49,8 +49,8 @@
 </script>
 <style>
 #changeTeam {
-    margin-top:200px;
-    margin-left:660px;
+    top: auto;
+    left: auto;
     position: absolute;
     top: auto;
     left: auto;

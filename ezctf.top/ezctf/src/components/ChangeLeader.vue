@@ -50,8 +50,8 @@
 </script>
 <style>
 #changeleader {
-    margin-top:200px;
-    margin-left:670px;
+    top: auto;
+    left: auto;
     position: absolute;
     top: auto;
     left: auto;
