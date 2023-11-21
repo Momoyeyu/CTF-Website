@@ -22,7 +22,7 @@
               <td>{{ team.team_points }}</td>
               <td>{{ team.team_member }}/{{ maxnum }}</td>
               <td>
-                <button @click="jointeam(team.team_name)">加入</button>
+                <button @click="jointeam(team.team_name)">{{btnInfo(team.allow_join)}}</button>
               </td>
               </tr>
           </tbody>
@@ -47,6 +47,7 @@
             leader_email: "",
             team_points:"",
             team_member:"",
+            allow_join: "",
           }
         ],
         maxnum: 10,
@@ -96,11 +97,20 @@
           const response = await searchTeam(name);
           console.log('搜索战队响应', response);
           if(response.ret==='success'){
-            this.teams=response.data;
+            this.teams=response.data.team_list;
             console.log(response.data);
           }
         } catch (error) {
           console.error('错误:', error);
+        }
+      },
+      btnInfo(allowJoin){
+        console.log("1");
+        if(allowJoin){
+          return "加入";
+        }
+        else{
+          return "申请";
         }
       },
     },

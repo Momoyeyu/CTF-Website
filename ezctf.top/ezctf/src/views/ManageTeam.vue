@@ -8,7 +8,7 @@
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
       <p>
-        战队名称：{{ teamInfo.name }}  &nbsp; 战队人数: {{ teamInfo.membernum }}/{{ teamInfo.maxnum }}
+        战队名称：{{ teamInfo.name }}  &nbsp; 战队人数: {{ team.membernum }}/{{ team.maxnum }}
         <button @click="changeteaminfo()">修改名称</button>
       </p>
       <h2>战队成员</h2>
@@ -68,22 +68,23 @@
   import ChangeLeader from '@/components/ChangeLeader.vue'
   import KickMember from '@/components/KickMember.vue'
   import { mapState, mapMutations } from 'vuex';
-  import { changeTeamname } from '@/UserSystemApi/TeamApi';
+  import { teamDetail } from '@/UserSystemApi/TeamApi';
   export default {
     components:{DeleteTeam,ChangeTeamname,ChangeLeader,KickMember},
     data() {
       return {
         members: [
-          { id: 1, name: "jwf", score: 100 },
-          { id: 2, name: "yyl", score: 100 },
-          { id: 3, name: "lwk", score: 100 },
-          { id: 4, name: "sjj", score: 100 },
+          { username: "", score: "" },
         ],
         applicants: [
           { id: 1, name: "张三", score: 59 },
           { id: 2, name: "李四", score: 99 },
         ],
-        team: {},
+        team: {
+          membernum: '',
+          maxnum: '10',
+          check: true,
+        },
       };
     },
     computed: {
@@ -92,11 +93,11 @@
       return{
           leader_name: this.$store.state.username,
           name: this.$store.state.teamname,
-          membernum: '4',
-          maxnum: '10',
-          check: true
       }
     },
+    },
+    mounted() {
+      this.team_detail(this.teamInfo.name);
     },
     methods: {
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember']),
@@ -121,6 +122,19 @@
         this.setKickMember(true);
         this.setManageTeam(false);
         this.setKMember(name);
+      },
+      async team_detail(name) {
+        try {
+          const response = await teamDetail(name);
+          console.log('获取用户列表响应', response);
+          if(response.ret==='success'){
+            this.members=response.data.members;
+            this.team.membernum=response.data.team_member;
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
       },
       approveMember(memberId) {
         // 审核通过新成员的逻辑

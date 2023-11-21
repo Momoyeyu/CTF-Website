@@ -43,6 +43,18 @@ export const joinTeam = async (teamname) => {
   }
 };
 
+export const quitTeam = async () => {
+  try {
+    const requestData = {
+      action: 'quit_team',
+    };
+    const response = await api.get(`/api/common/team?action=quit_team`, requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const searchTeam = async (key_word) => {
   try {
     const response = await api.get(`/api/common/team?action=search_team&keyword=${key_word}`);
@@ -51,7 +63,6 @@ export const searchTeam = async (key_word) => {
     throw error;
   }
 };
-
 
 export const changeTeamLeader = async (newLeaderName) => {
   try {
@@ -109,6 +120,15 @@ export const kickoutMember = async (username) => {
     };
 
     const response = await api.post('/api/common/team?action=kick_out', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const teamDetail = async (teamname) => {
+  try {
+    const response = await api.get(`/api/common/team?action=team_detail&team_name=${teamname}`);
     return response.data;
   } catch (error) {
     throw error;

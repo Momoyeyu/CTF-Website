@@ -75,8 +75,6 @@ name:'Navigation',
         name: this.$store.state.username, 
         score: this.$store.state.score,
         team: this.$store.state.teamname, 
-        is_Leader: this.$store.state.isLeader,
-        is_Member: this.$store.state.isMember,
       };
     },
     isHover: {
@@ -128,14 +126,14 @@ name:'Navigation',
     team() {
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
-      console.log(this.userInfo.is_Member);
-      if(this.userInfo.is_Leader&&!this.userInfo.is_Member){
+      console.log(this.$store.state.isLeader);
+      console.log(this.$store.state.isMember);
+      if(this.$store.state.isLeader&&!this.$store.state.isMember){
         this.showUserInfo();
         this.setManageTeam(true);
         this.$router.push("/ManageTeam");
       }
-      else if(this.userInfo.is_Member){
-        console.log(this.userInfo.is_Member);
+      else if(this.$store.state.isMember){
         console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");

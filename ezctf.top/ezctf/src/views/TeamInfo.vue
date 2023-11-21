@@ -1,66 +1,105 @@
 <template>
+  <div id="bkg">
     <div id="teaminfo">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队信息</h1>
-          <p>战队名称:{{ team.name }}</p>
-          <p>队长:{{team.leader_id}}&nbsp;&nbsp;&nbsp;得分:{{ team.leader_score }}</p>
+          <p>战队名称:{{ team.name }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
+          <p>战队总积分:{{ team.team_score }}</p>
           <div class="scrollable-table-container">
             <table class="two-column-table">
               <thead>
+                <tr>
+                  <th>队长</th>
+                  <th>积分</th>
+                </tr>
+                <tr>
+                  <th>{{team.leader_name}}</th>
+                  <th>{{ team.leader_score }}</th>
+                </tr>
                 <tr>
                 <th>成员</th>
                 <th>积分</th>
               </tr>
               </thead>
               <tbody>
-                <tr v-for="member in members" :key="member.id">
-                <td>{{ member.name }}</td>
-                <td>{{ member.totalScore }}</td>
+                <tr v-for="member in members" :key="member.username">
+                <td>{{ member.username }}</td>
+                <td>{{ member.score }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p>战队成员数:{{team.membernum}}/{{ team.maxnum }}</p>
-          <p>战队总积分:{{ team.point }}</p>
-        <button @click="quit()">退出战队</button>
+        <button id="Ret" @click="quit()">退出战队</button>
     </div>
+  </div> 
 </template>
     
 <script>
   import { mapState, mapMutations } from 'vuex';
+  import { teamDetail,quitTeam } from '@/UserSystemApi/TeamApi';
   export default {
     data() {
       return {
         team: {
           member_name: this.$store.state.username,
           name: this.$store.state.teamname,
-          leader_id: 'jwf',
-          leader_score: '100',
-          membernum: '4',
+          leader_name: '',
+          leader_score: '',
+          membernum: '',
           maxnum:'10',
-          point: '100'
+          team_score: ''
         },
         members: [
-        { id: 1, name: 'yyl', totalScore: 100 },
-        { id: 2, name: 'lwk', totalScore: 100 },
-        { id: 3, name: 'sjj', totalScore: 100 },
-        // 添加更多成员
+        { username: '', score: "" },
       ],
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname']),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember']),
+    },
+    mounted() {
+      this.team_detail(this.team.name);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/');
       },
-      quit() {
-        //发送退出战队请求到后端
-        this.setUserInfoButtonEnabled(true);
-        this.$router.push("/");
+      async team_detail(name) {
+        try {
+          const response = await teamDetail(name);
+          console.log('获取用户列表响应', response);
+          if(response.ret==='success'){
+            this.members=response.data.members;
+            this.team.membernum=response.data.team_member;
+            this.team.leader_name=response.data.leader_name;
+            this.team.leader_score=response.data.leader_score;
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
+      },
+      async quit() {
+        try {
+          const response = await quitTeam();
+          console.log('退出战队响应', response);
+          if(response.ret==='success'){
+            alert(response.msg);
+            this.setTeamname('');
+            this.setIsLeader(false);
+            this.setIsMember(false);
+            this.setUserInfoButtonEnabled(true);
+            document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            this.$router.push("/");
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
       }
     },
   };
@@ -68,9 +107,8 @@
     
 <style>
 #teaminfo {
-  margin-top:100px;
-  margin-left:490px;
   width: 600px;
+  height: 400px;
   position: absolute;
   top: auto;
   left: auto;
@@ -115,5 +153,17 @@
 .two-column-table th:first-child,
 .two-column-table td:first-child {
   text-align: center;
+}
+
+#Ret{
+  left:287px;
+  bottom:20px;
+  position: absolute;
+}
+
+#bkg{
+height:87vh;
+background-image:url("../assets/背景.png");
+background-size:cover;
 }
   </style>
