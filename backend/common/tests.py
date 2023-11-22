@@ -2,11 +2,12 @@ from django.core.mail import send_mail
 
 from backend import settings
 from utils import log_test
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.contrib.sessions.middleware import SessionMiddleware
 from tasks.models import Task, AnswerRecord
 from common.models import CustomUser, Team, Message
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_protect
 # Create your tests here.
 import requests
 import pprint
@@ -14,6 +15,9 @@ import json
 
 
 class SessionTest(TestCase):
+
+    client = Client(enforce_csrf_checks=True)
+
     def setUp(self):
         self.obj = User.objects.create_user(username='aaa', email='123456789@qq.com', password='123456')
         self.obj = User.objects.create_user(username='bbb', email='223456789@qq.com', password='123456')

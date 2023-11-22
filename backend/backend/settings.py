@@ -50,13 +50,15 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # CORS跨域资源共享
     'corsheaders.middleware.CorsMiddleware',
+
+    # csrf 中间件，此处设置会在全局生效
+    # 'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -168,3 +170,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_URL = 'http://localhost:8080/#/Login'
+
+# CSRF
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_AGE = 31449600
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_USE_SESSIONS = False
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+

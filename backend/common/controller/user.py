@@ -1,4 +1,5 @@
 from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from backend import settings
 from utils import get_request_params, is_valid_username, error_template, success_template, send_message, generate
 from utils import ExceptionEnum, SuccessEnum
@@ -6,6 +7,8 @@ from django.contrib.auth.models import User
 from common.models import CustomUser, Team, Message
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+
 
 """
 此文件仅处理 user表 数据
@@ -15,8 +18,8 @@ from django.contrib.auth.decorators import login_required
 def dispatcher(request):
     # 将请求参数统一放入request 的 params 属性中，方便后续处理
     request.params = get_request_params(request)
-    print("\n=====\n", request, "\n=====\n")
-    print("\n=====\n", request.params, "\n=====\n")
+    # print("\n=====\n", request, "\n=====\n")
+    # print("\n=====\n", request.params, "\n=====\n")
 
     # 根据不同的action分派给不同的函数进行处理
     action = request.params["action"]
@@ -41,6 +44,7 @@ def dispatcher(request):
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
+@require_http_methods("POST")
 def user_login(request):
     """
     用户登录，返回用户数据
@@ -107,6 +111,7 @@ def user_login(request):
     return success_template("登录成功", data=res_data)
 
 
+@require_http_methods("GET")
 @login_required
 def user_logout(request):
     """
@@ -123,6 +128,7 @@ def user_logout(request):
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
 
+@require_http_methods("POST")
 def user_register(request):
     """
     用户注册，创建新的User，CustomUser，并将CustomUser的 user_id 设置为 User 的 id
@@ -188,6 +194,7 @@ def user_register(request):
     return success_template("注册成功，请验证后登录", data=res_data)
 
 
+@require_http_methods("PUT")
 @login_required
 def modify_user_info(request):
     """
@@ -236,6 +243,7 @@ def modify_user_info(request):
     return success_template("用户信息更新成功", data=res_data, status=200)
 
 
+@require_http_methods("DELETE")
 @login_required
 def del_account(request):
     """
@@ -300,6 +308,7 @@ def del_account(request):
     return success_template("账号已注销", status=204)
 
 
+@require_http_methods("POST")
 def user_active(request):
     """
     POST
@@ -335,6 +344,7 @@ def user_active(request):
     return success_template("账号已激活", status=200)
 
 
+@require_http_methods("POST")
 def forget_password(request):
     """
     POST
@@ -367,6 +377,7 @@ def forget_password(request):
     return success_template(SuccessEnum.REQUEST_SUCCESS.value)
 
 
+@require_http_methods("PUT")
 def reset_password(request):
     """
     PUT

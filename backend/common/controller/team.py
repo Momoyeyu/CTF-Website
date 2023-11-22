@@ -4,6 +4,9 @@ from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
 from utils import ExceptionEnum, error_template, success_template, send_message, SuccessEnum
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_http_methods
+from django.middleware.csrf import get_token, rotate_token
 
 
 def dispatcher(request):
@@ -47,6 +50,8 @@ def dispatcher(request):
 
 
 @login_required
+@csrf_protect
+@require_http_methods(["GET", "POST"])
 def create_team(request):
     """
     队长创建战队
@@ -59,6 +64,11 @@ def create_team(request):
         }
     }
     """
+    if request.method == 'GET':
+        csrf_token = get_token(request)
+        response = success_template(SuccessEnum.QUERY_SUCCESS.value)
+        response.set_cookie('csrftoken', csrf_token)
+        return response
     if request.method != "POST":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
