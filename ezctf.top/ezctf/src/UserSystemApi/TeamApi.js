@@ -134,3 +134,21 @@ export const teamDetail = async (teamname) => {
     throw error;
   }
 };
+
+export const accept = async (name,teamname) => {
+  try {
+    const requestData = {
+      action: 'accept',
+      data: {
+        inviter: name,
+        team_name: teamname,
+        accept: true,
+      },
+    };
+
+    const response = await api.put('/api/common/team?action=accept', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

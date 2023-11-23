@@ -34,7 +34,7 @@
         </table>
       </div>
       <br>
-      <h3 v-if="team.check">申请审核</h3>
+      <h3 v-if="team.check">申请列表</h3>
       <div class="scrollable-table-container">
         <table class="three-column-table" v-if="team.check">
         <thead>
@@ -158,8 +158,6 @@ background-size:cover;
     top: auto;
     left: auto;
     position: absolute;
-    top: auto;
-    left: auto;
     width: 800px;
     justify-content: center;
     align-items: center;

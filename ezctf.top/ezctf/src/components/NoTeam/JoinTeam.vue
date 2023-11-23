@@ -2,7 +2,7 @@
     <div id="jointeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>加入战队</h1>
-      <label for="search">搜索战队:</label>
+      <label for="search">搜索战队: </label>
       <input id="search" v-model="searchQuery" placeholder="请输入战队名称" @input="filter()"/><br><br>
       <div class="scrollable-table-container">
         <table class="three-column-table">
