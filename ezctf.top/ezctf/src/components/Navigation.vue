@@ -126,14 +126,12 @@ name:'Navigation',
     team() {
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
-      console.log(this.$store.state.isLeader);
-      console.log(this.$store.state.isMember);
       if(this.$store.state.isLeader&&!this.$store.state.isMember){
         this.showUserInfo();
         this.setManageTeam(true);
         this.$router.push("/ManageTeam");
       }
-      else if(this.$store.state.isMember){
+      else if(this.$store.state.isMember&&this.$store.state.teamname){
         console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");

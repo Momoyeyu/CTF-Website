@@ -9,7 +9,7 @@ Vue.use(Vuex);
 Vue.use(VueCookies)
 
 Vue.config.productionTip = false
-const getCookie = function(name) {
+export const getCookie = function(name) {
   const cookies = document.cookie.split(';');
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i].trim();
@@ -39,7 +39,6 @@ const store = new Vuex.Store({
     log: true,
     reg: false,
     FoPa: false,
-    RePa: false,
     username: getCookie('username') || '', 
     score: getCookie('score') || '', 
     teamname: getCookie('teamname') || '', 
@@ -120,9 +119,6 @@ const store = new Vuex.Store({
     setFoPa(state, value){
       state.FoPa =value;
     },
-    setRePa(state, value){
-      state.RePa =value;
-    },
     setNewLeader(state, value){
       state.newLeader =value;
     },
@@ -143,7 +139,7 @@ const store = new Vuex.Store({
     },
     setInviteTeam(state, value){
       state.inviteTeam =value;
-    }
+    },
   },
 });
 
@@ -152,3 +148,4 @@ new Vue({
   render: h => h(App),
   store
 }).$mount('#app')
+

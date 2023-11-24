@@ -22,7 +22,8 @@
               <td>{{ team.team_points }}</td>
               <td>{{ team.team_member }}/{{ maxnum }}</td>
               <td>
-                <button @click="jointeam(team.team_name)">{{btnInfo(team.allow_join)}}</button>
+                <button @click="jointeam(team.team_name)" v-if="team.allow_join">加入</button>
+                <button @click="jointeam(team.team_name)" v-if="!team.allow_join">申请</button>
               </td>
               </tr>
           </tbody>
@@ -102,15 +103,6 @@
           }
         } catch (error) {
           console.error('错误:', error);
-        }
-      },
-      btnInfo(allowJoin){
-        console.log("1");
-        if(allowJoin){
-          return "加入";
-        }
-        else{
-          return "申请";
         }
       },
     },

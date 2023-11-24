@@ -55,13 +55,13 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember']),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember',]),
     },
     mounted() {
       this.team_detail(this.team.name);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember',]),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/');
@@ -98,7 +98,7 @@
             console.log(response.data);
           }
         } catch (error) {
-          console.error('错误:', error);
+          console.log(error.response.data.msg);
         }
       }
     },
@@ -166,4 +166,5 @@ height:87vh;
 background-image:url("../assets/背景.png");
 background-size:cover;
 }
+
   </style>

@@ -4,14 +4,14 @@
     <h2>消息列表</h2>
     <div id="btnSet">
       <button @click="checkMessages()" class="btn">全部标记为已读</button> |
-      <button class="btn1">清空</button>
+      <button @click="clear()" class="btn1">清空</button>
     </div>
-    <br>
+    <br><br>
     <div class="scrollable-container">
       <ul>
       <li v-for="message in messages" :key="message.create_time">
         <div class="message-item">
-          <div class="message-origin">{{ message.origin }}</div>
+          <div class="message-origin">{{ message.origin }} :</div>
           <div class="message-text">{{ message.message }}</div>
         </div>
       </li>
@@ -67,17 +67,20 @@ export default {
           console.error('错误:', error);
         }
     },
+    clear(){
+      this.messages=[];
+    },
   },
 };
 </script>
 
 <style scoped>
 .message-list {
-  margin-top:-260px;
+  margin-top:-290px;
   margin-left:400px;
   position: absolute;
   width: 500px;
-  height: 350px;
+  height: 400px;
   justify-content: center;
   align-items: center;
   background-color: #1e1e1e;
@@ -104,10 +107,13 @@ li {
   background-color: grey;
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
   cursor: pointer;
 }
 
+.message-item:hover{
+  border-color: red;
+}
 .message-origin {
   font-weight: bold;
 }
@@ -125,7 +131,7 @@ li {
     cursor: pointer;
 }
 .scrollable-container {
-  max-height: 400px; 
+  max-height: 280px; 
   overflow-y: auto; 
 }
 .btn{

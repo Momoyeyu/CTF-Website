@@ -45,12 +45,12 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="applicant in applicants" :key="applicant.id">
+            <tr v-for="applicant in applicants" :key="applicant.name">
             <td>{{ applicant.name }}</td>
             <td>{{ applicant.score }}</td>
             <td>
-                <button @click="approveApplicant(applicant.id)">通过</button> |
-                <button @click="rejectApplicant(applicant.id)">拒绝</button>
+                <button @click="verify_apply(applicant.id,true)">通过</button> |
+                <button @click="verify_apply(applicant.id,false)">拒绝</button>
             </td>
             </tr>
         </tbody>
@@ -68,7 +68,8 @@
   import ChangeLeader from '@/components/ChangeLeader.vue'
   import KickMember from '@/components/KickMember.vue'
   import { mapState, mapMutations } from 'vuex';
-  import { teamDetail } from '@/UserSystemApi/TeamApi';
+  import { teamDetail,verifyApply } from '@/UserSystemApi/TeamApi';
+  import { getApply } from '@/UserSystemApi/MessageApi';
   export default {
     components:{DeleteTeam,ChangeTeamname,ChangeLeader,KickMember},
     data() {
@@ -77,8 +78,7 @@
           { username: "", score: "" },
         ],
         applicants: [
-          { id: 1, name: "张三", score: 59 },
-          { id: 2, name: "李四", score: 99 },
+          { name: "", score: "" },
         ],
         team: {
           membernum: '',
@@ -98,6 +98,7 @@
     },
     mounted() {
       this.team_detail(this.teamInfo.name);
+      this.get_apply();
     },
     methods: {
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember']),
@@ -136,13 +137,29 @@
           console.error('错误:', error);
         }
       },
-      approveMember(memberId) {
-        // 审核通过新成员的逻辑
-        console.log(`成员 ${memberId} 已被审核通过`);
+      async verify_apply(name,state) {
+        try {
+          const response = await verifyApply(name,state);
+          console.log('通过审核响应', response);
+          if(response.ret==='success'){
+            alert(response.msg);
+          }
+        } catch (error) {
+          alert(error.response.data.msg);
+          console.error('错误:', error);
+        }
       },
-      rejectMember(memberId) {
-        // 拒绝新成员的逻辑
-        console.log(`成员 ${memberId} 的申请已被拒绝`);
+      async get_apply() {
+        try {
+          const response = await getApply();
+          console.log('获取申请列表响应', response);
+          if(response.ret==='success'){
+            this.applicants=response.data.applicant_list;
+          }
+        } catch (error) {
+          alert(error.response.data.msg);
+          console.error('错误:', error);
+        }
       },
     },
   };

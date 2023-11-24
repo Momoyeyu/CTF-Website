@@ -18,6 +18,15 @@ export const getMessage = async () => {
     }
 };
 
+export const getApply = async () => {
+  try {
+    const response = await api.get(`/api/common/message?action=get_applications`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const checkMessage = async () => {
     try {
       const response = await api.get(`/api/common/message?action=check_messages`);
