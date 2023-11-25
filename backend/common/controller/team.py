@@ -602,6 +602,7 @@ def accept(request):
         return success_template(SuccessEnum.REQUEST_SUCCESS.value)
 
 
+@require_http_methods("GET")
 def team_detail(request):
     """
     /api/common/team?action=team_detail&team_name=ezctf

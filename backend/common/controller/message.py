@@ -44,12 +44,14 @@ def get_messages(request):
                     "origin": "xx1",
                     "message": "want to join your team"
                     "create_time": "2023-10-27T14:30:00.000Z",
+                    "msg_type": 3,
                 },
                 {
                     "receiver": "xx2",
                     "origin": "momoyeyu",
                     "message": "hello",
                     "create_time": "2023-10-27T14:30:00.000Z",
+                    "msg_type: 1,
                 },
             ],
             "total": 2,
@@ -83,7 +85,8 @@ def get_messages(request):
             "receiver": message.receiver.username,
             "origin": message.origin.username,
             "message": message.msg,
-            "create_time": message.create_time.isoformat()
+            "create_time": message.create_time.isoformat(),
+            "msg_type": message.msg_type,
         }
         messages_list.append(info)
     res_data["message_list"] = messages_list

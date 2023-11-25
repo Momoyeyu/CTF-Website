@@ -99,6 +99,12 @@ def success_template(msg, data=None, status=200):
 
 
 def error_template(msg, data=None, status=400):
+    if msg in [ExceptionEnum.USER_NOT_FOUND.value,
+               ExceptionEnum.TEAM_NOT_FOUND.value,
+               ExceptionEnum.DATA_NOT_FOUND.value,
+               ExceptionEnum.TASK_NOT_FOUND.value,
+               ExceptionEnum.MESSAGE_NOT_FOUND.value]:
+        status = 404
     if data is None:
         return JsonResponse({
             "ret": "error",
