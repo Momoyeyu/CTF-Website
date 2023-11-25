@@ -1,22 +1,32 @@
 <template>
     <div id="registerUser">
       <button @click="close()" class="close-btn">&#10006;</button>
-      <h1>用户注册</h1>
+      <h1 style="margin-bottom: -5px;">用户注册</h1>
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
       <form @submit.prevent="ValidateCode()">
-        <label for="username">用户名:</label>
+        <div class="uniquecontainer">
+        <label for="username">用户名:</label><br>
         <input type="text" id="username" v-model="user.username" required /><br><br>
-        <label for="password">密码:</label>
+       </div>
+        <div class="uniquecontainer">
+        <label for="password">密码:</label><br>
         <input type="password" id="password" v-model="user.password" required /><br><br>
-        <label for="password">确认密码:</label>
+        </div>
+        <div class="uniquecontainer">
+        <label for="password">确认密码:</label><br>
         <input type="password" id="confirmPassword" v-model="user.confirmPassword" required /><br><br>
-        <label for="email">邮箱:</label>
-        <input type="email" id="email" v-model="user.email" required />
-        <button @click="Register()">获取验证码</button><br><br>
-        <label for="username">验证码:</label>
-        <input type="text" id="code" v-model="code" required /><br><br>
-        <button type="submit" :disabled="!btn">注册</button><br><br>
+        </div>
+        <div class="uniquecontainer">
+        <label for="email">邮箱:</label><br>
+        <input type="email" id="email" v-model="user.email" required /><br>
+        </div>
+        <div class="uniquecontainer">
+        <label for="username">验证码:</label><br>
+        <input type="text" id="code" v-model="code" required /><br>
+        <button style="margin-top: 5px;" @click="Register()">获取验证码</button><br><br>
+        </div>
+        <button class="uniquebutton" type="submit" :disabled="!btn">注册</button><br><br>
       </form>
     </div>
   </template>
@@ -48,7 +58,6 @@
         this.setReg(false);
         this.setLog(true);
         this.setErr("");
-        this.$router.push('/');//这里关闭注册直接返回主页是不是有点突兀？
       },
       async Register() {
         try {
@@ -141,21 +150,62 @@
   <style>
   #registerUser {
       position: absolute;
-      top: auto;
+      top: 20%;
       left: auto;
       width: 500px;
-      height: 350px;
+      height: 550px;
       justify-content: center;
       align-items: center;
       background-color: #1e1e1e;
       padding: 20px;
       border-style: solid;
-      border-radius: 5px;
+      border-radius: 20px;
       border-color:white;
       border-width: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       text-align: center;
       color:white;
+  }
+  .uniquecontainer label{
+    float: left;
+    margin-left:10px;
+    margin-bottom: 2px;
+  }
+  .uniquecontainer input{
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    height: 25px;
+    width: 220px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .uniquecontainer input:focus{   
+    outline: none;
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    height: 25px;
+    width: 220px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .uniquecontainer {  
+    width: 250px;
+    background-color: #555;
+    margin: 0 auto;
+    margin-bottom:5px;
+    border-radius: 5px;
+    padding-top: 5px;
+  }
+  .uniquebutton{
+    width: 70px;
+    height: 35px;
+    font-size: 16px;
   }
   .close-btn {
       background: transparent; 

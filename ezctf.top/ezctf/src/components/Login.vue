@@ -1,15 +1,19 @@
 <template id="log">
     <div id="loginUser">
     <button @click="close()" class="close-btn">&#10006;</button>
-    <h1>用户登录</h1>
+    <h1 style="margin-bottom: -5px;">用户登录</h1>
     <p v-if="err" id="er">{{ err }}</p>
     <br v-if="!err">
     <form @submit.prevent="loginUser()">
-      <label for="usernameOrEmail">用户名/邮箱:</label>
+      <div class="uniquecontainer">
+      <label for="usernameOrEmail">用户名/邮箱:</label><br>
       <input type="text" id="usernameOrEmail" v-model="loginInfo.usernameOrEmail" required /><br><br>
-      <label for="password">密码:</label>
+      </div>
+      <div class="uniquecontainer">
+      <label  for="password">密码:</label><br>
       <input type="password" id="password" v-model="loginInfo.password" required /><br><br>
-      <button type="submit">登录</button><br><br>
+      </div>  
+      <button class="uniquebutton" type="submit">登录</button><br><br>
       <button @click="FoP()" class="btn">忘记密码</button> |
       <button @click="Reg()" class="btn">注册</button>
     </form>
@@ -100,18 +104,59 @@
     top: auto;
     left: auto;
     width: 450px;
-    height: 270px;
+    height: 330px;
     background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
     padding: 20px;
     border-style: solid;
-    border-radius: 5px;
+    border-radius: 20px;
     border-color:white;
     border-width: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     text-align: center;
     color:white;
+  }
+  .uniquecontainer label{
+    float: left;
+    margin-left:10px;
+    margin-bottom: 2px;
+  }
+  .uniquecontainer input{
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    height: 25px;
+    width: 220px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .uniquecontainer input:focus{   
+    outline: none;
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    height: 25px;
+    width: 220px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .uniquecontainer {  
+    width: 250px;
+    background-color: #555;
+    margin: 0 auto;
+    margin-bottom:5px;
+    border-radius: 5px;
+    padding-top: 5px;
+  }
+  .uniquebutton{
+    width: 70px;
+    height: 35px;
+    font-size: 16px;
   }
   .btn{
     border: none;
