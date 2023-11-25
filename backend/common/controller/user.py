@@ -39,6 +39,8 @@ def dispatcher(request):
         return reset_password(request)
     elif action == "user_active":
         return user_active(request)
+    elif action == "profile":
+        return profile(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
