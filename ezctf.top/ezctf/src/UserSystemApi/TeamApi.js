@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { getCookie } from '@/main.js';
+
 axios.defaults.withCredentials = true;
 const BASE_URL = 'http://localhost:80'; 
 
@@ -10,6 +12,8 @@ const api = axios.create({
 });
 
 export const createTeam = async (leaderId, teamName, allowJoin) => {
+    const csrfToken = getCookie('csrftoken');
+    api.defaults.headers.common['X-Csrftoken'] = csrfToken;
     try {
       const requestData = {
         action: 'create_team',
@@ -36,7 +40,7 @@ export const joinTeam = async (teamname) => {
       },
     };
 
-    const response = await api.put('/api/common/team?action=join_team', requestData);
+    const response = await api.post('/api/common/team?action=join_team', requestData);
     return response.data;
   } catch (error) {
     throw error;
@@ -129,6 +133,58 @@ export const kickoutMember = async (username) => {
 export const teamDetail = async (teamname) => {
   try {
     const response = await api.get(`/api/common/team?action=team_detail&team_name=${teamname}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const accept = async (name,teamname) => {
+  try {
+    const requestData = {
+      action: 'accept',
+      data: {
+        inviter: name,
+        team_name: teamname,
+        accept: true,
+      },
+    };
+
+    const response = await api.put('/api/common/team?action=accept', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const verifyApply = async (name,state) => {
+  try {
+    const requestData = {
+      action: 'verify_apply',
+      data: {
+        applicant: name,
+        accept: state,
+      },
+    };
+
+    const response = await api.put('/api/common/team?action=verify_apply', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const Invite = async (name) => {
+  try {
+    const requestData = {
+      action: 'invite',
+      data: {
+        invitee: name,
+        invite_msg: "加入我们吧",
+      },
+    };
+
+    const response = await api.put('/api/common/team?action=invite', requestData);
     return response.data;
   } catch (error) {
     throw error;

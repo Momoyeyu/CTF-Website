@@ -3,7 +3,6 @@
         <Login v-if="log"/>
         <Registration v-if="reg"/>
         <ForgetPassword v-if="FoPa"/>
-        <ResetPassword v-if="RePa"/>
     </div>
 </template>
 <script>
@@ -11,14 +10,13 @@ import { mapState, mapMutations } from 'vuex';
 import Registration from '@/components/Registration.vue';
 import Login from '@/components/Login.vue';
 import ForgetPassword from '@/components/ForgetPassword.vue';
-import ResetPassword from '@/components/ResetPassword.vue';
 export default {
-    components: { Registration,Login,ForgetPassword,ResetPassword },
+    components: { Registration,Login,ForgetPassword },
     computed: {
-    ...mapState(['log','reg','FoPa','RePa']),
+    ...mapState(['log','reg','FoPa',]),
     },
     methods: {
-    ...mapMutations(['setLog','setReg','setFoPa','setRePa']),
+    ...mapMutations(['setLog','setReg','setFoPa',]),
     }
 }
 </script>

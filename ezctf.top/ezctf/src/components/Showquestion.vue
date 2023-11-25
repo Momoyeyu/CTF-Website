@@ -133,6 +133,7 @@ methods:{
   background-color:#0d1117;
   padding-bottom: 30px;
   border-top: 1px solid #5b5959;
+  border-bottom: 2px solid #5b5959;
   overflow: hidden;
 }
 .content2{
@@ -142,6 +143,7 @@ methods:{
   padding-bottom: 30px;
   color: #fff;
   border-top: 1px solid #5b5959;
+  border-bottom: 2px solid #5b5959;
 }
 .content2 h1{
   margin: 0 0;

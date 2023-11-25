@@ -2,38 +2,73 @@
   <div class="message-list">
     <button @click="close()" class="close-btn">&#10006;</button>
     <h2>消息列表</h2>
-    <ul>
-      <li v-for="message in messages" :key="message.id">
+    <div id="btnSet">
+      <button @click="checkMessages()" class="btn">全部标记为已读</button> |
+      <button @click="clear()" class="btn1">清空</button>
+    </div>
+    <br><br>
+    <div class="scrollable-container">
+      <ul>
+      <li v-for="message in messages" :key="message.create_time">
         <div class="message-item">
-          <div class="message-sender">{{ message.sender }}</div>
-          <div class="message-text">{{ message.text }}</div>
+          <div class="message-origin">{{ message.origin }} :</div>
+          <div class="message-text">{{ message.message }}</div>
         </div>
       </li>
     </ul>
+    </div>
   </div>
 </template>
 
 <script>
+import { getMessage, checkMessage } from '../UserSystemApi/MessageApi.js';
 import { mapState, mapMutations } from 'vuex';
 export default {
   data() {
     return {
       messages: [
-        { id: 1, sender: "jwf", text: "欢迎来到ezctf" },
-        { id: 2, sender: "yyl", text: "Hello world!" },
-        { id: 3, sender: "lwk", text: "sjj" },
-        // 添加更多消息...
+        { receiver:"", origin:"", message:"", create_time:'' },
       ],
+      num:"",
     };
   },
   computed: {
-    ...mapState(['userInfoButtonEnabled','infoBoard']),
+    ...mapState(['userInfoButtonEnabled','infoBoard','invite','inviteTeam']),
+  },
+  mounted() {
+      this.getMessages();
   },
   methods: {
-    ...mapMutations(['setUserInfoButtonEnabled','setInfoBoard']),
+    ...mapMutations(['setUserInfoButtonEnabled','setInfoBoard','setInvite','setInviteTeam']),
     close() {
       this.setUserInfoButtonEnabled(true);
       this.setInfoBoard(false);
+    },
+    async getMessages() {
+        try {
+          const response = await getMessage();
+          console.log('获取信息响应', response);
+          if(response.ret==='success'){
+            this.messages=response.data.message_list;
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
+    },
+    async checkMessages() {
+        try {
+          const response = await checkMessage();
+          console.log('已读信息响应', response);
+          if(response.ret==='success'){
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
+    },
+    clear(){
+      this.messages=[];
     },
   },
 };
@@ -41,13 +76,11 @@ export default {
 
 <style scoped>
 .message-list {
-  margin-top:-300px;
+  margin-top:-290px;
   margin-left:400px;
   position: absolute;
-  top: auto;
-  left: auto;
   width: 500px;
-  height: 350px;
+  height: 400px;
   justify-content: center;
   align-items: center;
   background-color: #1e1e1e;
@@ -74,10 +107,14 @@ li {
   background-color: grey;
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
+  cursor: pointer;
 }
 
-.message-sender {
+.message-item:hover{
+  border-color: red;
+}
+.message-origin {
   font-weight: bold;
 }
 
@@ -93,4 +130,43 @@ li {
     right: 10px;
     cursor: pointer;
 }
+.scrollable-container {
+  max-height: 280px; 
+  overflow-y: auto; 
+}
+.btn{
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background-color: #1e1e1e;
+    color: white;
+    width: 110px;
+    height: 30px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .btn1{
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background-color: #1e1e1e;
+    color: white;
+    width: 50px;
+    height: 30px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .btn:hover{
+    background-color: grey;
+  }
+
+  .btn1:hover{
+    background-color: grey;
+  }
+
+  #btnSet{
+    position: absolute;
+    right: 20px;
+  }
 </style>

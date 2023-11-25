@@ -1,8 +1,7 @@
 <template>
-  <div id="bkg">
     <div id="teaminfo">
       <button @click="close()" class="close-btn">&#10006;</button>
-      <h1>战队信息</h1>
+      <h1>邀请信息</h1>
           <p>战队名称:{{ team.name }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
           <p>战队总积分:{{ team.team_score }}</p>
           <div class="scrollable-table-container">
@@ -29,20 +28,23 @@
               </tbody>
             </table>
           </div>
-        <button id="Ret" @click="quit()">退出战队</button>
+          <div id="btnSet">
+            <button  @click="accept(team.username,team.inviteTeam)" class="btn">接受邀请</button> |
+            <button class="btn">返回</button>
+          </div>
     </div>
-  </div> 
 </template>
     
 <script>
   import { mapState, mapMutations } from 'vuex';
-  import { teamDetail,quitTeam } from '@/UserSystemApi/TeamApi';
+  import { teamDetail,accept } from '@/UserSystemApi/TeamApi';
   export default {
     data() {
       return {
         team: {
-          member_name: this.$store.state.username,
+          username: this.$store.state.username,
           name: this.$store.state.teamname,
+          inviteTeam: this.$store.state.inviteTeam,
           leader: '',
           leader_score: '',
           membernum: '',
@@ -55,16 +57,22 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember',]),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','inviteTeam','invite','infoBoard']),
     },
     mounted() {
       this.team_detail(this.team.name);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember',]),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setInviteTeam','setInvite','setInfoBoard']),
       close() {
         this.setUserInfoButtonEnabled(true);
-        this.$router.push('/');
+        this,setInvite(false);
+        this.setInviteTeam("");
+      },
+      ret() {
+        this.setInfoBoard(true);
+        this,setInvite(false);
+        this.setInviteTeam("");
       },
       async team_detail(name) {
         try {
@@ -81,24 +89,27 @@
           console.error('错误:', error);
         }
       },
-      async quit() {
+      async accept(name,team) {
         try {
-          const response = await quitTeam();
-          console.log('退出战队响应', response);
+          const response = await accept(name,team);
+          console.log('接受邀请响应', response);
           if(response.ret==='success'){
             alert(response.msg);
-            this.setTeamname('');
+            this.setTeamname(response.data.team_name);
             this.setIsLeader(false);
-            this.setIsMember(false);
+            this.setIsMember(true);
             this.setUserInfoButtonEnabled(true);
-            document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            this.setInviteTeam("");
+            this.setInvite(false);
+            this.setInfoBoard(true);
+            document.cookie = `teamname=${response.data.team_name}; path=/`;
             document.cookie = `isLeader=${false}; path=/`;
-            document.cookie = `isMember=${false}; path=/`;
+            document.cookie = `isMember=${true}; path=/`;
             this.$router.push("/");
             console.log(response.data);
           }
         } catch (error) {
-          console.log(error.response.data.msg);
+          console.error('错误:', error);
         }
       }
     },
@@ -155,16 +166,24 @@
   text-align: center;
 }
 
-#Ret{
-  left:287px;
-  bottom:20px;
-  position: absolute;
-}
+.btn{
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background-color: #1e1e1e;
+    color: white;
+    width: 80px;
+    height: 30px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .btn:hover{
+    background-color: grey;
+  }
 
-#bkg{
-height:87vh;
-background-image:url("../assets/背景.png");
-background-size:cover;
-}
-
-  </style>
+  #btnSet{
+    left:280px;
+    bottom:20px;
+    position: absolute;
+  }
+</style>

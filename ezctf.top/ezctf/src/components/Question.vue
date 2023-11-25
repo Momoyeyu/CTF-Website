@@ -56,7 +56,7 @@ fetchData(param) {
 
 <style>
 .iconfont-green {  
-  color:#3fb950;
+  color:#238636;
 } 
 .iconfont-white {  
   color:#fff;
