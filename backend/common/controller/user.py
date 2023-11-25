@@ -408,3 +408,42 @@ def reset_password(request):
     user.save()
 
     return success_template(SuccessEnum.MODIFICATION_SUCCESS.value)
+
+
+@require_http_methods("GET")
+def profile(request):
+    """
+    GET
+    @param:
+    {
+        "action": "profile",
+        "username": "momoyeyu",
+    }
+    @response:
+    {
+        "ret": "success",
+        "msg": "查询成功",
+        "data": {
+            "username": "momoyeyu",
+            "email": "momoyeyu@outlook.com",
+            "score": 100,
+        },
+    }
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+    username = request.params["username"]
+    user = User.objects.get_by_natural_key(username)
+    if user is None or user.is_active is False:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    team_name = ""
+    if user.custom_user.team is not None:
+        team_name= user.custom_user.team.team_name
+    res_data = {
+        "username": user.username,
+        "email": user.email,
+        "score": user.custom_user.score,
+        "team": team_name,
+    }
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
+
