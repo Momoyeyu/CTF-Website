@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-^wh902yfpgf+p3f_rage%h%#d741nqfanx*-9xe(60a+x)m*vr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost'
+]
 
 # Application definition
 
@@ -177,4 +179,7 @@ CSRF_COOKIE_AGE = 31449600
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_USE_SESSIONS = False
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 
