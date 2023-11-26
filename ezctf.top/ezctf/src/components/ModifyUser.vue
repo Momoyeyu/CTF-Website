@@ -83,7 +83,7 @@
     cursor: pointer;
 }
 #er{
-    height: 8px;
+    padding: 4px;
     color:red;
     font-size: small;
 }
