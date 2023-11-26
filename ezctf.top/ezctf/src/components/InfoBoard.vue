@@ -27,19 +27,19 @@ export default {
   data() {
     return {
       messages: [
-        { receiver:"", origin:"", message:"", create_time:'' },
+        { receiver:"", origin:"", message:"", create_time:'', msg_type:'' },
       ],
       num:"",
     };
   },
   computed: {
-    ...mapState(['userInfoButtonEnabled','infoBoard','invite','inviteTeam']),
+    ...mapState(['userInfoButtonEnabled','infoBoard','acceptInvite','inviteTeam']),
   },
   mounted() {
       this.getMessages();
   },
   methods: {
-    ...mapMutations(['setUserInfoButtonEnabled','setInfoBoard','setInvite','setInviteTeam']),
+    ...mapMutations(['setUserInfoButtonEnabled','setInfoBoard','setAcceptInvite','setInviteTeam']),
     close() {
       this.setUserInfoButtonEnabled(true);
       this.setInfoBoard(false);

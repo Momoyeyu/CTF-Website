@@ -11,10 +11,17 @@ const api = axios.create({
   },
 });
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const createTeam = async (leaderId, teamName, allowJoin) => {
-    const csrfToken = getCookie('csrftoken');
-    api.defaults.headers.common['X-Csrftoken'] = csrfToken;
     try {
+      const responseGet = await api.get('/api/common/team?action=create_team');
+      console.log(responseGet);
+      await sleep(1000);
+      const csrfToken = getCookie('csrftoken');
+      api.defaults.headers.common['X-Csrftoken'] = csrfToken;
       const requestData = {
         action: 'create_team',
         data: {
@@ -185,6 +192,15 @@ export const Invite = async (name) => {
     };
 
     const response = await api.put('/api/common/team?action=invite', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const profile = async () => {
+  try {
+    const response = await api.get(`/api/common/team?action=profile`);
     return response.data;
   } catch (error) {
     throw error;

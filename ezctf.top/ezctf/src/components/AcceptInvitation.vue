@@ -1,5 +1,5 @@
 <template>
-    <div id="teaminfo">
+    <div id="AcIn">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>邀请信息</h1>
           <p>战队名称:{{ team.name }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
@@ -57,13 +57,13 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','inviteTeam','invite','infoBoard']),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','inviteTeam','acceptInvite','infoBoard']),
     },
     mounted() {
       this.team_detail(this.team.name);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setInviteTeam','setInvite','setInfoBoard']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setInviteTeam','setAcceptInvite','setInfoBoard']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this,setInvite(false);
@@ -117,7 +117,7 @@
 </script>
     
 <style>
-#teaminfo {
+#AcIn {
   width: 600px;
   height: 400px;
   position: absolute;

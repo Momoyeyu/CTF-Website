@@ -4,6 +4,7 @@
     <ChangeTeamname v-if="changeTeamname"/>
     <ChangeLeader v-if="changeLeader"/>
     <KickMember v-if="kickMember"/>
+    <InviteMember v-if="InviteMember"/>
     <div id="manageTeam" v-if="manageTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
@@ -67,11 +68,12 @@
   import ChangeTeamname from '@/components/ChangeTeamname.vue'
   import ChangeLeader from '@/components/ChangeLeader.vue'
   import KickMember from '@/components/KickMember.vue'
+  import InviteMember from '@/components/InviteMember.vue'
   import { mapState, mapMutations } from 'vuex';
   import { teamDetail,verifyApply } from '@/UserSystemApi/TeamApi';
   import { getApply } from '@/UserSystemApi/MessageApi';
   export default {
-    components:{DeleteTeam,ChangeTeamname,ChangeLeader,KickMember},
+    components:{DeleteTeam,ChangeTeamname,ChangeLeader,KickMember,InviteMember},
     data() {
       return {
         members: [
@@ -88,7 +90,7 @@
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam','changeTeamname','manageTeam','newLeader','changeLeader','kickMember','kMember']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam','changeTeamname','manageTeam','newLeader','changeLeader','kickMember','kMember','inviteMember']),
     teamInfo() {
       return{
           leader_name: this.$store.state.username,
@@ -101,7 +103,7 @@
       this.get_apply();
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember','setInviteMember']),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/');
@@ -123,6 +125,10 @@
         this.setKickMember(true);
         this.setManageTeam(false);
         this.setKMember(name);
+      },
+      invite_member(){
+        this.setInviteMember(true);
+        this.setManageTeam(false);
       },
       async team_detail(name) {
         try {
