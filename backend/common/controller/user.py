@@ -429,6 +429,7 @@ def profile(request):
             "username": "momoyeyu",
             "email": "momoyeyu@outlook.com",
             "score": 100,
+            "team": "ezctf",
         },
     }
     """
