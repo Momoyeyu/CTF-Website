@@ -4,6 +4,7 @@
       <h1 style="margin-bottom: -5px;">用户注册</h1>
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
+      <br v-if="!err">
       <form @submit.prevent="ValidateCode()">
         <div class="uniquecontainer">
         <label for="username">用户名:</label><br>
@@ -216,6 +217,11 @@
       top: 10px;
       right: 10px;
       cursor: pointer;
+  }
+  #er{
+    padding: 4px;
+    color:red;
+    font-size: small;
   }
   </style>
     

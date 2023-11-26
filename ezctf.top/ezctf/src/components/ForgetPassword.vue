@@ -4,6 +4,7 @@
       <h1 style="margin-bottom: -5px;">忘记密码</h1>
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
+      <br v-if="!err">
       <div>
         <div class="uniquecontainer">
         <label for="newPassword">新密码:</label><br>
@@ -103,7 +104,7 @@
     top: auto;
     left: auto;
     width: 450px;
-    height: 470px;
+    height: 490px;
     justify-content: center;
     align-items: center;
     background-color: #1e1e1e;
@@ -166,7 +167,7 @@
     cursor: pointer;
 }
 #er{
-    height: 8px;
+    padding: 4px;
     color:red;
     font-size: small;
 }

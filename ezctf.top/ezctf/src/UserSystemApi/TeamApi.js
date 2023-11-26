@@ -22,6 +22,7 @@ export const createTeam = async (leaderId, teamName, allowJoin) => {
       await sleep(1000);
       const csrfToken = getCookie('csrftoken');
       api.defaults.headers.common['X-Csrftoken'] = csrfToken;
+      document.cookie = "csrftoken=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       const requestData = {
         action: 'create_team',
         data: {

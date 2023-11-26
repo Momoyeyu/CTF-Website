@@ -9,7 +9,7 @@
         <input type="text" id="teamname" v-model="team.team_name" required /><br><br>
         <label for="check">审核加入:</label>
         <input type="checkbox" id="check" v-model="team.check" /><br><br>
-        <button type="submit" @click="create_Team()">创建</button> |
+        <button type="submit">创建</button> |
         <button @click="Re()" id="R">返回</button>
       </form>
     </div>
