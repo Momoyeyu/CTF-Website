@@ -20,9 +20,17 @@
               <p class="popup-description">题目描述：{{ Detail.content }}</p>
               <p v-if="item.solved" class="popup-flag"></p>
             <div v-else class="popup-flag">  
+              <div>
+              <button v-if="(item.task_type===2||item.task_type===4)&&this.iscountdown" class="onlineStage" @click="GetonlineStage">创建在线场景</button>
+              <div v-if="!this.iscountdown">
+                <a href="8.130.98.1" style="text-decoration: none;">8.130.98.1:8888</a><br>
+                <span style="font-size: 14px;">倒计时:{{countdown}}S</span>
+                <button class="onlineStage" @click="DeleteonlineStage">删除场景</button>
+              </div>
+              </div>
               <input type="text" v-model="inputData" placeholder="请输入FLAG~~"/>  
-              <button @click="checkInput">提交</button> 
-              </div> 
+              <button class="hangin" @click="checkInput">提交</button> 
+            </div> 
             <div class="popup-download">  
                 <a :href="downloadLink" @click="handleDownloadClick">点击下载附件</a>  
               </div>  
@@ -39,6 +47,8 @@ name:'Popup',
 data:function(){
   return{
     isModalVisible: false,
+    iscountdown:true,
+    countdown:7200,
     inputData: "",
     Flag:{
       "action": "commit_flag",
@@ -128,6 +138,28 @@ checkInput() {
         alert('下载链接不存在！');  
       }  
     },
+    GetonlineStage() {  
+      this.iscountdown = !this.iscountdown;    
+      this.countdown = 7200;    
+      this.intervalId = setInterval(() => {  // 定义并赋值给 this.intervalId  
+        this.countdown--;    
+        if (this.countdown <= 0) {    
+          this.DeleteonlineStage();  
+          clearInterval(this.intervalId); // 清除定时器    
+        }  
+      }, 1000);            
+      // axios.get('http://localhost:80/api/task/answer?action=create_online') // 替换为你的后端API地址    
+      //   .then(response => {    
+      //     console.log(response.data);    
+      //   })    
+      //   .catch(error => {    
+      //     console.error(error);    
+      //   });    
+    },      
+    DeleteonlineStage() {  
+      clearInterval(this.intervalId); // 清除由 GetonlineStage 创建的定时器    
+      this.iscountdown = !this.iscountdown;    
+    },
   },
   mounted() {  
     this.getDownloadLink(); // 在组件挂载后获取下载链接  
@@ -193,6 +225,7 @@ checkInput() {
 }
 .close:hover{
   color: #fff;
+  background-color:#1f6feb ;
 }
 .describe{
   width: 100%;
@@ -207,7 +240,7 @@ checkInput() {
 } 
 .popup-flag{
   text-align: center;  
-  margin-top: 150px; 
+  margin-top: 120px; 
 }
 .popup-flag input{
   border: 1px solid #000;
@@ -215,7 +248,14 @@ checkInput() {
   height: 30px;
   border-radius: 5px;
 }
-.popup-flag button{
+.onlineStage{
+  width: 100px;
+  color: #1f6feb;
+}
+.onlineStage:hover{
+  text-decoration: underline;
+}
+.hangin{
   width: 60px;
   height: 40px;
   border-radius: 5px;
