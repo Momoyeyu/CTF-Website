@@ -64,16 +64,15 @@ def create_team(request):
         }
     }
     """
+    if not request.user.is_authenticated:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+
     if request.method == 'GET':
         csrf_token = get_token(request)
         response = success_template(SuccessEnum.QUERY_SUCCESS.value)
         response.set_cookie('csrftoken', csrf_token)
         return response
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
 
-    if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
     if uid is not None:
@@ -110,6 +109,7 @@ def create_team(request):
 
 
 @login_required
+@require_http_methods("DELETE")
 def del_team(request):
     """
     DELETE
@@ -124,9 +124,6 @@ def del_team(request):
         del team
     还需要把所有 team_id = team 的 CustomUser 的 team_id 改为 None
     """
-    if request.method != "DELETE":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -152,6 +149,7 @@ def del_team(request):
 
 
 @login_required
+@require_http_methods("POST")
 def join_team(request):
     """
     用户加入队伍
@@ -163,9 +161,6 @@ def join_team(request):
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -204,6 +199,7 @@ def join_team(request):
 
 
 @login_required
+@require_http_methods("GET")
 def quit_team(request):
     """
     用户退出队伍
@@ -212,8 +208,6 @@ def quit_team(request):
         "action": "quit_team",
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -252,6 +246,7 @@ def quit_team(request):
     return success_template("成功退出团队")
 
 
+@require_http_methods("GET")
 def search_team(request):
     """
     搜索队伍
@@ -261,9 +256,6 @@ def search_team(request):
         "keyword": "ez",
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     keyword = request.params["keyword"]
     if keyword != "":
         teams = Team.objects.filter(team_name__icontains=keyword)
@@ -299,6 +291,7 @@ def search_team(request):
 
 
 @login_required
+@require_http_methods("PUT")
 def change_team_name(request):
     """
     队长更改战队名称
@@ -310,9 +303,6 @@ def change_team_name(request):
         }
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -342,6 +332,7 @@ def change_team_name(request):
 
 
 @login_required
+@require_http_methods("PUT")
 def change_team_leader(request):
     """
     队长更改战队名称
@@ -353,9 +344,6 @@ def change_team_leader(request):
         }
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -389,6 +377,7 @@ def change_team_leader(request):
 
 
 @login_required
+@require_http_methods("POST")
 def verify_apply(request):
     """
     POST
@@ -406,9 +395,6 @@ def verify_apply(request):
         "msg": "审核已生效" / else
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
 
@@ -457,6 +443,7 @@ def verify_apply(request):
 
 
 @login_required
+@require_http_methods("POST")
 def invite(request):
     """
     POST
@@ -467,9 +454,6 @@ def invite(request):
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
 
@@ -501,6 +485,7 @@ def invite(request):
 
 
 @login_required
+@require_http_methods("POST")
 def kick_out(request):
     """
     POST
@@ -539,6 +524,7 @@ def kick_out(request):
 
 
 @login_required
+@require_http_methods("POST")
 def accept(request):
     """
     POST
@@ -551,9 +537,6 @@ def accept(request):
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -611,8 +594,6 @@ def team_detail(request):
         "action": "team_detail",
         "team_name": "ezctf",
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     team_name = request.params["team_name"]
     if team_name == "":
         return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
@@ -629,6 +610,7 @@ def team_detail(request):
             "score": member.score,
         }
         member_list.append(member_info)
+
     res_data = {
         "team_name": team_name,
         "team_points": total_score,

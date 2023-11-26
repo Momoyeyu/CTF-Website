@@ -2,6 +2,7 @@ from utils import get_request_params, error_template, success_template, Exceptio
 from common.models import Message, CustomUser
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 
 
 def dispatcher(request):
@@ -26,6 +27,7 @@ def dispatcher(request):
 
 
 @login_required
+@require_http_methods("GET")
 def get_messages(request):
     """
     GET
@@ -58,8 +60,6 @@ def get_messages(request):
         }
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -95,6 +95,7 @@ def get_messages(request):
 
 
 @login_required
+@require_http_methods("GET")
 def get_applications(request):
     """
     GET
@@ -112,8 +113,6 @@ def get_applications(request):
         }
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -143,6 +142,7 @@ def get_applications(request):
 
 
 @login_required
+@require_http_methods("GET")
 def get_invitations(request):
     """
     GET
@@ -169,8 +169,6 @@ def get_invitations(request):
         }
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -210,16 +208,15 @@ def get_invitations(request):
 
 
 @login_required
+@require_http_methods("GET")
 def check_messages(request):
     """
-    PUT
+    GET
     @param:
     {
         "action": "check_messages",
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 

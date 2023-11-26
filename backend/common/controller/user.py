@@ -1,5 +1,4 @@
 from django.core.mail import send_mail
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from backend import settings
 from utils import get_request_params, is_valid_username, error_template, success_template, send_message, generate
 from utils import ExceptionEnum, SuccessEnum
@@ -71,9 +70,6 @@ def user_login(request):
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     info = request.params["data"]
     username_or_email = info["username_or_email"]
     password = info["password"]
@@ -120,8 +116,6 @@ def user_logout(request):
     用户退出登录
     GET
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if request.user.is_authenticated:
         del request.session['_auth_user_id']
         logout(request)
@@ -150,19 +144,17 @@ def user_register(request):
         "msg": "注册成功" / "报错信息"
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     info = request.params["data"]
     username = info["username"]
     password = info["password"]
     email = info["email"]
-
     # 验证用户输入
     if not username or not password or not email:
-        return error_template("请输入完整信息", status=400)
+        return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
     if not is_valid_username(username):
-        return error_template("用户名含有非法字符", status=400)
+        return error_template("用户名不合法", status=400)
+    if email.find('@') == -1:
+        return error_template("邮箱不合法", status=400)
     if User.objects.filter(username=username).exists():
         user = User.objects.get(username=username)
         if not user.is_active:
@@ -196,8 +188,8 @@ def user_register(request):
     return success_template("注册成功，请验证后登录", data=res_data)
 
 
-@require_http_methods("PUT")
 @login_required
+@require_http_methods("PUT")
 def modify_user_info(request):
     """
     处理用户更新信息
@@ -211,22 +203,16 @@ def modify_user_info(request):
         }
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
-
     # 获取请求中的数据
     data = request.params["data"]
     new_username = str(data["new_username"])
     password = data["password"]
     uid = request.session.get('_auth_user_id')
-
     # 检查数据合法性
     if new_username.isspace():
         return error_template("用户名不能为空", status=400)
-
     if not is_valid_username(new_username):
         return error_template("用户名含有非法字符", status=400)
 
@@ -245,8 +231,8 @@ def modify_user_info(request):
     return success_template("用户信息更新成功", data=res_data, status=200)
 
 
-@require_http_methods("DELETE")
 @login_required
+@require_http_methods("DELETE")
 def del_account(request):
     """
     用户注销账号，删除数据库中与该用户有关的所有数据
@@ -259,9 +245,6 @@ def del_account(request):
         }
     }
     """
-    if request.method != "DELETE":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -310,6 +293,7 @@ def del_account(request):
     return success_template("账号已注销", status=204)
 
 
+@login_required
 @require_http_methods("POST")
 def user_active(request):
     """
@@ -322,9 +306,6 @@ def user_active(request):
         },
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     data = request.params["data"]
     username = data["username"]
     valid_code = data["valid_code"]
@@ -357,8 +338,6 @@ def forget_password(request):
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     data = request.params["data"]
     email = data["email"]
     user = User.objects.get(email=email)
@@ -392,8 +371,6 @@ def reset_password(request):
         }
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     data = request.params["data"]
     valid_code = data["valid_code"]
     new_password = data["new_password"]
@@ -433,8 +410,6 @@ def profile(request):
         },
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     username = request.params["username"]
     user = User.objects.get_by_natural_key(username)
     if user is None or user.is_active is False:
