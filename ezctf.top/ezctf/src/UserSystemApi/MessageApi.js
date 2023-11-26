@@ -29,7 +29,7 @@ export const getApply = async () => {
 
 export const checkMessage = async () => {
     try {
-      const response = await api.get(`/api/common/message?action=check_messages`);
+      const response = await api.put(`/api/common/message?action=check_messages`);
       return response.data;
     } catch (error) {
       throw error;

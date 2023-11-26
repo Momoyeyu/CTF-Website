@@ -49,8 +49,9 @@ const store = new Vuex.Store({
     kickMember: false,
     kMember:'',
     err: '',
-    invite: false,
+    acceptInvite: false,
     inviteTeam: '',
+    inviteMember: false,
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
@@ -134,11 +135,14 @@ const store = new Vuex.Store({
     setErr(state, value){
       state.err =value;
     },
-    setInvite(state, value){
-      state.invite =value;
+    setAcceptInvite(state, value){
+      state.acceptInvite =value;
     },
     setInviteTeam(state, value){
       state.inviteTeam =value;
+    },
+    setInviteMember(state, value){
+      state.inviteMember =value;
     },
   },
 });
