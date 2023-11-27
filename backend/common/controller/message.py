@@ -52,6 +52,7 @@ def get_messages(request):
                     "message": "want to join your team"
                     "create_time": "2023-10-27T14:30:00.000Z",
                     "msg_type": 3,
+                    "checked": false,
                 },
                 {
                     "receiver": "xx2",
@@ -59,9 +60,11 @@ def get_messages(request):
                     "message": "hello",
                     "create_time": "2023-10-27T14:30:00.000Z",
                     "msg_type: 1,
+                    "checked": true,
                 },
             ],
             "total": 2,
+            "unchecked_count": 1,
         }
     }
     """
@@ -77,19 +80,20 @@ def get_messages(request):
     res_data = {
         "message_list": [],
         "total": 0,
+        "unchecked_count": 0,
     }
     if not messages:  # 没有查询到消息，但请求是合法的
         return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
     messages_list = []
-    uncheck_count = 0
+    unchecked_count = 0
     for message in messages:
         if message.receiver is None or message.origin is None:
             message.delete()
             continue
         check_flag = message.checked
         if check_flag is False:
-            uncheck_count += 1
+            unchecked_count += 1
         info = {
             "message_id": message.id,
             "receiver": message.receiver.username,
@@ -103,7 +107,7 @@ def get_messages(request):
     res_data = {
         "message_list": messages_list,
         "total": len(messages_list),
-        "uncheck_count": uncheck_count,
+        "unchecked_count": unchecked_count,
     }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
@@ -122,9 +126,18 @@ def get_applications(request):
         "ret": "success" / "error",
         "msg": "信息查询成功" / "其他报错",
         "data": {
-            "applicant_list": ["aaa", "bbb"],
-            "total": 2,
-        }
+        "applicant_list": [
+            {
+                "username": "momoyeyu",
+                "score": 100,
+            },
+            {
+                "username": "juanboy",
+                "score": 100,
+            },
+        ],
+        "total": 2,
+    }
     }
     """
     if not request.user.is_authenticated:
@@ -148,10 +161,15 @@ def get_applications(request):
         if message.origin is None:
             message.delete()
             continue
-        applicant_list.append(message.origin.username)
-
-    res_data["applicant_list"] = applicant_list
-    res_data["total"] = len(applicant_list)
+        info = {
+            "username": message.origin.username,
+            "score": message.origin.custom_user.score,
+        }
+        applicant_list.append(info)
+    res_data = {
+        "applicant_list": applicant_list,
+        "total": len(applicant_list),
+    }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 

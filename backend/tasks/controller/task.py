@@ -1,5 +1,6 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from utils import get_request_params, ExceptionEnum, error_template, success_template
+from utils import get_request_params, ExceptionEnum, error_template, success_template, SuccessEnum
 from tasks.models import Task, AnswerRecord
 from django.contrib.auth.models import User
 
@@ -14,6 +15,7 @@ def dispatcher(request):
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
+@login_required
 def list_tasks(request):
     """
     GET
@@ -26,26 +28,28 @@ def list_tasks(request):
     {
         "ret": "success" / "error",
         "msg": "查询成功",
-        "data": [
-            {
-                "task_id": 1,
-                "task_name": "ez web",
-                "src": "ezctf",
-                "difficulty": 0,
-                "points": 10,
-                "solve_count": 12,
-                "solved": true,
-            },
-            {
-                "task_id": 2,
-                "task_name": "ez web",
-                "src": "ezctf",
-                "difficulty": 0,
-                "points": 10,
-                "solve_count": 12,
-                "solved": false,
-            },
-        ]
+        "data": {
+            "task_list": [
+                {
+                    "task_id": 1,
+                    "task_name": "ez web",
+                    "src": "ezctf",
+                    "difficulty": 0,
+                    "points": 10,
+                    "solve_count": 12,
+                    "solved": true,
+                },
+                {
+                    "task_id": 2,
+                    "task_name": "ez web",
+                    "src": "ezctf",
+                    "difficulty": 0,
+                    "points": 10,
+                    "solve_count": 12,
+                    "solved": false,
+                },
+            ]
+        "total": 2,
     }
     """
     if request.method != "GET":
@@ -71,7 +75,6 @@ def list_tasks(request):
         for solved_task in answered_tasks:
             dic[solved_task.task_id] = True
 
-
     task_list = []
     for task in qs:
         solved = dic[task.id]
@@ -86,9 +89,15 @@ def list_tasks(request):
             "solved": solved,
         })
 
-    return success_template("查询成功", data=task_list, status=200)
+    res_data = {
+        "task_list": task_list,
+        "total": len(task_list),
+    }
+
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data, status=200)
 
 
+@login_required
 def detail(request):
     """
     GET
@@ -109,10 +118,10 @@ def detail(request):
         return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
 
     # 构建返回的数据
-    task_data = {
+    res_data = {
         "task_id": task.id,
         "task_name": task.task_name,
         "content": task.content,
         "task_type": task.task_type,
     }
-    return success_template("查询成功", data=task_data)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)

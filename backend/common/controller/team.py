@@ -396,7 +396,7 @@ def verify_apply(request):
     }
     """
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
@@ -405,28 +405,28 @@ def verify_apply(request):
 
     user = User.objects.get(pk=uid)
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     custom_user = CustomUser.objects.get(user=user)
     if custom_user.team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
     team = Team.objects.get(pk=custom_user.team.id)
     if team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     if team.leader != user:
-        return error_template(ExceptionEnum.NOT_LEADER.value, data=None, status=403)
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
     applicant = User.objects.get_by_natural_key(applicant)
 
     if applicant is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     applications = Message.objects.filter(receiver_id=user.id,
                                           origin_id=applicant.id,
                                           msg_type=Message.MessageType.APPLICATION.value,
                                           is_active=True)
     if not applications:
-        return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, status=404)
 
     if accept_or_not:
         custom_applicant = CustomUser.objects.get(user_id=applicant.id)
@@ -455,7 +455,7 @@ def invite(request):
     }
     """
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
