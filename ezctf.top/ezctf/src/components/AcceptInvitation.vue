@@ -1,8 +1,8 @@
 <template>
-    <div id="AcIn">
+    <div class="AcIn">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>邀请信息</h1>
-          <p>战队名称:{{ team.name }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
+          <p>战队名称:{{ team.inviteTeam }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
           <p>战队总积分:{{ team.team_score }}</p>
           <div class="scrollable-table-container">
             <table class="two-column-table">
@@ -12,7 +12,7 @@
                   <th>积分</th>
                 </tr>
                 <tr>
-                  <td>{{team.leader}}</td>
+                  <td>{{ team.leader}}</td>
                   <td>{{ team.leader_score }}</td>
                 </tr>
                 <tr>
@@ -29,8 +29,8 @@
             </table>
           </div>
           <div id="btnSet">
-            <button  @click="accept(team.username,team.inviteTeam)" class="btn">接受邀请</button> |
-            <button class="btn">返回</button>
+            <button  @click="accept(team.username,team.inviteTeam)" class="btn">接受</button> |
+            <button @click="ret()" class="btn">返回</button>
           </div>
     </div>
 </template>
@@ -60,18 +60,18 @@
       ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','inviteTeam','acceptInvite','infoBoard']),
     },
     mounted() {
-      this.team_detail(this.team.name);
+      this.team_detail(this.team.inviteTeam);
     },
     methods: {
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setInviteTeam','setAcceptInvite','setInfoBoard']),
       close() {
         this.setUserInfoButtonEnabled(true);
-        this,setInvite(false);
+        this.setAcceptInvite(false);
         this.setInviteTeam("");
       },
       ret() {
         this.setInfoBoard(true);
-        this,setInvite(false);
+        this.setAcceptInvite(false);
         this.setInviteTeam("");
       },
       async team_detail(name) {
@@ -100,7 +100,7 @@
             this.setIsMember(true);
             this.setUserInfoButtonEnabled(true);
             this.setInviteTeam("");
-            this.setInvite(false);
+            this.setAcceptInvite(false);
             this.setInfoBoard(true);
             document.cookie = `teamname=${response.data.team_name}; path=/`;
             document.cookie = `isLeader=${false}; path=/`;
@@ -116,13 +116,13 @@
   };
 </script>
     
-<style>
-#AcIn {
-  width: 600px;
+<style scoped>
+.AcIn {
+  width: 400px;
   height: 400px;
   position: absolute;
-  top: auto;
-  left: auto;
+  top: 220px;
+  left: 460px;
   justify-content: center;
   align-items: center;
   background-color: #1e1e1e;
@@ -182,7 +182,7 @@
   }
 
   #btnSet{
-    left:280px;
+    left:133px;
     bottom:20px;
     position: absolute;
   }

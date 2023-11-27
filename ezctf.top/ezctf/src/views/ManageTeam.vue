@@ -4,7 +4,7 @@
     <ChangeTeamname v-if="changeTeamname"/>
     <ChangeLeader v-if="changeLeader"/>
     <KickMember v-if="kickMember"/>
-    <InviteMember v-if="InviteMember"/>
+    <InviteMember v-if="inviteMember"/>
     <div id="manageTeam" v-if="manageTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
@@ -13,6 +13,8 @@
         <button @click="changeteaminfo()">修改名称</button>
       </p>
       <h2>战队成员</h2>
+      <button @click="Invite()">邀请成员</button>
+      <br><br>
       <div class="scrollable-table-container">
         <table class="three-column-table">
         <thead>
@@ -23,12 +25,12 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="member in members" :key="member.id">
-            <td>{{ member.name }}</td>
+            <tr v-for="member in members" :key="member.username">
+            <td>{{ member.username }}</td>
             <td>{{ member.score }}</td>
             <td>
-                <button @click="changeTeamLeader(member.name)">队长转让</button> |
-                <button @click="kickmember(member.name)">移出战队</button>
+                <button @click="changeTeamLeader(member.username)">队长转让</button> |
+                <button @click="kickmember(member.username)">移出战队</button>
             </td>
             </tr>
         </tbody>
@@ -41,17 +43,15 @@
         <thead>
             <tr>
             <th>申请</th>
-            <th>积分</th>
             <th>操作</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="applicant in applicants" :key="applicant.name">
-            <td>{{ applicant.name }}</td>
-            <td>{{ applicant.score }}</td>
+            <tr v-for="applicant in applicants" :key="applicant">
+            <td>{{ applicant }}</td>
             <td>
-                <button @click="verify_apply(applicant.id,true)">通过</button> |
-                <button @click="verify_apply(applicant.id,false)">拒绝</button>
+                <button @click="verify_apply(applicant,true)">通过</button> |
+                <button @click="verify_apply(applicant,false)">拒绝</button>
             </td>
             </tr>
         </tbody>
@@ -77,10 +77,10 @@
     data() {
       return {
         members: [
-          { username: "", score: "" },
+          { username: "-", score: "-" },
         ],
         applicants: [
-          { name: "", score: "" },
+          { name: "-", score: "-" },
         ],
         team: {
           membernum: '',
@@ -129,6 +129,10 @@
       invite_member(){
         this.setInviteMember(true);
         this.setManageTeam(false);
+      },
+      Invite(){
+        this.setManageTeam(false);
+        this.setInviteMember(true);
       },
       async team_detail(name) {
         try {

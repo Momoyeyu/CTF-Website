@@ -24,7 +24,7 @@
           </div>
           <br>
           <button @click="message()" class="board">
-            <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知
+            <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知<div class="sign" v-if="num(messnum)">{{ messnum }}</div>
           </button><br><br>
           <button @click="team()" class="board">
             <img src="../assets/icon/战队.png" class="icon">&nbsp;我的战队
@@ -46,10 +46,16 @@
 import CreateAvatar from '../components/CreateAvatar.vue';
 import { mapState, mapMutations } from 'vuex';
 import { logoutUser } from '@/UserSystemApi/UserApi';
+import { messNum } from '@/UserSystemApi/MessageApi';
 export default {
 name:'Navigation',
  components: {
     CreateAvatar,
+  },
+  data() {
+      return {
+        messnum:'',
+      };
   },
   computed: {
     ...mapState(['loginButtonEnabled',
@@ -119,6 +125,9 @@ name:'Navigation',
     },
     showUserInfo() {
       this.setIsHover(!this.$store.state.isHover);
+      if(this.$store.state.isHover){
+        this.getMessNum();
+      }
     },
     setinfo() {
       this.setSetInfo(!this.$store.state.setInfo);
@@ -126,12 +135,12 @@ name:'Navigation',
     team() {
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
-      if(this.$store.state.isLeader&&!this.$store.state.isMember){
+      if(this.$store.state.isLeader&&this.$store.state.teamname){
         this.showUserInfo();
         this.setManageTeam(true);
         this.$router.push("/ManageTeam");
       }
-      else if(this.$store.state.isMember&&this.$store.state.teamname){
+      else if(this.$store.state.isMember&&this.$store.state.teamname&&!this.$store.state.isLeader){
         console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
@@ -179,6 +188,24 @@ name:'Navigation',
         alert(error.response.data.msg);
         console.error('用户退出登录失败', error);
       });
+    },
+    async getMessNum() {
+        try {
+          const response = await messNum();
+          console.log('未读信息数量响应', response);
+          if(response.ret==='success'){
+            this.messnum=response.data.Unchecked_count;
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
+    },
+    num(a){
+      if(a==0)
+        return false;
+      else
+        return true;
     }
   }
 }
@@ -315,8 +342,8 @@ nav {
 }
 
 .icon {
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
 }
 
 #ava {
@@ -339,4 +366,12 @@ nav {
   left: -6px;
   top: -1px;
 }
+
+.sign{
+    width: 30px;
+    height: 300px;
+    position: relative;
+    background-color: red;
+    border-radius: 50%;
+  }
 </style>

@@ -27,11 +27,29 @@ export const getApply = async () => {
   }
 };
 
-export const checkMessage = async () => {
+export const checkAll = async () => {
     try {
-      const response = await api.put(`/api/common/message?action=check_messages`);
+      const response = await api.get(`/api/common/message?action=check_all`);
       return response.data;
     } catch (error) {
       throw error;
     }
+};
+
+export const checkMessage = async (id) => {
+  try {
+    const response = await api.get(`/api/common/message?action=check_message&message_id=${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const messNum = async () => {
+  try {
+    const response = await api.get(`/api/common/message?action=get_unchecked_num`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };

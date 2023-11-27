@@ -2,16 +2,17 @@
   <div class="message-list">
     <button @click="close()" class="close-btn">&#10006;</button>
     <h2>消息列表</h2>
-    <div id="btnSet">
-      <button @click="checkMessages()" class="btn">全部标记为已读</button> |
+    <div class="btnSet">
+      <button @click="checkall()" class="btn">全部标记为已读</button> |
       <button @click="clear()" class="btn1">清空</button>
     </div>
     <br><br>
     <div class="scrollable-container">
       <ul>
-      <li v-for="message in messages" :key="message.create_time">
-        <div class="message-item">
+      <li v-for="message in reversedMessages" :key="message.message_id">
+        <div @click="clickMess(message.message_id, message.msg_type,message.checked)" class="message-item">
           <div class="message-origin">{{ message.origin }} :</div>
+          <div class="sign" v-if="!message.checked"></div>
           <div class="message-text">{{ message.message }}</div>
         </div>
       </li>
@@ -21,19 +22,22 @@
 </template>
 
 <script>
-import { getMessage, checkMessage } from '../UserSystemApi/MessageApi.js';
+import { getMessage, checkMessage, checkAll } from '../UserSystemApi/MessageApi.js';
 import { mapState, mapMutations } from 'vuex';
 export default {
   data() {
     return {
       messages: [
-        { receiver:"", origin:"", message:"", create_time:'', msg_type:'' },
+        { message_id:"", receiver:"", origin:"", message:"", create_time:'', msg_type:'', checked:''},
       ],
       num:"",
     };
   },
   computed: {
     ...mapState(['userInfoButtonEnabled','infoBoard','acceptInvite','inviteTeam']),
+    reversedMessages() {
+      return this.messages.slice().reverse();
+    },
   },
   mounted() {
       this.getMessages();
@@ -56,9 +60,9 @@ export default {
           console.error('错误:', error);
         }
     },
-    async checkMessages() {
+    async checkall() {
         try {
-          const response = await checkMessage();
+          const response = await checkAll();
           console.log('已读信息响应', response);
           if(response.ret==='success'){
             console.log(response.data);
@@ -66,6 +70,30 @@ export default {
         } catch (error) {
           console.error('错误:', error);
         }
+    },
+    async checkMessage(id) {
+        try {
+          const response = await checkMessage(id);
+          console.log('已读信息响应', response);
+          if(response.ret==='success'){
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
+    },
+    clickMess(id,type,checked){
+      if(checked==0){
+        this.checkMessage(id);
+      }
+      if(type==4){
+          this.setInviteTeam("111");
+          this.setAcceptInvite(true);
+          this.setInfoBoard(false);
+        }
+      if(type==3){
+        this.$router.push("/ManageTeam");
+      }
     },
     clear(){
       this.messages=[];
@@ -165,8 +193,18 @@ li {
     background-color: grey;
   }
 
-  #btnSet{
+  .btnSet{
     position: absolute;
     right: 20px;
+  }
+
+  .sign{
+    width: 8px;
+    height: 8px;
+    position: relative;
+    top: 5px;
+    left: 10px;
+    background-color: red;
+    border-radius: 50%;
   }
 </style>

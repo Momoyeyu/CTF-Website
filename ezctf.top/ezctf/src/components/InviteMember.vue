@@ -10,7 +10,6 @@
             <tr>
             <th>用户名</th>
             <th>积分</th>
-            <th>所属战队</th>
             <th>操作</th>
             </tr>
             </thead>
@@ -18,8 +17,6 @@
               <tr v-for="user in filteredUsers" :key="user.username" v-if="!user.team_name">
               <td>{{ user.username }}</td>
               <td>{{ user.score }}</td>
-              <td v-if="user.team_name">{{ user.team_name }}</td>
-              <td v-if="!user.team_name">未加入战队</td>
               <td>
                 <button @click="invite(user.username)" :disabled="user.team_name">发送邀请</button>
               </td>
@@ -32,7 +29,7 @@
   </template>
   
   <script>
-  import { Invite } from '/src/UserSystemApi/TeamApi.js';
+  import { Invite, teamDetail } from '/src/UserSystemApi/TeamApi.js';
   import { mapState, mapMutations } from 'vuex';
   export default {
     data() {
@@ -62,7 +59,7 @@
       ...mapState(['inviteMember','manageTeam','teamname']),
     },
     mounted() {
-      this.searchTeams("");
+      this.team_detail("");
     },
     methods: {
       ...mapMutations(['setInviteMember','setManageTeam','setTeamname']),
@@ -74,20 +71,18 @@
         this.setInviteMember(false);
         this.setManageTeam(true);
       },
-      /*async jointeam(teamname) {
+      async team_detail(name) {
         try {
-          const response = await joinTeam(teamname);
-          if (response.ret === 'success') {
-            alert(response.msg);
-            console.log('发送申请响应:', response.msg);
-            this.setJoinTeam(false);
-            this.setUserInfoButtonEnabled(true);
+          const response = await teamDetail(name);
+          console.log('获取用户列表响应', response);
+          if(response.ret==='success'){
+            this.members=response.data.members;
+            console.log(response.data);
           }
         } catch (error) {
-          alert(error.response.data.msg);
-          console.error('网络请求失败:', error);
+          console.error('错误:', error);
         }
-      },*/
+      },
       async invite(name) {
         try {
           const response = await Invite(name);
@@ -113,7 +108,7 @@ button{
     position: absolute;
     top: auto;
     left: auto;
-    width: 600px;
+    width: 500px;
     height: 360px;
     justify-content: center;
     align-items: center;
@@ -159,7 +154,7 @@ button{
 }
 
 #Return{
-  left:300px;
+  left:250px;
   bottom:20px;
   position: absolute;
 }
