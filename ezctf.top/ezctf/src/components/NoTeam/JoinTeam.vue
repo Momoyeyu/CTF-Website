@@ -16,7 +16,7 @@
             </tr>
             </thead>
             <tbody>
-              <tr v-for="team in filteredTeams" :key="team.team_name">
+              <tr v-for="team in filteredTeams" :key="team.team_member">
               <td>{{ team.team_name }}</td>
               <td>{{ team.leader_name }}</td>
               <td>{{ team.team_points }}</td>
