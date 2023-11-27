@@ -174,12 +174,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'http://localhost:8080/#/Login'
 
 # CSRF
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_AGE = 31449600
-CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_USE_SESSIONS = False
-CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
-
-X_FRAME_OPTIONS = "SAMEORIGIN"
+# CSRF_COOKIE_HTTPONLY = False
+# CSRF_COOKIE_AGE = 31449600
+# CSRF_COOKIE_NAME = 'csrftoken'
+# CSRF_USE_SESSIONS = False
+# CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+#
+# X_FRAME_OPTIONS = "SAMEORIGIN"
 
 

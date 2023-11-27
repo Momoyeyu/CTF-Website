@@ -4,7 +4,7 @@ from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
 from utils import ExceptionEnum, error_template, success_template, send_message, SuccessEnum
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
+# from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 from django.middleware.csrf import get_token, rotate_token
 
@@ -50,7 +50,7 @@ def dispatcher(request):
 
 
 @login_required
-@csrf_protect
+# @csrf_protect
 @require_http_methods(["GET", "POST"])
 def create_team(request):
     """
