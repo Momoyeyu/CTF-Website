@@ -1,3 +1,6 @@
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+
 from tasks.models import Task, AnswerRecord
 from common.models import CustomUser
 from django.contrib.auth.models import User
@@ -23,6 +26,8 @@ def dispatcher(request):
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
+@login_required
+@require_http_methods("POST")
 def commit_flag(request):
     """
     POST
@@ -35,11 +40,6 @@ def commit_flag(request):
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-    # if not request.user.is_authenticated:
-    #     return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
-
     info = request.params["data"]
     task_id = info["task_id"]
     flag = info["flag"]
@@ -77,6 +77,8 @@ def commit_flag(request):
         return success_template("CORRECT", data=res_data)
 
 
+@login_required
+@require_http_methods("GET")
 def download_attachment(request):
     """
     GET
@@ -85,9 +87,6 @@ def download_attachment(request):
         "task_id": 1,
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     task_id = request.GET.get("task_id")
     task = Task.objects.get(id=int(task_id))
     if task is None:

@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+
 from utils import get_request_params, ExceptionEnum, error_template, success_template, SuccessEnum
 from tasks.models import Task, AnswerRecord
 from django.contrib.auth.models import User
@@ -16,6 +18,7 @@ def dispatcher(request):
 
 
 @login_required
+@require_http_methods("GET")
 def list_tasks(request):
     """
     GET
@@ -52,9 +55,6 @@ def list_tasks(request):
         "total": 2,
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     task_type = request.GET.get("type")
     qs = Task.objects.all()
     if not qs:
@@ -98,6 +98,7 @@ def list_tasks(request):
 
 
 @login_required
+@require_http_methods("GET")
 def detail(request):
     """
     GET
@@ -107,9 +108,6 @@ def detail(request):
         "task_id": 1,
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     task_id = request.GET.get("task_id")
     if not task_id:
         return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)

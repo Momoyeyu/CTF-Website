@@ -76,7 +76,7 @@ def get_messages(request):
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
-    messages = Message.objects.filter(receiver=user) | Message.objects.filter(origin=user)
+    messages = Message.objects.filter((Q(receiver=user) | Q(origin=user)) & Q(is_active=True))
     res_data = {
         "message_list": [],
         "total": 0,
@@ -148,7 +148,9 @@ def get_applications(request):
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     #                                                                                 # APPLICATION.value = 3
-    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.APPLICATION.value)
+    messages = Message.objects.filter(receiver_id=user.id,
+                                      msg_type=Message.MessageType.APPLICATION.value,
+                                      is_active=True)
     res_data = {
         "applicant_list": [],
         "total": 0,
@@ -208,15 +210,16 @@ def get_invitations(request):
     user = User.objects.get(pk=uid)
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
-    #                                                                                 # INVITATION.value = 4
-    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.INVITATION.value)
 
+    messages = Message.objects.filter(receiver_id=user.id,
+                                      msg_type=Message.MessageType.INVITATION.value,  # INVITATION.value = 4
+                                      is_active=True)
     res_data = {
         "invitation_list": [],
         "total": 0,
     }
     if not messages:  # 没有查询到消息，但请求是合法的
-        return success_template(SuccessEnum.QUERY_SUCCESS.value, status=200)
+        return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
     invitation_list = []
     for message in messages:
@@ -284,7 +287,7 @@ def get_unchecked_count(request):
     user = User.objects.get(pk=uid)
     if user is None or user.is_active is False:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
-    messages = Message.objects.filter((Q(origin=user) | Q(receiver=user)) & Q(checked=False))
+    messages = Message.objects.filter((Q(origin=user) | Q(receiver=user)) & Q(checked=False) & Q(is_active=True))
     res_data = {
         "unchecked_count": len(messages),
     }
@@ -309,5 +312,5 @@ def check_all(request):
     if user is None or user.is_active is False:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
-    Message.objects.filter(Q(origin=user) | Q(receiver=user)).update(checked=True)
+    Message.objects.filter((Q(origin=user) | Q(receiver=user)) & Q(is_active=True)).update(checked=True)
     return success_template(SuccessEnum.REQUEST_SUCCESS.value)

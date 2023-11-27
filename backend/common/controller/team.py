@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+from django.db.models import Q
+
 from utils import get_request_params
 from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
@@ -143,6 +145,10 @@ def del_team(request):
     if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
+    messages = Message.objects.filter(origin=user, msg_type=Message.MessageType.INVITATION.value)
+    for each in messages:
+        each.delete()
+
     CustomUser.objects.filter(team=team).update(team=None)
     team.delete()
     return success_template("成功删除团队", status=204)
@@ -224,6 +230,9 @@ def quit_team(request):
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     if team.leader == user:  # 如果用户是队长
+        messages = Message.objects.filter(origin=user, msg_type=Message.MessageType.INVITATION.value)
+        for each in messages:
+            each.delete()
         teammates = CustomUser.objects.filter(team=team)
         new_leader = teammates.first()
         if new_leader is None:  # 没有队员，战队自动删除
@@ -392,7 +401,7 @@ def verify_apply(request):
     @return:
     {
         "ret": "success" / "error",
-        "msg": "审核已生效" / else
+        "msg": "审核已生效" / else,
     }
     """
     if not request.user.is_authenticated:
@@ -451,6 +460,7 @@ def invite(request):
         "action": "invite",
         "data": {
             "invitee": "juanboy",  # 受邀用户的用户名
+            "invite_msg": "xxx"
         }
     }
     """
@@ -460,6 +470,7 @@ def invite(request):
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
     invitee_name = data["invitee"]
+    invite_msg = data["invite_msg"]
 
     user = User.objects.get(pk=uid)
     invitee = User.objects.get_by_natural_key(invitee_name)
@@ -479,7 +490,7 @@ def invite(request):
     if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
-    msg = str(team.team_name)
+    msg = str(invite_msg)
     send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION.value)  # INVITATION.value = 4
     return success_template(SuccessEnum.POST_SUCCESS.value)
 
@@ -532,7 +543,6 @@ def accept(request):
         "action": "accept",
         "data": {
             "inviter": "juanboy",
-            "team_name": "ezctf",
             "accept": true,
         }
     }
@@ -545,7 +555,6 @@ def accept(request):
     if uid is None:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
     inviter_name = data["inviter"]
-    team_name = data["team_name"]
     accept_or_not = data["accept"]
     # check users
     user = User.objects.get(pk=uid)
@@ -565,10 +574,15 @@ def accept(request):
     invitations.update(checked=True, is_active=False)
 
     custom_user = CustomUser.objects.get(user=user)
-    custom_origin = CustomUser.objects.get(user=inviter)
-    team = Team.objects.get(team_name=team_name)
+    team = Team.objects.get(team_name=inviter.custom_user.team_name)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+
+    if team.leader != inviter:
+        messages = Message.objects.filter(Q(origin=inviter) & Q(msg_type=Message.MessageType.INVITATION.value))
+        for each in messages:
+            each.delete()
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     if accept_or_not:
         team.member_count += 1
