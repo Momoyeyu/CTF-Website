@@ -3,6 +3,7 @@ from common.models import Message, CustomUser
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from django.db.models import Q
 
 
 def dispatcher(request):
@@ -19,8 +20,12 @@ def dispatcher(request):
         return get_applications(request)
     elif action == "get_invitations":
         return get_invitations(request)
-    elif action == "check_messages":
-        return check_messages(request)
+    elif action == "check_message":
+        return check_message(request)
+    elif action == "get_unchecked_count":
+        return get_unchecked_count(request)
+    elif action == "check_all":
+        return check_all(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
@@ -77,20 +82,29 @@ def get_messages(request):
         return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
     messages_list = []
+    uncheck_count = 0
     for message in messages:
         if message.receiver is None or message.origin is None:
             message.delete()
             continue
+        check_flag = message.checked
+        if check_flag is False:
+            uncheck_count += 1
         info = {
+            "message_id": message.id,
             "receiver": message.receiver.username,
             "origin": message.origin.username,
             "message": message.msg,
             "create_time": message.create_time.isoformat(),
             "msg_type": message.msg_type,
+            "checked": check_flag,
         }
         messages_list.append(info)
-    res_data["message_list"] = messages_list
-    res_data["total"] = len(messages_list)
+    res_data = {
+        "message_list": messages_list,
+        "total": len(messages_list),
+        "uncheck_count": uncheck_count,
+    }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
@@ -209,12 +223,64 @@ def get_invitations(request):
 
 @login_required
 @require_http_methods("GET")
-def check_messages(request):
+def check_message(request):
     """
     GET
     @param:
     {
-        "action": "check_messages",
+        "action": "check_message",
+        "message_id": 1,
+    }
+    """
+    if not request.user.is_authenticated:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    message_id = request.params["message_id"]
+    if not message_id:
+        return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    if user is None or user.is_active is False:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+
+    message = Message.objects.get(pk=message_id)
+    if message.receiver != user and message.origin != user:
+        return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
+    message.checked = True
+    message.save()
+    return success_template(SuccessEnum.REQUEST_SUCCESS.value)
+
+
+@login_required
+@require_http_methods("GET")
+def get_unchecked_count(request):
+    """
+    GET
+    @param:
+    {
+        "action": "get_unchecked_count",
+    }
+    """
+    if not request.user.is_authenticated:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    if user is None or user.is_active is False:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    messages = Message.objects.filter((Q(origin=user) | Q(receiver=user)) & Q(checked=False))
+    res_data = {
+        "unchecked_count": len(messages),
+    }
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
+
+
+@login_required
+@require_http_methods("GET")
+def check_all(request):
+    """
+    GET
+    @param:
+    {
+        "action": "check_all",
     }
     """
     if not request.user.is_authenticated:
@@ -225,5 +291,5 @@ def check_messages(request):
     if user is None or user.is_active is False:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
-    Message.objects.filter(receiver=user).update(checked=True)
+    Message.objects.filter(Q(origin=user) | Q(receiver=user)).update(checked=True)
     return success_template(SuccessEnum.REQUEST_SUCCESS.value)
