@@ -24,7 +24,8 @@
           </div>
           <br>
           <button @click="message()" class="board">
-            <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知<div class="sign" v-if="num(messnum)">{{ messnum }}</div>
+            <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知
+            <p class="sign" v-if="num(messnum)">{{ messnum }}</p>
           </button><br><br>
           <button @click="team()" class="board">
             <img src="../assets/icon/战队.png" class="icon">&nbsp;我的战队
@@ -45,7 +46,7 @@
 <script>
 import CreateAvatar from '../components/CreateAvatar.vue';
 import { mapState, mapMutations } from 'vuex';
-import { logoutUser } from '@/UserSystemApi/UserApi';
+import { logoutUser,profile } from '@/UserSystemApi/UserApi';
 import { messNum } from '@/UserSystemApi/MessageApi';
 export default {
 name:'Navigation',
@@ -127,6 +128,7 @@ name:'Navigation',
       this.setIsHover(!this.$store.state.isHover);
       if(this.$store.state.isHover){
         this.getMessNum();
+        this.profile(this.userInfo.name);
       }
     },
     setinfo() {
@@ -140,7 +142,7 @@ name:'Navigation',
         this.setManageTeam(true);
         this.$router.push("/ManageTeam");
       }
-      else if(this.$store.state.isMember&&this.$store.state.teamname&&!this.$store.state.isLeader){
+      else if(this.$store.state.teamname&&!this.$store.state.isLeader){
         console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
@@ -194,7 +196,7 @@ name:'Navigation',
           const response = await messNum();
           console.log('未读信息数量响应', response);
           if(response.ret==='success'){
-            this.messnum=response.data.Unchecked_count;
+            this.messnum=response.data.unchecked_count;
             console.log(response.data);
           }
         } catch (error) {
@@ -206,6 +208,43 @@ name:'Navigation',
         return false;
       else
         return true;
+    },
+    async profile(name) {
+        try {
+          const response = await profile(name);
+          console.log('响应', response);
+          if(response.ret==='success'){
+            this.setUsername(response.data.username);
+            document.cookie = `username=${response.data.username}; path=/`;
+            this.setTeamname(response.data.team);
+            if(response.data.team){
+              document.cookie = `teamname=${response.data.team}; path=/`;
+            }
+            this.setScore(response.data.score);
+            document.cookie = `score=${response.data.score}; path=/`;      
+            /*if(response.data.team&&!response.data.is_leader) {
+              this.setIsLeader(false);
+              document.cookie = `isLeader=${false}; path=/`;
+              this.setIsMember(true);
+              document.cookie = `isMember=${true}; path=/`;
+            }
+            else if(response.data.is_leader){
+              this.setIsLeader(true);
+              document.cookie = `isLeader=${true}; path=/`;
+              this.setIsMember(false);
+              document.cookie = `isMember=${false}; path=/`;
+            }
+            else{
+              this.setIsLeader(false);
+              document.cookie = `isLeader=${false}; path=/`;
+              this.setIsMember(false);
+              document.cookie = `isMember=${false}; path=/`;
+            }*/
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
     }
   }
 }
@@ -368,10 +407,13 @@ nav {
 }
 
 .sign{
-    width: 30px;
-    height: 300px;
-    position: relative;
+    width: 20px;
+    height: 20px;
+    position: absolute;
     background-color: red;
     border-radius: 50%;
+    text-align: center;
+    top:235px;
+    right:40px;
   }
 </style>

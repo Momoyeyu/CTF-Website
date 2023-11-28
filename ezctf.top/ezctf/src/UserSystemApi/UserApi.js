@@ -140,3 +140,12 @@ export const deleteUserInfo = async (password) => {
     throw error;
   }
 };
+
+export const profile = async (username) => {
+  try {
+    const response = await api.get(`/api/common/user?action=profile&username=${username}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -2,7 +2,7 @@
     <div class="AcIn">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>邀请信息</h1>
-          <p>战队名称:{{ team.inviteTeam }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
+          <p>战队名称:{{ team.name }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
           <p>战队总积分:{{ team.team_score }}</p>
           <div class="scrollable-table-container">
             <table class="two-column-table">
@@ -29,8 +29,8 @@
             </table>
           </div>
           <div id="btnSet">
-            <button  @click="accept(team.username,team.inviteTeam)" class="btn">接受</button> |
-            <button @click="ret()" class="btn">返回</button>
+            <button  @click="accept(team.inviter,true)" class="btn">接受</button> |
+            <button  @click="accept(team.inviter,false)" class="btn">拒绝</button>
           </div>
     </div>
 </template>
@@ -38,13 +38,13 @@
 <script>
   import { mapState, mapMutations } from 'vuex';
   import { teamDetail,accept } from '@/UserSystemApi/TeamApi';
+  import { profile } from '@/UserSystemApi/UserApi';
   export default {
     data() {
       return {
         team: {
-          username: this.$store.state.username,
-          name: this.$store.state.teamname,
-          inviteTeam: this.$store.state.inviteTeam,
+          name: '',
+          inviter: this.$store.state.inviter,
           leader: '',
           leader_score: '',
           membernum: '',
@@ -57,22 +57,17 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','inviteTeam','acceptInvite','infoBoard']),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','inviter','acceptInvite','infoBoard']),
     },
     mounted() {
-      this.team_detail(this.team.inviteTeam);
+      this.profile(this.inviter);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setInviteTeam','setAcceptInvite','setInfoBoard']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setInviter','setAcceptInvite','setInfoBoard']),
       close() {
-        this.setUserInfoButtonEnabled(true);
-        this.setAcceptInvite(false);
-        this.setInviteTeam("");
-      },
-      ret() {
         this.setInfoBoard(true);
         this.setAcceptInvite(false);
-        this.setInviteTeam("");
+        this.setInviter("");
       },
       async team_detail(name) {
         try {
@@ -89,9 +84,9 @@
           console.error('错误:', error);
         }
       },
-      async accept(name,team) {
+      async accept(name,state) {
         try {
-          const response = await accept(name,team);
+          const response = await accept(name,state);
           console.log('接受邀请响应', response);
           if(response.ret==='success'){
             alert(response.msg);
@@ -99,13 +94,26 @@
             this.setIsLeader(false);
             this.setIsMember(true);
             this.setUserInfoButtonEnabled(true);
-            this.setInviteTeam("");
+            this.setInviter("");
             this.setAcceptInvite(false);
             this.setInfoBoard(true);
             document.cookie = `teamname=${response.data.team_name}; path=/`;
             document.cookie = `isLeader=${false}; path=/`;
             document.cookie = `isMember=${true}; path=/`;
             this.$router.push("/");
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
+      },
+      async profile(name) {
+        try {
+          const response = await profile(name);
+          console.log('响应', response);
+          if(response.ret==='success'){
+            this.team.name=response.data.team;
+            this.team_detail(this.team.name);
             console.log(response.data);
           }
         } catch (error) {

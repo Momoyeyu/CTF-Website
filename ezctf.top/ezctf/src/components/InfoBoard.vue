@@ -10,7 +10,7 @@
     <div class="scrollable-container">
       <ul>
       <li v-for="message in reversedMessages" :key="message.message_id">
-        <div @click="clickMess(message.message_id, message.msg_type,message.checked)" class="message-item">
+        <div @click="clickMess(message.message_id, message.msg_type,message.checked,message.origin)" class="message-item">
           <div class="message-origin">{{ message.origin }} :</div>
           <div class="sign" v-if="!message.checked"></div>
           <div class="message-text">{{ message.message }}</div>
@@ -34,7 +34,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['userInfoButtonEnabled','infoBoard','acceptInvite','inviteTeam']),
+    ...mapState(['userInfoButtonEnabled','infoBoard','acceptInvite','inviter']),
     reversedMessages() {
       return this.messages.slice().reverse();
     },
@@ -43,7 +43,7 @@ export default {
       this.getMessages();
   },
   methods: {
-    ...mapMutations(['setUserInfoButtonEnabled','setInfoBoard','setAcceptInvite','setInviteTeam']),
+    ...mapMutations(['setUserInfoButtonEnabled','setInfoBoard','setAcceptInvite','setInviter']),
     close() {
       this.setUserInfoButtonEnabled(true);
       this.setInfoBoard(false);
@@ -82,12 +82,12 @@ export default {
           console.error('错误:', error);
         }
     },
-    clickMess(id,type,checked){
+    clickMess(id,type,checked,inviter){
       if(checked==0){
         this.checkMessage(id);
       }
       if(type==4){
-          this.setInviteTeam("111");
+          this.setInviter(inviter);
           this.setAcceptInvite(true);
           this.setInfoBoard(false);
         }
