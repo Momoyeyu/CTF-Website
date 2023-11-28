@@ -12,7 +12,7 @@
                   <td>分数：{{ item.points }}</td>  
                 </tr>  
                 <tr>  
-                  <td>解出人数：{{ item.solve_count }}</td>  
+                  <td>难度：{{ item.difficulty }}</td>  
                   <td v-if="item.solved">状态：已完成</td>  
                   <td v-else>状态：未完成</td>  
                 </tr>  
