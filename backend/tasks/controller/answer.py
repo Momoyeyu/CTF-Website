@@ -144,5 +144,6 @@ def list_solved(request):
         task_id_list.append(task.id)
     res_data = {
         "solved_list": task_id_list,
+        "total": len(task_id_list),
     }
-    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=task_id_list)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
