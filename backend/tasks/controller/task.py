@@ -17,7 +17,6 @@ def dispatcher(request):
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
-@login_required
 @require_http_methods("GET")
 def list_tasks(request):
     """
@@ -56,18 +55,15 @@ def list_tasks(request):
     }
     """
     task_type = request.GET.get("type")
-    qs = Task.objects.all()
-    if not qs:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+    tasks = find_by_type_and_difficulty(task_type=task_type)
 
-    if task_type:
-        qs = qs.filter(task_type=int(task_type))  # MISC = 0
-
-    uid = request.session.get('_auth_user_id')
-    user = User.objects.get(pk=uid)
+    user = None
+    if request.user.is_authenticated:
+        uid = request.session.get('_auth_user_id')
+        user = User.objects.get(pk=uid)
 
     dic = {}
-    for task in qs:
+    for task in tasks:
         dic[task.id] = False
 
     if user is not None:
@@ -76,7 +72,7 @@ def list_tasks(request):
             dic[solved_task.task_id] = True
 
     task_list = []
-    for task in qs:
+    for task in tasks:
         solved = dic[task.id]
         task_list.append({
             "task_id": task.id,
@@ -116,10 +112,48 @@ def detail(request):
         return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
 
     # 构建返回的数据
-    res_data = {
+    res_data = task_data_format(task)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
+
+
+#####################
+#      Service      #
+#####################
+
+def find_by_type_and_difficulty(task_type=-1, difficulty=-1):
+    """
+    class TaskType(models.IntegerChoices):
+        MISC = 0
+        CRYPTO = 1
+        WEB = 2
+        REVERSE = 3
+        PWN = 4
+
+    class Difficulty(models.IntegerChoices):
+        EAZY = 0
+        Medium = 1
+        HARD = 2
+    """
+    filter_type = False
+    filter_diff = False
+    if task_type in range(0, 5):
+        filter_type = True
+    if difficulty in range(0, 3):
+        filter_diff = True
+    if filter_type and filter_diff:
+        return Task.objects.filter(task_type=task_type, difficulty=difficulty)
+    elif filter_type:
+        return Task.objects.filter(task_type=task_type)
+    elif filter_diff:
+        return Task.objects.filter(difficulty=difficulty)
+    else:
+        return Task.objects.all()
+
+
+def task_data_format(task):
+    return {
         "task_id": task.id,
         "task_name": task.task_name,
         "content": task.content,
         "task_type": task.task_type,
     }
-    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)

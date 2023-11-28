@@ -127,7 +127,7 @@ def user_logout(request):
 @require_http_methods("POST")
 def user_register(request):
     """
-    用户注册，创建新的User，CustomUser，并将CustomUser的 user_id 设置为 User 的 id
+    用户注册
     POST
     @payload:
     {
