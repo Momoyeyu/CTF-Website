@@ -14,10 +14,10 @@
   import { changeTeamLeader } from '@/UserSystemApi/TeamApi';
   export default {
     computed: {
-    ...mapState(['changeLeader','manageTeam','newLeader','err','isLeader']),
+    ...mapState(['changeLeader','manageTeam','newLeader','err','isLeader','userInfoButtonEnabled']),
     },
     methods: {
-      ...mapMutations(['setChangeLeader','setManageTeam','setNewLeader','setErr','setIsLeader']),
+      ...mapMutations(['setChangeLeader','setManageTeam','setNewLeader','setErr','setIsLeader','setUserInfoButtonEnabled']),
       async change_leader() {
         try {
           const response = await changeTeamLeader(this.$store.state.newLeader);

@@ -2,6 +2,7 @@
     <div class="AcIn">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>邀请信息</h1>
+      <p v-if="err" class="er">{{ err }}</p>
           <p>战队名称:{{ team.name }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
           <p>战队总积分:{{ team.team_score }}</p>
           <div class="scrollable-table-container">
@@ -57,17 +58,18 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','inviter','acceptInvite','infoBoard']),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','inviter','acceptInvite','infoBoard','err']),
     },
     mounted() {
       this.profile(this.inviter);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsMember','setInviter','setAcceptInvite','setInfoBoard']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsMember','setInviter','setAcceptInvite','setInfoBoard','setErr']),
       close() {
         this.setInfoBoard(true);
         this.setAcceptInvite(false);
         this.setInviter("");
+        this.setErr("");
       },
       async team_detail(name) {
         try {
@@ -96,12 +98,13 @@
             this.setInviter("");
             this.setAcceptInvite(false);
             this.setInfoBoard(true);
+            this.setErr("");
+            this.setAcceptInvite(false);
             localStorage.setItem('teamname',response.data.team_name);
             this.$router.push("/");
-            console.log(response.data);
           }
         } catch (error) {
-          console.error('错误:', error);
+          this.setErr(error.response.data.msg);
         }
       },
       async profile(name) {
@@ -190,5 +193,11 @@
     left:133px;
     bottom:20px;
     position: absolute;
+  }
+
+  .er{
+    padding: 4px;
+    color:red;
+    font-size: small;
   }
 </style>

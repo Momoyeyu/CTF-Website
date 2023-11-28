@@ -10,10 +10,10 @@
     <div class="scrollable-container">
       <ul>
       <li v-for="message in reversedMessages" :key="message.message_id">
-        <div @click="clickMess(message.message_id, message.msg_type,message.checked,message.origin)" class="message-item">
+        <div @click="clickMess(message.message_id, message.msg_type,message.checked,message.origin)" class="message-item" v-if="fil(message.receiver)">
           <div class="message-origin">{{ message.origin }} :</div>
           <div class="sign" v-if="!message.checked"></div>
-          <div class="message-text">{{ message.message }}</div>
+          <div class="message-text">{{ mess(message.msg_type, message.message) }}</div>
         </div>
       </li>
     </ul>
@@ -30,11 +30,12 @@ export default {
       messages: [
         { message_id:"", receiver:"", origin:"", message:"", create_time:'', msg_type:'', checked:''},
       ],
+      name: this.$store.state.username,
       num:"",
     };
   },
   computed: {
-    ...mapState(['userInfoButtonEnabled','infoBoard','acceptInvite','inviter']),
+    ...mapState(['userInfoButtonEnabled','infoBoard','acceptInvite','inviter','username']),
     reversedMessages() {
       return this.messages.slice().reverse();
     },
@@ -105,6 +106,18 @@ export default {
     clear(){
       this.messages=[];
     },
+    fil(name){
+      if(this.name==name){
+        return true;
+      }
+      return false;
+    },
+    mess(type,message){
+      if(type==5){
+        return "您被踢出了"+message;
+      }
+      return message;
+    }
   },
 };
 </script>

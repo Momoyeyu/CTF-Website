@@ -128,13 +128,13 @@ name:'Navigation',
       this.setIsHover(!this.$store.state.isHover);
       if(this.$store.state.isHover){
         this.getMessNum();
+        this.profile(this.userInfo.name);
       }
     },
     setinfo() {
       this.setSetInfo(!this.$store.state.setInfo);
     },
     team() {
-      this.profile(this.userInfo.name);
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
       if(this.$store.state.isLeader&&this.$store.state.teamname){
@@ -220,6 +220,9 @@ name:'Navigation',
           if(response.data.team){
             localStorage.setItem('teamname', response.data.team);
           }
+          else{
+            localStorage.removeItem('teamname');
+          }
           
           this.setScore(response.data.score);
           localStorage.setItem('score', response.data.score);
@@ -228,7 +231,9 @@ name:'Navigation',
           if(response.data.is_leader){
             localStorage.setItem('isLeader', response.data.is_leader);
           }
-          console.log(response.data);
+          else{
+            localStorage.removeItem('isLeader');
+          }
         }
       } catch (error) {
         console.error('错误:', error);
