@@ -128,13 +128,13 @@ name:'Navigation',
       this.setIsHover(!this.$store.state.isHover);
       if(this.$store.state.isHover){
         this.getMessNum();
-        this.profile(this.userInfo.name);
       }
     },
     setinfo() {
       this.setSetInfo(!this.$store.state.setInfo);
     },
     team() {
+      this.profile(this.userInfo.name);
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
       if(this.$store.state.isLeader&&this.$store.state.teamname){
@@ -179,12 +179,11 @@ name:'Navigation',
         this.setIsMember(false);
         this.setIsLogin(false);
         this.setIsHover(false);
-        document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "score=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        localStorage.removeItem('isLogin');
+        localStorage.removeItem('username');
+        localStorage.removeItem('teamname');
+        localStorage.removeItem('score');
+        localStorage.removeItem('isLeader');
       })
       .catch((error) => {
         alert(error.response.data.msg);
@@ -210,41 +209,30 @@ name:'Navigation',
         return true;
     },
     async profile(name) {
-        try {
-          const response = await profile(name);
-          console.log('响应', response);
-          if(response.ret==='success'){
-            this.setUsername(response.data.username);
-            document.cookie = `username=${response.data.username}; path=/`;
-            this.setTeamname(response.data.team);
-            if(response.data.team){
-              document.cookie = `teamname=${response.data.team}; path=/`;
-            }
-            this.setScore(response.data.score);
-            document.cookie = `score=${response.data.score}; path=/`;      
-            /*if(response.data.team&&!response.data.is_leader) {
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(true);
-              document.cookie = `isMember=${true}; path=/`;
-            }
-            else if(response.data.is_leader){
-              this.setIsLeader(true);
-              document.cookie = `isLeader=${true}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
-            }
-            else{
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
-            }*/
-            console.log(response.data);
+      try {
+        const response = await profile(name);
+        console.log('响应', response);
+        if (response.ret === 'success') {
+          this.setUsername(response.data.username);
+          localStorage.setItem('username', response.data.username);
+
+          this.setTeamname(response.data.team);
+          if(response.data.team){
+            localStorage.setItem('teamname', response.data.team);
           }
-        } catch (error) {
-          console.error('错误:', error);
+          
+          this.setScore(response.data.score);
+          localStorage.setItem('score', response.data.score);
+
+          this.setIsLeader(response.data.is_leader);
+          if(response.data.is_leader){
+            localStorage.setItem('isLeader', response.data.is_leader);
+          }
+          console.log(response.data);
         }
+      } catch (error) {
+        console.error('错误:', error);
+      }
     }
   }
 }

@@ -54,7 +54,8 @@ def list_tasks(request):
         "total": 2,
     }
     """
-    task_type = request.GET.get("type")
+    task_type = int(request.GET.get("type"))
+    print("task_type", task_type)
     tasks = find_by_type_and_difficulty(task_type=task_type)
 
     user = None
@@ -137,8 +138,11 @@ def find_by_type_and_difficulty(task_type=-1, difficulty=-1):
     filter_type = False
     filter_diff = False
     if task_type in range(0, 5):
+        print("in range")
         filter_type = True
-    if difficulty in range(0, 3):
+    else:
+        print("out range")
+    if int(difficulty) in range(0, 3):
         filter_diff = True
     if filter_type and filter_diff:
         return Task.objects.filter(task_type=task_type, difficulty=difficulty)
@@ -151,10 +155,11 @@ def find_by_type_and_difficulty(task_type=-1, difficulty=-1):
 
 
 def task_data_format(task):
+    flag = task.annex is not None
     return {
         "task_id": task.id,
         "task_name": task.task_name,
-        "annex": task.annex,
+        "annex": flag,
         "content": task.content,
         "task_type": task.task_type,
     }

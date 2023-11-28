@@ -9,16 +9,6 @@ Vue.use(Vuex);
 Vue.use(VueCookies)
 
 Vue.config.productionTip = false
-export const getCookie = function(name) {
-  const cookies = document.cookie.split(';');
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
-    if (cookie.startsWith(name + '=')) {
-      return cookie.substring(name.length + 1);
-    }
-  }
-  return '';
-};
 
 const store = new Vuex.Store({
   state: {
@@ -28,7 +18,7 @@ const store = new Vuex.Store({
     modifyUser: false,
     deleteUser: false,
     infoBoard: false,
-    isLogin: getCookie('isLogin') || false, 
+    isLogin: localStorage.getItem('isLogin') || false, 
     setInfo: true,
     noTeam: false,
     createTeam: false,
@@ -39,11 +29,10 @@ const store = new Vuex.Store({
     log: true,
     reg: false,
     FoPa: false,
-    username: getCookie('username') || '', 
-    score: getCookie('score') || '', 
-    teamname: getCookie('teamname') || '', 
-    isLeader: getCookie('isLeader') || false, 
-    isMember: getCookie('isMember') || false, 
+    username: localStorage.getItem('username') || '', 
+    score: localStorage.getItem('score') || '', 
+    teamname: localStorage.getItem('teamname') || '', 
+    isLeader: localStorage.getItem('isLeader') || false, 
     newLeader:'',
     changeLeader: false,
     kickMember: false,
@@ -74,9 +63,6 @@ const store = new Vuex.Store({
     },
     setIsLeader(state, value) {
       state.isLeader = value;
-    },
-    setIsMember(state, value) {
-      state.isMember = value;
     },
     setModifyUser(state, value) {
       state.modifyUser = value;
