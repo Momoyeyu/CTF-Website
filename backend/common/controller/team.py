@@ -277,7 +277,7 @@ def search_team(request):
     team_list = []
     for team in teams:
         leader = User.objects.get(pk=team.leader.id)
-        members = team.user_group.all()
+        members = team.members.all()
         total_score = 0
         for member in members:
             total_score += member.score
@@ -574,7 +574,9 @@ def accept(request):
     invitations.update(checked=True, is_active=False)
 
     custom_user = CustomUser.objects.get(user=user)
-    team = Team.objects.get(team_name=inviter.custom_user.team_name)
+    if custom_user.team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+    team = Team.objects.get(team_name=inviter.custom_user.team.team_name)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
