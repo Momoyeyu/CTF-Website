@@ -32,7 +32,7 @@
               <button class="hangin" @click="checkInput">提交</button> 
             </div> 
             <div class="popup-download">  
-                <a :href="downloadLink" @click="handleDownloadClick">点击下载附件</a>  
+                <a v-if="Detail.annex" :href="downloadLink" @click="handleDownloadClick">点击下载附件</a>  
               </div>  
         </div>
     </div>
@@ -101,10 +101,9 @@ checkInput() {
       console.log(this.Flag);
       axios.post('http://localhost:80/api/task/answer?action=commit_flag',this.Flag)  
         .then(response=>{  
-          console.log(response.data);  //答题成功立刻修改（未完成）
-          if (response.data.msg==="CORRECT"){
+          console.log(response.data);
+          if (response.data.data.correct){
             alert("回答正确！！！")
-            // this.hidepopup();
             window.location.reload();  
           }
           else{
@@ -116,15 +115,19 @@ checkInput() {
         });  
         this.inputData= "";
     },
-    async getDownloadLink() {  
-      try {  
-        const response = await axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id, 
-        { responseType: 'blob' }); // 发送下载请求，并指定响应类型
-        this.downloadLink = window.URL.createObjectURL(response.data); // 创建下载链接  
-      } catch (error) {  
-        console.error('下载链接获取失败：', error);  
+    async getDownloadLink() {    
+      try {    
+        const response = await axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id,   
+        { responseType: 'blob' }); // 发送下载请求，并指定响应类型  
+        if (response) {  // 判断响应是否存在  
+          this.downloadLink = window.URL.createObjectURL(response.data); // 创建下载链接    
+        } else {  
+          console.error('下载链接获取失败：响应不存在');  
+        }  
+      } catch (error) {    
+        console.error('下载链接获取失败：', error);    
       }  
-    }, 
+    },
     handleDownloadClick(event) {  
       event.preventDefault();
       if (this.downloadLink) {  
