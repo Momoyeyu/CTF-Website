@@ -26,7 +26,7 @@ posts = user.posts.all()
 
 class Team(models.Model):
     team_name = models.CharField(max_length=255, unique=True)
-    leader = models.ForeignKey(User, on_delete=models.PROTECT, related_name='leader')
+    leader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='my_team')
     member_count = models.IntegerField(default=1)
     allow_join = models.BooleanField(default=True)
     create_time = models.DateTimeField(auto_now_add=True)
@@ -39,7 +39,7 @@ class Team(models.Model):
 
 class CustomUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='custom_user')
-    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='user_group')
+    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='members')
     score = models.IntegerField(default=0)
     last_answer_time = models.DateTimeField(null=True, blank=True)
 

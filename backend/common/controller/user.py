@@ -264,11 +264,11 @@ def del_account(request):
     if custom_user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
-    team = None
     if custom_user.team is not None:
+        print("has team")
         team = Team.objects.get(pk=custom_user.team_id)
-    if team is not None:
         if team.leader == user:  # is leader
+            print("is leader")
             teammates = CustomUser.objects.filter(team=team)
             new_leader = teammates.first()
             if new_leader is None:  # 没有队员，战队自动删除
@@ -293,7 +293,6 @@ def del_account(request):
     return success_template("账号已注销", status=204)
 
 
-@login_required
 @require_http_methods("POST")
 def user_active(request):
     """
