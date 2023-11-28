@@ -49,10 +49,10 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled','username','reg','log','err','isLogin','teamname','score','isLeader','isMember',]),
+    ...mapState(['loginButtonEnabled','username','reg','log','err','isLogin','teamname','score','isLeader',]),
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr','setIsLogin','setTeamname','setScore','setIsLeader','setIsMember',]),
+      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr','setIsLogin','setTeamname','setScore','setIsLeader',]),
       close() {
         this.btn=false;
         this.setLoginButtonEnabled(true);
@@ -107,37 +107,19 @@
             this.setLog(true);
             this.setReg(false);
             this.setUsername(response.data.username);
-            document.cookie = `username=${response.data.username}; path=/`;
+            localStorage.setItem('username', response.data.username);
             this.setTeamname(response.data.team_name);
             if(response.data.team_name){
-              document.cookie = `teamname=${response.data.team_name}; path=/`;
+              localStorage.setItem('teamname', response.data.team_name);
             }
             this.setScore(response.data.score);
-            document.cookie = `score=${response.data.score}; path=/`;
+            localStorage.setItem('score', response.data.score);
             this.setIsLogin(true);
-            document.cookie = `isLogin=${true}; path=/`;
+            localStorage.setItem('isLogin', true);
             this.setErr("");
             this.btn=false;
             this.$store.commit('setReg', false);
             this.$store.commit('setLog', true);        
-            if(response.data.team_name&&!response.data.is_leader) {
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(true);
-              document.cookie = `isMember=${true}; path=/`;
-            }
-            else if(response.data.is_leader){
-              this.setIsLeader(true);
-              document.cookie = `isLeader=${true}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
-            }
-            else{
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
-            }
           }
         } catch (error) {
           this.setErr(error.response.data.msg);

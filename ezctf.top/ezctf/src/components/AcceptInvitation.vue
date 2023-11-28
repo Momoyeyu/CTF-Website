@@ -57,13 +57,13 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','inviter','acceptInvite','infoBoard']),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','inviter','acceptInvite','infoBoard']),
     },
     mounted() {
       this.profile(this.inviter);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setInviter','setAcceptInvite','setInfoBoard']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsMember','setInviter','setAcceptInvite','setInfoBoard']),
       close() {
         this.setInfoBoard(true);
         this.setAcceptInvite(false);
@@ -92,14 +92,11 @@
             alert(response.msg);
             this.setTeamname(response.data.team_name);
             this.setIsLeader(false);
-            this.setIsMember(true);
             this.setUserInfoButtonEnabled(true);
             this.setInviter("");
             this.setAcceptInvite(false);
             this.setInfoBoard(true);
-            document.cookie = `teamname=${response.data.team_name}; path=/`;
-            document.cookie = `isLeader=${false}; path=/`;
-            document.cookie = `isMember=${true}; path=/`;
+            localStorage.setItem('teamname',response.data.team_name);
             this.$router.push("/");
             console.log(response.data);
           }

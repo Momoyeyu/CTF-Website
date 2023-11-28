@@ -66,6 +66,9 @@ export default {
           console.log('已读信息响应', response);
           if(response.ret==='success'){
             console.log(response.data);
+            this.messages.forEach(message => {
+              message.checked = 1;
+            });
           }
         } catch (error) {
           console.error('错误:', error);
@@ -85,6 +88,10 @@ export default {
     clickMess(id,type,checked,inviter){
       if(checked==0){
         this.checkMessage(id);
+        const clickedMessage = this.messages.find(message => message.message_id === id);
+        if (clickedMessage) {
+          clickedMessage.checked = 1;
+        }
       }
       if(type==4){
           this.setInviter(inviter);

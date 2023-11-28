@@ -34,7 +34,7 @@
             alert(response.msg);
             this.setModifyUser(false);
             this.setUsername(response.data.new_username);
-            document.cookie = `username=${response.new_username}; path=/`;
+            localStorage.setItem('username', response.data.new_username);
             this.setErr("");
             this.setSetInfo(true);
             this.setUserInfoButtonEnabled(true);
