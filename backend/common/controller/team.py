@@ -574,7 +574,7 @@ def accept(request):
     invitations.update(checked=True, is_active=False)
 
     custom_user = CustomUser.objects.get(user=user)
-    if custom_user.team is None:
+    if inviter.custom_user.team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
     team = Team.objects.get(team_name=inviter.custom_user.team.team_name)
     if team is None:
