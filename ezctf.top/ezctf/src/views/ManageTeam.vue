@@ -37,21 +37,23 @@
         </table>
       </div>
       <br>
-      <h3 v-if="team.check">申请列表</h3>
+      <h2 v-if="team.check">申请列表</h2>
       <div class="scrollable-table-container">
         <table class="three-column-table" v-if="team.check">
         <thead>
             <tr>
             <th>申请</th>
+            <th>积分</th>
             <th>操作</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="applicant in applicants" :key="applicant">
-            <td>{{ applicant }}</td>
+            <td>{{ applicant.username }}</td>
+            <td>{{ applicant.score }}</td>
             <td>
-                <button @click="verify_apply(applicant,true)">通过</button> |
-                <button @click="verify_apply(applicant,false)">拒绝</button>
+                <button @click="verify_apply(applicant.username,true)">通过</button> |
+                <button @click="verify_apply(applicant.username,false)">拒绝</button>
             </td>
             </tr>
         </tbody>

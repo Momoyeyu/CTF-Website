@@ -47,7 +47,7 @@ export const checkMessage = async (id) => {
 
 export const messNum = async () => {
   try {
-    const response = await api.get(`/api/common/message?action=get_unchecked_num`);
+    const response = await api.get(`/api/common/message?action=get_unchecked_count`);
     return response.data;
   } catch (error) {
     throw error;

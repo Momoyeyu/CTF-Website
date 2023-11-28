@@ -3,7 +3,7 @@
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>加入战队</h1>
       <label for="search">搜索战队: </label>
-      <input id="search" v-model="searchQuery" placeholder="请输入战队名称" @input="filter()"/><br><br>
+      <input id="search" v-model="searchQuery" placeholder="请输入战队名称" @input="filter"/><br><br>
       <div class="scrollable-table-container">
         <table class="three-column-table">
           <thead>
@@ -16,7 +16,7 @@
             </tr>
             </thead>
             <tbody>
-              <tr v-for="team in filteredTeams" :key="team.team_member">
+              <tr v-for="team in filteredTeams" :key="team.team_name">
               <td>{{ team.team_name }}</td>
               <td>{{ team.leader_name }}</td>
               <td>{{ team.team_points }}</td>
@@ -29,7 +29,7 @@
           </tbody>
         </table>
       </div><br><br>
-      <button id="Return" @click="Re()">返回</button>
+      <button class="Return" @click="Re()">返回</button>
     </div>
   </template>
   
@@ -162,7 +162,7 @@ button{
   text-align: center;
 }
 
-#Return{
+.Return{
   left:300px;
   bottom:20px;
   position: absolute;

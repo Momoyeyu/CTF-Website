@@ -50,7 +50,7 @@ const store = new Vuex.Store({
     kMember:'',
     err: '',
     acceptInvite: false,
-    inviteTeam: '',
+    inviter: '',
     inviteMember: false,
   },
   mutations: {
@@ -138,8 +138,8 @@ const store = new Vuex.Store({
     setAcceptInvite(state, value){
       state.acceptInvite =value;
     },
-    setInviteTeam(state, value){
-      state.inviteTeam =value;
+    setInviter(state, value){
+      state.inviter =value;
     },
     setInviteMember(state, value){
       state.inviteMember =value;

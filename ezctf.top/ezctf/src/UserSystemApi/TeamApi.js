@@ -137,18 +137,17 @@ export const teamDetail = async (teamname) => {
   }
 };
 
-export const accept = async (name,teamname) => {
+export const accept = async (name,state) => {
   try {
     const requestData = {
       action: 'accept',
       data: {
         inviter: name,
-        team_name: teamname,
-        accept: true,
+        accept: state,
       },
     };
 
-    const response = await api.put('/api/common/team?action=accept', requestData);
+    const response = await api.post('/api/common/team?action=accept', requestData);
     return response.data;
   } catch (error) {
     throw error;
@@ -165,7 +164,7 @@ export const verifyApply = async (name,state) => {
       },
     };
 
-    const response = await api.put('/api/common/team?action=verify_apply', requestData);
+    const response = await api.post('/api/common/team?action=verify_apply', requestData);
     return response.data;
   } catch (error) {
     throw error;
@@ -189,11 +188,3 @@ export const Invite = async (name) => {
   }
 };
 
-export const profile = async (username) => {
-  try {
-    const response = await api.get(`/api/common/user?action=profile&username=${username}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};

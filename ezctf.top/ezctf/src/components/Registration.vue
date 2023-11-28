@@ -5,7 +5,7 @@
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
       <br v-if="!err">
-      <form @submit.prevent="ValidateCode()">
+      <div>
         <div class="uniquecontainer">
         <label for="username">用户名:</label><br>
         <input type="text" id="username" v-model="user.username" required /><br><br>
@@ -27,8 +27,8 @@
         <input type="text" id="code" v-model="code" required /><br>
         <button style="margin-top: 5px;" @click="Register()">获取验证码</button><br><br>
         </div>
-        <button class="uniquebutton" type="submit" :disabled="!btn">注册</button><br><br>
-      </form>
+        <button @click="ValidateCode()" class="uniquebutton" type="submit" :disabled="!btn">注册</button><br><br>
+      </div>
     </div>
   </template>
     
