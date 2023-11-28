@@ -55,13 +55,13 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember',]),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader',]),
     },
     mounted() {
       this.team_detail(this.team.name);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember',]),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader',]),
       close() {
         this.setUserInfoButtonEnabled(true);
         this.$router.push('/');
@@ -89,11 +89,9 @@
             alert(response.msg);
             this.setTeamname('');
             this.setIsLeader(false);
-            this.setIsMember(false);
             this.setUserInfoButtonEnabled(true);
-            document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            document.cookie = `isLeader=${false}; path=/`;
-            document.cookie = `isMember=${false}; path=/`;
+            localStorage.removeItem('teamname');
+            localStorage.removeItem('isLeader');
             this.$router.push("/");
             console.log(response.data);
           }

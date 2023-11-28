@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getCookie } from '@/main.js';
 
 axios.defaults.withCredentials = true;
 const BASE_URL = 'http://localhost:80'; 
@@ -181,7 +180,7 @@ export const Invite = async (name) => {
       },
     };
 
-    const response = await api.put('/api/common/team?action=invite', requestData);
+    const response = await api.post('/api/common/team?action=invite', requestData);
     return response.data;
   } catch (error) {
     throw error;

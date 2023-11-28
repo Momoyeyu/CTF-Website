@@ -32,7 +32,7 @@
             this.setChangeTeamname(false);
             this.setManageTeam(true);
             this.setTeamname(response.data.team_name);
-            document.cookie = `teamname=${response.data.team_name}; path=/`;
+            localStorage.setItem('teamname', response.data.team_name);
             this.setErr("");
           }
         } catch (error) {

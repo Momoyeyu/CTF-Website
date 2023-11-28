@@ -48,36 +48,27 @@
           const response = await login(this.loginInfo.usernameOrEmail, this.loginInfo.password);
           console.log('登录响应:', response);
           if (response.ret === 'success') {
-            this.$router.push('/'); 
+            this.$router.push('/');
             this.setLoginButtonEnabled(true);
             this.setUsername(response.data.username);
-            document.cookie = `username=${response.data.username}; path=/`;
+            localStorage.setItem('username', response.data.username);
+
             this.setTeamname(response.data.team_name);
-            if(response.data.team_name){
-              document.cookie = `teamname=${response.data.team_name}; path=/`;
+            if (response.data.team_name) {
+              localStorage.setItem('teamname', response.data.team_name);
             }
+
             this.setScore(response.data.score);
-            document.cookie = `score=${response.data.score}; path=/`;
+            localStorage.setItem('score', response.data.score);
+
             this.setIsLogin(true);
-            document.cookie = `isLogin=${true}; path=/`;
-            this.setErr("");          
-            if(response.data.team_name&&!response.data.is_leader) {
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(true);
-              document.cookie = `isMember=${true}; path=/`;
-            }
-            else if(response.data.is_leader){
-              this.setIsLeader(true);
-              document.cookie = `isLeader=${true}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
-            }
-            else{
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
+            localStorage.setItem('isLogin', 'true');
+            
+            this.setErr("");
+
+            this.setIsLeader(response.data.is_leader);
+            if(response.data.is_leader){
+              localStorage.setItem('isLeader', response.data.is_leader);
             }
           }
         } catch (error) {

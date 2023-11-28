@@ -31,8 +31,8 @@
             alert("成功解散战队");
             this.setTeamname('');
             this.setIsLeader(false);
-            document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            document.cookie = `isLeader=${false}; path=/`;
+            localStorage.removeItem('teamname');
+            localStorage.removeItem('isLeader');
             this.setDeleteTeam(false);
             this.setManageTeam(true);
             this.$router.push('/'); 

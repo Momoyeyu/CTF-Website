@@ -62,7 +62,7 @@
     box-shadow: none;
     background-color: #1e1e1e;
     color: white;
-    width: 80px;
+    width: 100px;
     height: 20px;
     border-radius: 5px;
     cursor: pointer;
