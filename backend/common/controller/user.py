@@ -415,13 +415,17 @@ def profile(request):
     if user is None or user.is_active is False:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     team_name = ""
+    is_leader = False
     if user.custom_user.team is not None:
-        team_name= user.custom_user.team.team_name
+        team_name = user.custom_user.team.team_name
+        if user.custom_user.team.leader == user:
+            is_leader = True
     res_data = {
         "username": user.username,
         "email": user.email,
         "score": user.custom_user.score,
         "team": team_name,
+        "is_leader": is_leader,
     }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 

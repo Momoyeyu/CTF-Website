@@ -15,7 +15,7 @@ class Task(models.Model):
         Medium = 1
         HARD = 2
 
-    task_name = models.CharField(max_length=100)
+    task_name = models.CharField(max_length=100, unique=True)
     content = models.TextField()
     src = models.TextField(blank=True, null=True)
     annex = models.FileField(upload_to='task_annex/', blank=True, null=True)

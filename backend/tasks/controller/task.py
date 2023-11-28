@@ -154,6 +154,7 @@ def task_data_format(task):
     return {
         "task_id": task.id,
         "task_name": task.task_name,
+        "annex": task.annex,
         "content": task.content,
         "task_type": task.task_type,
     }
