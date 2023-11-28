@@ -1,25 +1,21 @@
 <template>
 <div class="container-left">
     <div class="topbar">
-        <div class="block"><button class="blockbutton active" @click="changediv(0);changeCSS()">Misc</button><div class="triangle" v-show="currentdiv==='div1'" ></div></div>
-        <div class="block"><button class="blockbutton" @click="changediv(1);changeCSS()">Crypto</button><div class="triangle" v-show="currentdiv==='div2'" ></div></div>
-        <div class="block"><button class="blockbutton" @click="changediv(2);changeCSS()">Web</button><div class="triangle" v-show="currentdiv==='div3'" ></div></div>
-        <div class="block"><button class="blockbutton" @click="changediv(3);changeCSS()">Reverse</button><div class="triangle" v-show="currentdiv==='div4'" ></div></div>
-        <div class="block"><button class="blockbutton" @click="changediv(4);changeCSS()">Pwn</button><div class="triangle" v-show="currentdiv==='div5'" ></div></div>
+        <div class="block"><button class="blockbutton active" @click="TotalChange(0)">Misc</button><div class="triangle" v-show="currentdiv==='div1'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="TotalChange(1)">Crypto</button><div class="triangle" v-show="currentdiv==='div2'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="TotalChange(2)">Web</button><div class="triangle" v-show="currentdiv==='div3'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="TotalChange(3)">Reverse</button><div class="triangle" v-show="currentdiv==='div4'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="TotalChange(4)">Pwn</button><div class="triangle" v-show="currentdiv==='div5'" ></div></div>
     </div>
-    <div v-if="this.isLogin" class="content1">
+    <div class="content1">
       <div class="Page" v-show="currentdiv==='div1'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
       <div class="Page" v-show="currentdiv==='div2'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
       <div class="Page" v-show="currentdiv==='div3'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
       <div class="Page" v-show="currentdiv==='div4'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
       <div class="Page" v-show="currentdiv==='div5'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
     </div>    
-    <div v-else class="content2">
-      <h1>前面的区域登录以后再来探索吧!!</h1>
-    </div>
 </div>
 </template>
-
 <script>
 import axios from 'axios';
 import Question from './Question.vue';
@@ -38,13 +34,21 @@ methods:{
       axios.get('http://localhost:80/api/task/query?action=list&type='+param) // 替换为你的后端API地址  
         .then(response => {  
           // 将后端返回的数据存储在responseData属性中  
-          this.retlist = response.data.data;  
+          this.retlist = response.data.data.task_list;  
           console.log(this.retlist);
         })  
         .catch(error => {  
           console.error(error);  
         });  
-    },  
+    },
+    TotalChange(param){
+      if(this.isLogin){
+      this.changediv(param);
+      this.changeCSS(param);}
+      else{      
+        alert("前面的区域登录以后再来探索吧~~");
+        this.$router.push("/Log");}
+    },
     changediv(param)
     {
       this.currentdiv='div'+(param+1);
@@ -135,19 +139,6 @@ methods:{
   border-top: 1px solid #5b5959;
   border-bottom: 2px solid #5b5959;
   overflow: hidden;
-}
-.content2{
-  width: 1000px;
-  background-color:#0d1117;
-  padding-top: 30px;
-  padding-bottom: 30px;
-  color: #fff;
-  border-top: 1px solid #5b5959;
-  border-bottom: 2px solid #5b5959;
-}
-.content2 h1{
-  margin: 0 0;
-  text-align: center;
 }
 /* 点击切换题库内容 */
 .triangle{
