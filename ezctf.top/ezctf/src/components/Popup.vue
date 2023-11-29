@@ -21,7 +21,9 @@
               <p v-if="item.solved"></p>
             <div v-else class="popup-flag">  
               <div>
-                <button v-if="(item.task_type===2||item.task_type===4)&&!this.iscountdown" class="onlineStage" @click="GetonlineStage(item.task_id)"><i class="iconfont icon-diannao"></i>创建在线场景</button>
+                <button v-if="(item.task_type===2||item.task_type===4)&&!this.iscountdown" 
+                class="onlineStage" @click="GetonlineStage(item.task_id)">
+                <i class="iconfont icon-diannao"></i>创建在线场景</button>
               <div v-if="this.iscountdown">
                 <a :href="`${ip}:${port}`" style="text-decoration: none;">{{ ip }}:{{ port }}</a><br>
                 <span style="font-size: 14px;">倒计时:{{countdown}}S</span>
@@ -32,7 +34,8 @@
               <button class="hangin" @click="checkInput">提交</button> 
             </div> 
             <div class="popup-download">  
-                <a v-if="Detail.annex" :href="downloadLink" @click="handleDownloadClick"><i class="iconfont icon-xiazai"></i>点击下载附件</a>  
+                <a v-if="Detail.annex" :href="downloadLink" @click="handleDownloadClick">
+                  <i class="iconfont icon-xiazai"></i>点击下载附件</a>  
               </div>  
         </div>
     </div>

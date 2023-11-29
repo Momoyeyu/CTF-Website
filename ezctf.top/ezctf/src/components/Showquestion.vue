@@ -1,18 +1,28 @@
 <template>
 <div class="container-left">
     <div class="topbar">
-        <div class="block"><button class="blockbutton active" @click="TotalChange(0)">Misc</button><div class="triangle" v-show="currentdiv==='div1'" ></div></div>
-        <div class="block"><button class="blockbutton" @click="TotalChange(1)">Crypto</button><div class="triangle" v-show="currentdiv==='div2'" ></div></div>
-        <div class="block"><button class="blockbutton" @click="TotalChange(2)">Web</button><div class="triangle" v-show="currentdiv==='div3'" ></div></div>
-        <div class="block"><button class="blockbutton" @click="TotalChange(3)">Reverse</button><div class="triangle" v-show="currentdiv==='div4'" ></div></div>
-        <div class="block"><button class="blockbutton" @click="TotalChange(4)">Pwn</button><div class="triangle" v-show="currentdiv==='div5'" ></div></div>
+        <div class="block"><button class="blockbutton active" @click="TotalChange(0)">
+          Misc</button><div class="triangle" v-show="currentdiv==='div1'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="TotalChange(1)">
+          Crypto</button><div class="triangle" v-show="currentdiv==='div2'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="TotalChange(2)">
+          Web</button><div class="triangle" v-show="currentdiv==='div3'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="TotalChange(3)">
+          Reverse</button><div class="triangle" v-show="currentdiv==='div4'" ></div></div>
+        <div class="block"><button class="blockbutton" @click="TotalChange(4)">
+          Pwn</button><div class="triangle" v-show="currentdiv==='div5'" ></div></div>
     </div>
     <div class="content1">
-      <div class="Page" v-show="currentdiv==='div1'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
-      <div class="Page" v-show="currentdiv==='div2'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
-      <div class="Page" v-show="currentdiv==='div3'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
-      <div class="Page" v-show="currentdiv==='div4'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
-      <div class="Page" v-show="currentdiv==='div5'"><Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
+      <div class="Page" v-show="currentdiv==='div1'">
+        <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
+      <div class="Page" v-show="currentdiv==='div2'">
+        <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
+      <div class="Page" v-show="currentdiv==='div3'">
+        <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
+      <div class="Page" v-show="currentdiv==='div4'">
+        <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
+      <div class="Page" v-show="currentdiv==='div5'">
+        <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
     </div>    
 </div>
 </template>
@@ -33,7 +43,6 @@ methods:{
   fetchData(param) {
       axios.get('http://localhost:80/api/task/query?action=list&type='+param) // 替换为你的后端API地址  
         .then(response => {  
-          // 将后端返回的数据存储在responseData属性中  
           this.retlist = response.data.data.task_list;  
           console.log(this.retlist);
         })  
