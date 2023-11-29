@@ -26,7 +26,7 @@
                 <i class="iconfont icon-diannao"></i>创建在线场景</button>
               <div v-if="this.iscountdown">
                 <a :href="`${ip}:${port}`" style="text-decoration: none;">{{ ip }}:{{ port }}</a><br>
-                <span style="font-size: 14px;">倒计时:{{countdown}}S</span>
+                <span style="font-size: 14px;">倒计时:{{countdown}}s</span>
                 <button class="onlineStage" @click="DeleteonlineStage(item.task_id)">删除场景</button>
               </div>
               </div>
