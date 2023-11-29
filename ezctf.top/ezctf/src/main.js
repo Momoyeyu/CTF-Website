@@ -12,8 +12,8 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
   state: {
-    loginButtonEnabled: true,
-    userInfoButtonEnabled: true,
+    loginButtonEnabled: localStorage.getItem('LBE') === "false" ? false : true,
+    userInfoButtonEnabled: localStorage.getItem('UBE') === "false" ? false : true,
     isHover: false,
     modifyUser: false,
     deleteUser: false,

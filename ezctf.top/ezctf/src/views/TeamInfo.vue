@@ -22,7 +22,7 @@
               </tr>
               </thead>
               <tbody>
-                <tr v-for="member in members" :key="member.username">
+                <tr v-for="member in members" :key="member.username" v-if="checkLeader(member.username)">
                 <td>{{ member.username }}</td>
                 <td>{{ member.score }}</td>
                 </tr>
@@ -64,6 +64,7 @@
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader',]),
       close() {
         this.setUserInfoButtonEnabled(true);
+        localStorage.setItem('UBE',true);
         this.$router.push('/');
       },
       async team_detail(name) {
@@ -90,6 +91,7 @@
             this.setTeamname('');
             this.setIsLeader(false);
             this.setUserInfoButtonEnabled(true);
+            localStorage.setItem('UBE',true);
             localStorage.removeItem('teamname');
             localStorage.removeItem('isLeader');
             this.$router.push("/");
@@ -98,7 +100,13 @@
         } catch (error) {
           console.log(error.response.data.msg);
         }
-      }
+      },
+      checkLeader(name){
+        if(name==this.team.leader){
+          return false;
+        }
+        return true;
+      },
     },
   };
 </script>

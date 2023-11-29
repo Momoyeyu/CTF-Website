@@ -2,7 +2,7 @@
     <div class="AcIn">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>邀请信息</h1>
-      <p v-if="err" class="er">{{ err }}</p>
+          <p v-if="err" class="er">{{ err }}</p>
           <p>战队名称:{{ team.name }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
           <p>战队总积分:{{ team.team_score }}</p>
           <div class="scrollable-table-container">
@@ -22,7 +22,7 @@
               </tr>
               </thead>
               <tbody>
-                <tr v-for="member in members" :key="member.username">
+                <tr v-for="member in members" :key="member.username" v-if="checkLeader(member.username)">
                 <td>{{ member.username }}</td>
                 <td>{{ member.score }}</td>
                 </tr>
@@ -92,16 +92,12 @@
           console.log('接受邀请响应', response);
           if(response.ret==='success'){
             alert(response.msg);
-            this.setTeamname(response.data.team_name);
-            this.setIsLeader(false);
             this.setUserInfoButtonEnabled(true);
             this.setInviter("");
             this.setAcceptInvite(false);
             this.setInfoBoard(true);
             this.setErr("");
             this.setAcceptInvite(false);
-            localStorage.setItem('teamname',response.data.team_name);
-            this.$router.push("/");
           }
         } catch (error) {
           this.setErr(error.response.data.msg);
@@ -119,7 +115,13 @@
         } catch (error) {
           console.error('错误:', error);
         }
-      }
+      },
+      checkLeader(name){
+        if(name==this.team.leader){
+          return false;
+        }
+        return true;
+      },
     },
   };
 </script>

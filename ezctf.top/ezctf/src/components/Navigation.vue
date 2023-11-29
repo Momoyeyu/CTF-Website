@@ -59,7 +59,7 @@ name:'Navigation',
       };
   },
   computed: {
-    ...mapState(['loginButtonEnabled',
+    ...mapState([ 'loginButtonEnabled',
                   'userInfoButtonEnabled',
                   'isHover',
                   'username',
@@ -102,7 +102,7 @@ name:'Navigation',
     },
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled',
+    ...mapMutations([ 'setLoginButtonEnabled',
                       'setUserInfoButtonEnabled',
                       'setIsHover',
                       'setUsername',
@@ -122,6 +122,7 @@ name:'Navigation',
     ]),
     log() {
       this.setLoginButtonEnabled(false);
+      localStorage.setItem('LBE',false);
       this.$router.push("/Log");
     },
     showUserInfo() {
@@ -141,11 +142,13 @@ name:'Navigation',
         this.showUserInfo();
         this.setManageTeam(true);
         this.$router.push("/ManageTeam");
+        localStorage.setItem('UBE',false);
       }
       else if(this.$store.state.teamname&&!this.$store.state.isLeader){
         console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
+        localStorage.setItem('UBE',false);
       }
       else{
         this.showUserInfo();

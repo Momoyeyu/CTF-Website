@@ -40,6 +40,7 @@
       ...mapMutations(['setLoginButtonEnabled','setUsername','setIsLogin','setLog','setReg','setFoPa','setTeamname','setScore','setIsLeader','setIsMember','setErr']),
       close() {
         this.setLoginButtonEnabled(true);
+        localStorage.setItem('LBE',true);
         this.setErr("");
         this.$router.push('/');
       },
@@ -50,6 +51,7 @@
           if (response.ret === 'success') {
             this.$router.push('/');
             this.setLoginButtonEnabled(true);
+            localStorage.setItem('LBE',true);
             this.setUsername(response.data.username);
             localStorage.setItem('username', response.data.username);
 

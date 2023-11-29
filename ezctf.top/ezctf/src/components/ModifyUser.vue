@@ -23,11 +23,19 @@
     },
     computed: {
     ...mapState(['username','teamname','modifyUser','err','setInfo','userInfoButtonEnabled']),
+    isValid(string) {
+          const Regex = /^[a-zA-Z0-9_]+$/;
+          return (string) => Regex.test(string);
+    },
     },
     methods: {
       ...mapMutations(['setUsername','setTeamname','setModifyUser','setErr','setSetInfo','setUserInfoButtonEnabled']),
       async modify_User() {
         try {
+          if (!this.isValid(this.newUsername)) {
+              this.setErr("用户名只能包含数字、字母和下划线");
+              return;
+          }
           const response = await modifyUserInfo(this.user_name, this.newUsername,this.password);
           console.log('修改信息响应:', response);
           if (response.ret === 'success') {

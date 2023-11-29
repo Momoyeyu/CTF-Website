@@ -29,8 +29,8 @@
             <td>{{ member.username }}</td>
             <td>{{ member.score }}</td>
             <td>
-                <button @click="changeTeamLeader(member.username)">队长转让</button> |
-                <button @click="kickmember(member.username)">移出战队</button>
+                <button @click="changeTeamLeader(member.username)" v-if="checkLeader(member.username)">队长转让</button> &nbsp;
+                <button @click="kickmember(member.username)" v-if="checkLeader(member.username)">移出战队</button>
             </td>
             </tr>
         </tbody>
@@ -52,7 +52,7 @@
             <td>{{ applicant.username }}</td>
             <td>{{ applicant.score }}</td>
             <td>
-                <button @click="verify_apply(applicant.username,true)">通过</button> |
+                <button @click="verify_apply(applicant.username,true)">通过</button> &nbsp;
                 <button @click="verify_apply(applicant.username,false)">拒绝</button>
             </td>
             </tr>
@@ -108,6 +108,7 @@
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember','setInviteMember']),
       close() {
         this.setUserInfoButtonEnabled(true);
+        localStorage.setItem('UBE',true);
         this.$router.push('/');
       },
       delete_Team(){
@@ -173,6 +174,12 @@
           console.error('错误:', error);
         }
       },
+      checkLeader(name){
+        if(name==this.teamInfo.leader_name){
+          return false;
+        }
+        return true;
+      }
     },
   };
 </script>
@@ -229,5 +236,6 @@ background-size:cover;
 .three-column-table td:first-child {
   text-align: center;
 }
+
 </style>
   

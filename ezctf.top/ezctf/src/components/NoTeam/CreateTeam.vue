@@ -30,6 +30,10 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
     },
     computed: {
     ...mapState(['userInfoButtonEnabled','username','teamname','createTeam','noTeam','isLeader','err']),
+    isValid(string) {
+          const Regex = /^[a-zA-Z0-9_]+$/;
+          return (string) => Regex.test(string);
+    },
     },
     methods: {
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setCreateTeam','setNoTeam','setIsLeader','setErr']),
@@ -39,6 +43,10 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
       },
       async create_Team() {
         try {
+          if (!this.isValid(this.team.team_name)) {
+              this.setErr("战队名只能包含数字、字母和下划线");
+              return;
+          }
           const response = await createTeam(this.team.leader_name, this.team.team_name, !this.team.check);
           if(response.ret='success'){
             alert(response.msg);

@@ -43,6 +43,10 @@
       },
       computed: {
       ...mapState(['log','FoPa','err','loginButtonEnabled']),
+      isValid(string) {
+          const Regex = /^[a-zA-Z0-9_]+$/;
+          return (string) => Regex.test(string);
+      },
       },
       methods: {
         ...mapMutations(['setLog','setFoPa','setErr','setLoginButtonEnabled']),
@@ -53,6 +57,10 @@
         },
         async forget_password() {
           try {
+            if (!this.isValid(this.newPassword)) {
+              this.setErr("密码只能包含数字、字母和下划线");
+              return;
+            }
             const response = await forgetPassword(this.email);
             alert(response.msg);
             console.log('修改密码响应:', response);

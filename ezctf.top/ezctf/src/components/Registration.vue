@@ -50,18 +50,25 @@
     },
     computed: {
     ...mapState(['loginButtonEnabled','username','reg','log','err','isLogin','teamname','score','isLeader',]),
+    isValid(string) {
+      const Regex = /^[a-zA-Z0-9_]+$/;
+      return (string) => Regex.test(string);
+    },
     },
     methods: {
       ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr','setIsLogin','setTeamname','setScore','setIsLeader',]),
       close() {
         this.btn=false;
-        this.setLoginButtonEnabled(true);
         this.setReg(false);
         this.setLog(true);
         this.setErr("");
       },
       async Register() {
         try {
+          if (!this.isValid(this.user.username)||!this.isValid(this.user.password)) {
+            this.setErr("用户名密码只能包含数字、字母和下划线");
+            return;
+          }
           const response = await register( this.user.username, this.user.password, this.user.email);
           console.log('注册响应:', response);
           if (response.ret === 'success') {
@@ -104,6 +111,7 @@
           if (response.ret === 'success') {
             this.$router.push('/'); 
             this.setLoginButtonEnabled(true);
+            localStorage.setItem('LBE',true);
             this.setLog(true);
             this.setReg(false);
             this.setUsername(response.data.username);

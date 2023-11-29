@@ -31,6 +31,7 @@
             this.setManageTeam(true);
             this.$router.push('/'); 
             this.setUserInfoButtonEnabled(true);
+            localStorage.setItem('UBE',true);
             this.setErr("");
           }
         } catch (error) {

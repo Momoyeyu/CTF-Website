@@ -37,6 +37,7 @@
           console.log('搜索战队响应', response);
           if(response.ret==='success'){
             alert(response.msg);
+            this.username='';
             console.log(response.data);
           }
         } catch (error) {
