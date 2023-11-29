@@ -13,11 +13,25 @@
       "unicode_decimal": 58955
     },
     {
+      "icon_id": "3267414",
+      "name": "下载",
+      "font_class": "xiazai",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
       "icon_id": "3640203",
       "name": "已完成",
       "font_class": "yiwancheng",
       "unicode": "e612",
       "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "5203236",
+      "name": "电脑",
+      "font_class": "diannao",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
     },
     {
       "icon_id": "5743181",

@@ -18,21 +18,21 @@
                 </tr>  
               </table>  
               <p class="popup-description">题目描述：{{ Detail.content }}</p>
-              <p v-if="item.solved" class="popup-flag"></p>
+              <p v-if="item.solved"></p>
             <div v-else class="popup-flag">  
               <div>
-              <button v-if="(item.task_type===2||item.task_type===4)&&this.iscountdown" class="onlineStage" @click="GetonlineStage">创建在线场景</button>
-              <div v-if="!this.iscountdown">
-                <a href="8.130.98.1" style="text-decoration: none;">8.130.98.1:8888</a><br>
+                <button v-if="(item.task_type===2||item.task_type===4)&&!this.iscountdown" class="onlineStage" @click="GetonlineStage(item.task_id)"><i class="iconfont icon-diannao"></i>创建在线场景</button>
+              <div v-if="this.iscountdown">
+                <a :href="`${ip}:${port}`" style="text-decoration: none;">{{ ip }}:{{ port }}</a><br>
                 <span style="font-size: 14px;">倒计时:{{countdown}}S</span>
-                <button class="onlineStage" @click="DeleteonlineStage">删除场景</button>
+                <button class="onlineStage" @click="DeleteonlineStage(item.task_id)">删除场景</button>
               </div>
               </div>
               <input type="text" v-model="inputData" placeholder="请输入FLAG~~"/>  
               <button class="hangin" @click="checkInput">提交</button> 
             </div> 
             <div class="popup-download">  
-                <a v-if="Detail.annex" :href="downloadLink" @click="handleDownloadClick">点击下载附件</a>  
+                <a v-if="Detail.annex" :href="downloadLink" @click="handleDownloadClick"><i class="iconfont icon-xiazai"></i>点击下载附件</a>  
               </div>  
         </div>
     </div>
@@ -47,9 +47,11 @@ name:'Popup',
 data:function(){
   return{
     isModalVisible: false,
-    iscountdown:true,
-    countdown:7200,
+    iscountdown:false,
+    countdown:0,
     inputData: "",
+    ip: "",
+    port: "",
     Flag:{
       "action": "commit_flag",
       "data": {
@@ -141,31 +143,70 @@ checkInput() {
         alert('下载链接不存在！');  
       }  
     },
-    GetonlineStage() {  
-      this.iscountdown = !this.iscountdown;    
-      this.countdown = 7200;    
-      this.intervalId = setInterval(() => {  // 定义并赋值给 this.intervalId  
-        this.countdown--;    
-        if (this.countdown <= 0) {    
-          this.DeleteonlineStage();  
-          clearInterval(this.intervalId); // 清除定时器    
-        }  
-      }, 1000);            
-      // axios.get('http://localhost:80/api/task/answer?action=create_online') // 替换为你的后端API地址    
-      //   .then(response => {    
-      //     console.log(response.data);    
-      //   })    
-      //   .catch(error => {    
-      //     console.error(error);    
-      //   });    
+    GetonlineStage(param) {  
+      axios.get('http://localhost:80/api/task/answer?action=create_online&task_id='+param) // 替换为你的后端API地址    
+        .then(response => {     
+          console.log(response.data);    
+          if(response.data.ret==="success"){
+          this.ip=response.data.data.ip;
+          this.port=response.data.data.port;
+          this.Waitonline(param);   
+          this.countdown = 7200;   
+          this.iscountdown = !this.iscouotdown;   
+          this.intervalId = setInterval(() => {  // 定义并赋值给 this.intervalId  
+          this.countdown--;    
+          if (this.countdown <= 0) {    
+          this.DeleteonlineStage(this.item.task_id);    
+          }  
+          }, 1000);}
+        })    
+        .catch(error => {    
+          console.error(error);    
+        });              
     },      
-    DeleteonlineStage() {  
-      clearInterval(this.intervalId); // 清除由 GetonlineStage 创建的定时器    
-      this.iscountdown = !this.iscountdown;    
+    Waitonline(param){
+      axios.get('http://localhost:80/api/task/answer?action=wait_online&task_id='+param) // 替换为你的后端API地址    
+        .then(response => {    
+          console.log(response.data);    
+        })    
+        .catch(error => {    
+          console.error(error);    
+        });  
     },
+    DeleteonlineStage(param) {  
+      clearInterval(this.intervalId); // 清除由 GetonlineStage 创建的定时器    
+      localStorage.removeItem('countdown')
+      this.iscountdown = !this.iscountdown;   
+      axios.get('http://localhost:80/api/task/answer?action=stop_online&task_id='+param) // 替换为你的后端API地址    
+        .then(response => {    
+          console.log(response.data);     
+        })    
+        .catch(error => {    
+          console.error(error);    
+        });    
+    }, 
   },
+  beforeDestroy() {  
+    if (this.iscountdown) {  
+      localStorage.setItem('countdown', this.countdown); // 将倒计时时间保存到 LocalStorage  
+    } else {  
+      localStorage.removeItem('countdown'); // 如果倒计时已停止，则从 LocalStorage 中移除该项  
+    }  
+  }, 
   mounted() {  
     this.getDownloadLink(); // 在组件挂载后获取下载链接  
+    const storedCountdown = localStorage.getItem('countdown'); // 从 LocalStorage 中获取倒计时时间  
+    if (storedCountdown) {  
+      this.countdown = parseInt(storedCountdown); // 将字符串转换为整数，并赋值给倒计时时间变量  
+      if (this.countdown > 0) {  
+        this.iscountdown = true; // 设置倒计时状态为活跃状态（如果倒计时时间大于0）  
+      } else {  
+        this.iscountdown = false; // 如果倒计时时间为0或负数，则设置倒计时状态为非活跃状态（已停止）  
+        localStorage.removeItem('countdown');
+      }  
+    } else {  
+      // 如果 LocalStorage 中不存在倒计时时间，则默认为非活跃状态（已停止）或根据需要进行其他处理  
+    }  
   },
 }
 </script>
@@ -201,11 +242,11 @@ checkInput() {
   position: relative;
 }
 .popup-content{
-  color: #000;
-  width: 652px;
-  height: 400px;
-  padding: 24px;
-  background-color: #fff;
+color: #000;
+width: 652px;
+height: 400px;
+padding: 24px;
+background-color: #fff;
 }
 .TITLE{
   color: #000;
@@ -242,6 +283,7 @@ checkInput() {
   border-bottom: 1px solid #ccc;
 } 
 .popup-flag{
+   /* 题目描述太长容易超出容器（未解决） */
   text-align: center;  
   margin-top: 120px; 
 }
