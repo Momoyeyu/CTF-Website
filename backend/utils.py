@@ -193,6 +193,6 @@ async def wait_container(challenge_path):
 
 
     # 等待两小时
-    await asyncio.sleep(5)
+    await asyncio.sleep(2*60*60)
     # 在两小时后停止容器
     await stop_container(challenge_path)
