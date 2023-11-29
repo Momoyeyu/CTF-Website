@@ -29,7 +29,7 @@ class Task(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return f"Task ID: {self.id}, Task Name: {self.task_name}, Difficulty: {self.get_difficulty_display()}, Points: {self.points}, Type: {self.get_msg_type_display()}"
+        return f"Task ID: {self.id}, Task Name: {self.task_name}, Difficulty: {self.get_difficulty_display()}, Points: {self.points}, Type: {self.get_task_type_display()}"
 
 
 class AnswerRecord(models.Model):

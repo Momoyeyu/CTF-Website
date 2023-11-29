@@ -1,3 +1,5 @@
+import asyncio
+
 from tasks.models import Task, AnswerRecord
 from common.models import CustomUser
 from django.contrib.auth.models import User
@@ -6,7 +8,7 @@ from rank.models import FirstKill
 import backend.settings as settings
 from django.utils import timezone
 import os
-from utils import get_request_params, ExceptionEnum, error_template, success_template, SuccessEnum
+from utils import *
 
 
 def dispatcher(request):
@@ -19,6 +21,12 @@ def dispatcher(request):
         return download_attachment(request)
     elif action == "list_solved":
         return list_solved(request)
+    elif action == "create_online":
+        return create_online(request)
+    elif action == "wait_online":
+        return wait_online(request)
+    elif action == "stop_online":
+        return stop_online(request)
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
@@ -141,3 +149,77 @@ def list_solved(request):
         "solved_list": task_id_list,
     }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=task_id_list)
+
+def create_online(request):
+    """
+    GET
+    {
+        "action": "create_online",
+        "task_id": 1,
+    }
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
+    task_id = request.GET.get("task_id")
+    task = Task.objects.get(id=int(task_id))
+    print(f'success {task_id}')
+    if task is None:
+        return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
+
+    scene_path = os.path.join(settings.ONLINESCENE_ROOT,task.task_name)
+    print(scene_path)
+    try:
+        port = start_container(task.task_name)
+        return success_template('Success!', data={'ip': 'localhost', 'port': port,}, status=200)
+    except:
+        return error_template("Failed to online scene!", status=405)
+
+
+def wait_online(request):
+    """
+    GET
+    {
+        "action": "wait_online",
+        "task_id": 2,
+    }
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
+    task_id = request.GET.get("task_id")
+    task = Task.objects.get(id=int(task_id))
+    # print(f'success {task_id}')
+    if task is None:
+        return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
+
+    scene_path = os.path.join(settings.ONLINESCENE_ROOT,task.task_name)
+    print(scene_path)
+    try:
+        asyncio.run(wait_container(task.task_name))
+        return success_template('Success!',status=200)
+    except:
+        return error_template("Failed to online scene!", status=405)
+def stop_online(request):
+    """
+    GET
+    {
+        "action": "stop_online",
+        "task_id": 1,
+    }
+    """
+    if request.method != "GET":
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
+    task_id = request.GET.get("task_id")
+    task = Task.objects.get(id=int(task_id))
+    # print(f'success {task_id}')
+    if task is None:
+        return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
+
+    # scene_path = os.path.join(settings.ONLINESCENE_ROOT,task.task_name)
+    # print(scene_path)
+    try:
+        asyncio.run(stop_container(task.task_name))
+        return success_template('Success!', status=200)
+    except: return error_template("Failed to stop online scene!", status=405)

@@ -1,10 +1,15 @@
+import asyncio
 import json
 import re
 from enum import Enum
-from django.http import JsonResponse
-import random
-from common.models import Message
+import socket
 
+from django.http import JsonResponse
+from common.models import Message
+import backend.settings as settings
+import subprocess
+import os
+import random
 
 def get_request_params(request):
     """
@@ -116,3 +121,62 @@ def send_message(receiver_id, origin_id, msg, msg_type=Message.MessageType.CHAT.
     message = Message(receiver_id=receiver_id, origin_id=origin_id, msg=msg, msg_type=msg_type)
     message.check = False
     message.save()
+
+
+def find_available_port():
+    """
+    在本地动态选择一个未使用的端口
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('localhost', 0))
+    _, port = sock.getsockname()
+    sock.close()
+    return port
+
+def start_container(challenge_name):
+    # challenge_path = f'./probs/{challenge_name}'
+    try:
+        challenge_path = os.path.join(settings.ONLINESCENE_ROOT, challenge_name)
+        os.chdir(challenge_path)  # 切换到题目目录
+        # subprocess.run(['docker-compose', 'up', '-d'])
+        # print(f'Create container successfully for {challenge_path}!')
+
+        build_command = f"docker build -t {challenge_name} ."
+        subprocess.run(build_command, shell=True)
+
+        selected_port = find_available_port()
+        print(f"Selected port: {selected_port}")
+        # 运行容器
+        run_command = f"docker run -d -p {selected_port}:80 --name {challenge_name} {challenge_name}"
+        subprocess.run(run_command, shell=True)
+        return selected_port
+    except: return False
+
+async def stop_container(challenge_name):
+    # challenge_path = f'./probs/{challenge_name}'
+    try:
+        challenge_path = os.path.join(settings.ONLINESCENE_ROOT, challenge_name)
+        os.chdir(challenge_path)  # 切换到题目目录
+        # subprocess.run(['docker-compose', 'up', '-d'])
+        # print(f'Create container successfully for {challenge_path}!')
+
+        stop_command = f"docker stop {challenge_name}"
+        subprocess.run(stop_command, shell=True)
+
+        # 删除容器
+        rm_command = f"docker rm {challenge_name}"
+        subprocess.run(rm_command, shell=True)
+        # subprocess.run(['docker-compose', 'down', '-v', '--remove-orphans'])
+        # print(f'Stop container successfully for {challenge_path}!')
+        return True
+    except: return False
+
+async def wait_container(challenge_path):
+    # 启动容器
+
+
+    # 等待两小时
+    await asyncio.sleep(5)
+    # 在两小时后停止容器
+    await stop_container(challenge_path)

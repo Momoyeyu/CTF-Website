@@ -89,7 +89,24 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#   'default': {
+#       'ENGINE': 'django.db.backends.mysql',
+#       'NAME': 'ezctf_top',   # 数据库名
+#       'USER': 'ezctf_top',    # 数据库 用户名
+#       'PASSWORD': 'yfr4FaRtPr6eZEYz',# 数据库 用户密码
+#       'HOST': '127.0.0.1', # 数据库服务主机名
+#       'PORT': '3306',      # 数据库服务端口
+#       'CONN_MAX_AGE': 0
+#   }
+# }
 
+"""Gunicorn"""
+GUNICORN_CONFIG = {
+    'bind': '0.0.0.0:8000',
+    'workers': 4,
+    'timeout': 60,
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -165,5 +182,7 @@ EMAIL_HOST_PASSWORD = 'sdxuhyrrvzvkcide'
 # 媒体文件
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+ONLINESCENE_ROOT = os.path.join(BASE_DIR,'probs')
 
 LOGIN_URL = 'http://localhost:8080/#/Login'

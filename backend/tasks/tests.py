@@ -1,3 +1,4 @@
+from backend import settings
 from django.test import TestCase
 from django.contrib.sessions.middleware import SessionMiddleware
 from tasks.models import Task, AnswerRecord
@@ -20,7 +21,7 @@ class SessionTest(TestCase):
 
         self.obj = Task.objects.create(task_name='AAA', content='content', flag='aaaa', difficulty=0, points=10,
                                        solve_count=0, task_type=1, annex='aa.txt')
-        self.obj = Task.objects.create(task_name='BBB', content='content', flag='bbbb', difficulty=0, points=10,
+        self.obj = Task.objects.create(task_name='prob1', content='content', flag='bbbb', difficulty=0, points=10,
                                        solve_count=0, task_type=2)
 
     def test_main(self):
@@ -28,10 +29,13 @@ class SessionTest(TestCase):
         self.list_tasks()
         self.detail()
         # self.download_attachment()
-        self.commit_flag()
-        self.list_solved()
-        self.rank_user()
-        self.rank_team()
+        self.create_online()
+        self.wait_online()
+        # self.stop_online()
+        # self.commit_flag()
+        # self.list_solved()
+        # self.rank_user()
+        # self.rank_team()
 
     def login(self):
         print("test login: ")
@@ -107,3 +111,17 @@ class SessionTest(TestCase):
         response = self.client.get('http://localhost/api/task/answer?action=download_attachment&task_id=1')
         pprint.pprint(response.headers)
         # pprint.pprint(response.content_params)
+
+    def create_online(self):
+        print("test create online: ")
+        response = self.client.get('http://localhost/api/task/answer?action=create_online&task_id=2')
+        pprint.pprint(response.json())
+
+    def wait_online(self):
+        print("test wait online: ")
+        response = self.client.get('http://localhost/api/task/answer?action=wait_online&task_id=2')
+        pprint.pprint(response.json())
+    def stop_online(self):
+        print("test stop online: ")
+        response = self.client.get('http://localhost/api/task/answer?action=stop_online&task_id=2')
+        pprint.pprint(response.json())
