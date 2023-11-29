@@ -13,15 +13,15 @@
           Pwn</button><div class="triangle" v-show="currentdiv==='div5'" ></div></div>
     </div>
     <div class="content1">
-      <div class="Page" v-show="currentdiv==='div1'">
+      <div class="Page" v-if="currentdiv==='div1'">
         <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
-      <div class="Page" v-show="currentdiv==='div2'">
+      <div class="Page" v-if="currentdiv==='div2'">
         <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
-      <div class="Page" v-show="currentdiv==='div3'">
+      <div class="Page" v-if="currentdiv==='div3'">
         <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
-      <div class="Page" v-show="currentdiv==='div4'">
+      <div class="Page" v-if="currentdiv==='div4'">
         <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
-      <div class="Page" v-show="currentdiv==='div5'">
+      <div class="Page" v-if="currentdiv==='div5'">
         <Question v-for="item in retlist" :key="item.task_id" :item="item"/></div>
     </div>    
 </div>
