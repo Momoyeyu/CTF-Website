@@ -6,18 +6,18 @@
     </div>
     <div class="rank-body">
         <table class="rank-table">
-            <!-- <tr v-if="this.isLogin" class="Myrank-title">
+            <tr v-if="this.fetchMy" class="Myrank-title">
                 <td>我的排名</td>
                 <td>姓名</td>
                 <td>得分</td>
                 <td>上次提交</td>
             </tr>
-            <tr v-if="this.isLogin" class="Myrank-body">
-                <td>#{{ fetchMy.rank }}</td>
+            <tr v-if="this.fetchMy" class="Myrank-body">
+                <td v-if="fetchMy">#{{ fetchMy.rank }}</td>
                 <td>{{ fetchMy.username }}</td>
                 <td>{{ fetchMy.score}}</td>
                 <td>{{ fetchMy.last_commit }}</td>
-            </tr> -->
+            </tr>
             <tr class="table-title">
                 <td>总排名</td>
                 <td>姓名</td>
@@ -39,18 +39,18 @@
     </div>
     <div class="rank-body">
         <table class="rank-table">
-          <!-- <tr v-if="this.isLeader||this.isMember" class="Myrank-title">
+          <tr v-if="this.fetchMyteam" class="Myrank-title">
                 <td>排名</td>
                 <td>队名</td>
                 <td>队伍人数</td>
                 <td>总积分</td>
             </tr>
-            <tr v-if="this.isLeader||this.isMember" class="Myrank-body">
+            <tr v-if="this.fetchMyteam" class="Myrank-body">
                 <td>#{{ fetchMyteam.rank }}</td>
                 <td>{{ fetchMyteam.team_name }}</td>
                 <td>{{ fetchMyteam.member_count}}</td>
                 <td>{{ fetchMyteam.score }}</td>
-            </tr> -->
+            </tr>
             <tr class="table-title">
                 <td>排名</td>
                 <td>队名</td>
@@ -113,10 +113,20 @@ computed: {
   ...mapState(['isLeader']),
   ...mapState(['isMember']),
     fetchMy() {  
-      return this.sortedUsers.find(obj => obj.username === this.username);   
+      let result = this.sortedUsers.find(obj => obj.username === this.username);   
+      if (result) {  
+        return result;  
+      } else {  
+        return false;  
+      }  
     },  
     fetchMyteam() {  
-      return this.sortedTeams.find(obj => obj.team_name === this.teamname);   
+      let result = this.sortedTeams.find(obj => obj.team_name === this.teamname);  
+      if (result) {  
+        return result;  
+      } else {  
+        return false;  
+      }  
     }, 
     sortedUsers() { //页面加载完成后自动对数据进行排序并生成排名
       return this.users.sort((a, b) => b.score - a.score).map((item, index) => ({  
@@ -138,20 +148,19 @@ computed: {
 .rank{
   width: 1300px;
   margin: 15px auto;
-  background-color:aqua;
   color: #fff;
 }
 .user-rank{
     width: 550px;
     float: left;
-    padding: 10px;
+    padding: 8px;
     background-color: #bbb;
     border-radius: 10px;
 }
 .team-rank{
     width: 550px;
     float: right;
-    padding: 10px;
+    padding: 8px;
     background-color: #bbb;
     border-radius: 10px;
 }
@@ -161,22 +170,22 @@ computed: {
     margin-bottom: 0px;
     padding-top :20px;
     padding-bottom :20px;
-    background-color: red;
+    background-color: #1f6feb;
 }
 .rank-head{
   width: 100%;
-  background-color: red;
+  background-color: #161b22;
 }
 .rank-body{
   width: 100%;
-  background-color: blue;
+  background-color: #161b22;
 }
 .rank-table{
     width: 100%;  
     border-collapse: collapse;  
 }
 .rank-table tr{
-    border-bottom: 1px solid black;
+    border-top: 2px solid #cbc;
 }
 .rank-table td{
 width: 25%;

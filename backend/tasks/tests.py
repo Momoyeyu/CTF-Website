@@ -57,7 +57,7 @@ class SessionTest(TestCase):
     def list_tasks(self):
         print("[INFO]: test list tasks ")
         client = self.client
-        response = client.get('http://localhost/api/task/query?action=list&type=2')
+        response = client.get('http://localhost/api/task/query?action=list&type=-1')
         pprint.pprint(response.json())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session.get('user_id'), None)

@@ -14,25 +14,19 @@
   import { kickoutMember } from '@/UserSystemApi/TeamApi';
   export default {
     computed: {
-    ...mapState(['kickMember','manageTeam','kMember','err','isMember','isLeader']),
+    ...mapState(['kickMember','manageTeam','kMember','err']),
     },
     methods: {
-      ...mapMutations(['setKickMember','setManageTeam','setKMember','setErr','setIsMember','setIsLeader']),
+      ...mapMutations(['setKickMember','setManageTeam','setKMember','setErr']),
       async kick_member() {
         try {
           const response = await kickoutMember(this.$store.state.kMember);
           console.log('踢出成员响应:', response);
           if (response.ret === "success") {
             alert("成员踢出成功！");
-            this.setIsMember(true);
-            this.setIsLeader(false);
-            document.cookie = `isMember=${true}; path=/`;
-            document.cookie = `isLeader=${false}; path=/`;
             this.setKickMember(false);
             this.setKMember("");
             this.setManageTeam(true);
-            this.$router.push('/'); 
-            this.setUserInfoButtonEnabled(true);
             this.setErr("");
           }
         } catch (error) {
@@ -50,8 +44,8 @@
 </script>
 <style>
 #kickmember {
-    margin-top:200px;
-    margin-left:670px;
+    top: auto;
+    left: auto;
     position: absolute;
     top: auto;
     left: auto;

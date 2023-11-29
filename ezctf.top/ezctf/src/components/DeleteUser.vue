@@ -19,10 +19,10 @@
       };
     },
     computed: {
-    ...mapState(['username','teamname','score','isLeader','isMember','deleteUser','isLogin','setInfo','err','isHover']),
+    ...mapState(['username','teamname','score','isLeader','deleteUser','isLogin','setInfo','err','isHover','userInfoButtonEnabled']),
     },
     methods: {
-      ...mapMutations(['setUsername','setTeamname','setIsLeader','setScore','setIsMember','setDeleteUser','setIsLogin','setSetInfo','setErr','setIsHover']),
+      ...mapMutations(['setUsername','setTeamname','setIsLeader','setScore','setDeleteUser','setIsLogin','setSetInfo','setErr','setIsHover','setUserInfoButtonEnabled']),
       async delete_User() {
         try {
           const response = await deleteUserInfo(this.password);
@@ -34,25 +34,26 @@
             this.setTeamname('');
             this.setScore('');
             this.setIsLeader(false);
-            this.setIsMember(false);
             this.setIsHover(false);
-            document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            document.cookie = "score=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            localStorage.removeItem('isLogin');
+            localStorage.removeItem('username');
+            localStorage.removeItem('teamname');
+            localStorage.removeItem('score');
+            localStorage.removeItem('isLeader');
             this.setDeleteUser(false);
             this.setSetInfo(!this.$store.state.setInfo);
             this.setErr("");
+            this.setUserInfoButtonEnabled(true);
           }
         } catch (error) {
-          this.setErr(error.response.data.msg);
+          this.setErr("错误！");
         }
       },
       close() {
         this.setDeleteUser(false);
         this.setErr("");
+        this.setSetInfo(true);
+        this.setUserInfoButtonEnabled(true);
       },
     },
   };
@@ -60,7 +61,7 @@
 <style>
 #deleteUser {
     margin-top:-180px;
-    margin-left:500px;
+    margin-left:520px;
     position: absolute;
     top: auto;
     left: auto;

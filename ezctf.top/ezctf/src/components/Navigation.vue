@@ -25,6 +25,7 @@
           <br>
           <button @click="message()" class="board">
             <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知
+            <p class="sign" v-if="num(messnum)">{{ messnum }}</p>
           </button><br><br>
           <button @click="team()" class="board">
             <img src="../assets/icon/战队.png" class="icon">&nbsp;我的战队
@@ -45,14 +46,20 @@
 <script>
 import CreateAvatar from '../components/CreateAvatar.vue';
 import { mapState, mapMutations } from 'vuex';
-import { logoutUser } from '@/UserSystemApi/UserApi';
+import { logoutUser,profile } from '@/UserSystemApi/UserApi';
+import { messNum } from '@/UserSystemApi/MessageApi';
 export default {
 name:'Navigation',
  components: {
     CreateAvatar,
   },
+  data() {
+      return {
+        messnum:'',
+      };
+  },
   computed: {
-    ...mapState(['loginButtonEnabled',
+    ...mapState([ 'loginButtonEnabled',
                   'userInfoButtonEnabled',
                   'isHover',
                   'username',
@@ -75,8 +82,6 @@ name:'Navigation',
         name: this.$store.state.username, 
         score: this.$store.state.score,
         team: this.$store.state.teamname, 
-        is_Leader: this.$store.state.isLeader,
-        is_Member: this.$store.state.isMember,
       };
     },
     isHover: {
@@ -97,7 +102,7 @@ name:'Navigation',
     },
   },
   methods: {
-    ...mapMutations(['setLoginButtonEnabled',
+    ...mapMutations([ 'setLoginButtonEnabled',
                       'setUserInfoButtonEnabled',
                       'setIsHover',
                       'setUsername',
@@ -117,10 +122,15 @@ name:'Navigation',
     ]),
     log() {
       this.setLoginButtonEnabled(false);
+      localStorage.setItem('LBE',false);
       this.$router.push("/Log");
     },
     showUserInfo() {
       this.setIsHover(!this.$store.state.isHover);
+      if(this.$store.state.isHover){
+        this.getMessNum();
+        this.profile(this.userInfo.name);
+      }
     },
     setinfo() {
       this.setSetInfo(!this.$store.state.setInfo);
@@ -128,17 +138,17 @@ name:'Navigation',
     team() {
       this.setUserInfoButtonEnabled(false);
       this.setInfo=true;
-      console.log(this.userInfo.is_Member);
-      if(this.userInfo.is_Leader&&!this.userInfo.is_Member){
+      if(this.$store.state.isLeader&&this.$store.state.teamname){
         this.showUserInfo();
         this.setManageTeam(true);
         this.$router.push("/ManageTeam");
+        localStorage.setItem('UBE',false);
       }
-      else if(this.userInfo.is_Member){
-        console.log(this.userInfo.is_Member);
+      else if(this.$store.state.teamname&&!this.$store.state.isLeader){
         console.log("bug");
         this.showUserInfo();
         this.$router.push("/TeamInfo");
+        localStorage.setItem('UBE',false);
       }
       else{
         this.showUserInfo();
@@ -153,14 +163,17 @@ name:'Navigation',
     },
     modify() {
       this.setModifyUser(true);
+      this.setIsHover(false);
+      this.setUserInfoButtonEnabled(false);
     },
     Delete() {
       this.setDeleteUser(true);
+      this.setIsHover(false);
+      this.setUserInfoButtonEnabled(false);
     },
     quit() {
       logoutUser()
       .then((response) => {
-        alert(response.msg);
         console.log('用户退出登录成功', response.data);
         this.setUsername('');
         this.setTeamname('');
@@ -169,17 +182,65 @@ name:'Navigation',
         this.setIsMember(false);
         this.setIsLogin(false);
         this.setIsHover(false);
-        document.cookie = "isLogin=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "teamname=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "score=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "isLeader=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "isMember=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        localStorage.removeItem('isLogin');
+        localStorage.removeItem('username');
+        localStorage.removeItem('teamname');
+        localStorage.removeItem('score');
+        localStorage.removeItem('isLeader');
       })
       .catch((error) => {
         alert(error.response.data.msg);
         console.error('用户退出登录失败', error);
       });
+    },
+    async getMessNum() {
+        try {
+          const response = await messNum();
+          console.log('未读信息数量响应', response);
+          if(response.ret==='success'){
+            this.messnum=response.data.unchecked_count;
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
+    },
+    num(a){
+      if(a==0)
+        return false;
+      else
+        return true;
+    },
+    async profile(name) {
+      try {
+        const response = await profile(name);
+        console.log('响应', response);
+        if (response.ret === 'success') {
+          this.setUsername(response.data.username);
+          localStorage.setItem('username', response.data.username);
+
+          this.setTeamname(response.data.team);
+          if(response.data.team){
+            localStorage.setItem('teamname', response.data.team);
+          }
+          else{
+            localStorage.removeItem('teamname');
+          }
+          
+          this.setScore(response.data.score);
+          localStorage.setItem('score', response.data.score);
+
+          this.setIsLeader(response.data.is_leader);
+          if(response.data.is_leader){
+            localStorage.setItem('isLeader', response.data.is_leader);
+          }
+          else{
+            localStorage.removeItem('isLeader');
+          }
+        }
+      } catch (error) {
+        console.error('错误:', error);
+      }
     }
   }
 }
@@ -316,8 +377,8 @@ nav {
 }
 
 .icon {
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
 }
 
 #ava {
@@ -340,4 +401,15 @@ nav {
   left: -6px;
   top: -1px;
 }
+
+.sign{
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    background-color: red;
+    border-radius: 50%;
+    text-align: center;
+    top:235px;
+    right:40px;
+  }
 </style>

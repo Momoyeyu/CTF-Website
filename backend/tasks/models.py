@@ -15,7 +15,7 @@ class Task(models.Model):
         Medium = 1
         HARD = 2
 
-    task_name = models.CharField(max_length=100)
+    task_name = models.CharField(max_length=100, unique=True)
     content = models.TextField()
     src = models.TextField(blank=True, null=True)
     annex = models.FileField(upload_to='task_annex/', blank=True, null=True)
@@ -33,8 +33,8 @@ class Task(models.Model):
 
 
 class AnswerRecord(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='all_answer')
-    task = models.ForeignKey(Task, on_delete=models.PROTECT, related_name='answer_time')
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='my_answer')
+    task = models.ForeignKey(Task, on_delete=models.PROTECT, related_name='answer_record')
     points = models.IntegerField()
     answer_time = models.DateTimeField(auto_now_add=True)
 

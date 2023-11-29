@@ -9,7 +9,7 @@
         <input type="text" id="teamname" v-model="team.team_name" required /><br><br>
         <label for="check">审核加入:</label>
         <input type="checkbox" id="check" v-model="team.check" /><br><br>
-        <button type="submit" @click="create_Team()">创建</button> |
+        <button type="submit">创建</button> |
         <button @click="Re()" id="R">返回</button>
       </form>
     </div>
@@ -30,6 +30,10 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
     },
     computed: {
     ...mapState(['userInfoButtonEnabled','username','teamname','createTeam','noTeam','isLeader','err']),
+    isValid(string) {
+          const Regex = /^[a-zA-Z0-9_]+$/;
+          return (string) => Regex.test(string);
+    },
     },
     methods: {
       ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setCreateTeam','setNoTeam','setIsLeader','setErr']),
@@ -39,14 +43,18 @@ import { createTeam } from '/src/UserSystemApi/TeamApi.js';
       },
       async create_Team() {
         try {
+          if (!this.isValid(this.team.team_name)) {
+              this.setErr("战队名只能包含数字、字母和下划线");
+              return;
+          }
           const response = await createTeam(this.team.leader_name, this.team.team_name, !this.team.check);
           if(response.ret='success'){
             alert(response.msg);
             console.log('创建战队响应', response);
             this.setTeamname(this.team.team_name);
-            document.cookie = `teamname=${this.team.team_name}; path=/`;
+            localStorage.setItem('teamname',response.data.team_name);
             this.setIsLeader(true);
-            document.cookie = `isLeader=${true}; path=/`;
+            localStorage.setItem('isLeader',"true");
             this.setUserInfoButtonEnabled(true);
             this.setCreateTeam(false);
             this.setErr("");

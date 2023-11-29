@@ -22,20 +22,30 @@
       };
     },
     computed: {
-    ...mapState(['username','teamname','modifyUser','err']),
+    ...mapState(['username','teamname','modifyUser','err','setInfo','userInfoButtonEnabled']),
+    isValid(string) {
+          const Regex = /^[a-zA-Z0-9_]+$/;
+          return (string) => Regex.test(string);
+    },
     },
     methods: {
-      ...mapMutations(['setUsername','setTeamname','setModifyUser','setErr']),
+      ...mapMutations(['setUsername','setTeamname','setModifyUser','setErr','setSetInfo','setUserInfoButtonEnabled']),
       async modify_User() {
         try {
+          if (!this.isValid(this.newUsername)) {
+              this.setErr("用户名只能包含数字、字母和下划线");
+              return;
+          }
           const response = await modifyUserInfo(this.user_name, this.newUsername,this.password);
           console.log('修改信息响应:', response);
           if (response.ret === 'success') {
             alert(response.msg);
             this.setModifyUser(false);
             this.setUsername(response.data.new_username);
-            document.cookie = `username=${response.new_username}; path=/`;
+            localStorage.setItem('username', response.data.new_username);
             this.setErr("");
+            this.setSetInfo(true);
+            this.setUserInfoButtonEnabled(true);
           }
         } catch (error) {
           this.setErr(error.response.data.msg);
@@ -45,6 +55,8 @@
       close() {
         this.setModifyUser(false);
         this.setErr("");
+        this.setSetInfo(true);
+        this.setUserInfoButtonEnabled(true);
       },
     },
   };
@@ -52,7 +64,7 @@
 <style>
 #modifyUser {
     margin-top:-200px;
-    margin-left:200px;
+    margin-left:520px;
     position: absolute;
     top: auto;
     left: auto;
@@ -79,7 +91,7 @@
     cursor: pointer;
 }
 #er{
-    height: 8px;
+    padding: 4px;
     color:red;
     font-size: small;
 }

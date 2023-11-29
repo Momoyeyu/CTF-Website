@@ -1,23 +1,34 @@
 <template>
     <div id="registerUser">
       <button @click="close()" class="close-btn">&#10006;</button>
-      <h1>用户注册</h1>
+      <h1 style="margin-bottom: -5px;">用户注册</h1>
       <p v-if="err" id="er">{{ err }}</p>
       <br v-if="!err">
-      <form @submit.prevent="ValidateCode()">
-        <label for="username">用户名:</label>
+      <br v-if="!err">
+      <div>
+        <div class="uniquecontainer">
+        <label for="username">用户名:</label><br>
         <input type="text" id="username" v-model="user.username" required /><br><br>
-        <label for="password">密码:</label>
+       </div>
+        <div class="uniquecontainer">
+        <label for="password">密码:</label><br>
         <input type="password" id="password" v-model="user.password" required /><br><br>
-        <label for="password">确认密码:</label>
+        </div>
+        <div class="uniquecontainer">
+        <label for="password">确认密码:</label><br>
         <input type="password" id="confirmPassword" v-model="user.confirmPassword" required /><br><br>
-        <label for="email">邮箱:</label>
-        <input type="email" id="email" v-model="user.email" required />
-        <button @click="Register()">获取验证码</button><br><br>
-        <label for="username">验证码:</label>
-        <input type="text" id="code" v-model="code" required /><br><br>
-        <button type="submit" :disabled="!btn">注册</button><br><br>
-      </form>
+        </div>
+        <div class="uniquecontainer">
+        <label for="email">邮箱:</label><br>
+        <input type="email" id="email" v-model="user.email" required /><br>
+        </div>
+        <div class="uniquecontainer">
+        <label for="username">验证码:</label><br>
+        <input type="text" id="code" v-model="code" required /><br>
+        <button style="margin-top: 5px;" @click="Register()">获取验证码</button><br><br>
+        </div>
+        <button @click="ValidateCode()" class="uniquebutton" type="submit" :disabled="!btn">注册</button><br><br>
+      </div>
     </div>
   </template>
     
@@ -38,20 +49,26 @@
       };
     },
     computed: {
-    ...mapState(['loginButtonEnabled','username','reg','log','err','isLogin','teamname','score','isLeader','isMember',]),
+    ...mapState(['loginButtonEnabled','username','reg','log','err','isLogin','teamname','score','isLeader',]),
+    isValid(string) {
+      const Regex = /^[a-zA-Z0-9_]+$/;
+      return (string) => Regex.test(string);
+    },
     },
     methods: {
-      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr','setIsLogin','setTeamname','setScore','setIsLeader','setIsMember',]),
+      ...mapMutations(['setLoginButtonEnabled','setUsername','setReg','setLog','setErr','setIsLogin','setTeamname','setScore','setIsLeader',]),
       close() {
         this.btn=false;
-        this.setLoginButtonEnabled(true);
         this.setReg(false);
         this.setLog(true);
         this.setErr("");
-        this.$router.push('/');//这里关闭注册直接返回主页是不是有点突兀？
       },
       async Register() {
         try {
+          if (!this.isValid(this.user.username)||!this.isValid(this.user.password)) {
+            this.setErr("用户名密码只能包含数字、字母和下划线");
+            return;
+          }
           const response = await register( this.user.username, this.user.password, this.user.email);
           console.log('注册响应:', response);
           if (response.ret === 'success') {
@@ -80,10 +97,6 @@
           alert(response.msg);
           console.log('注册响应:', response);
           if (response.ret === 'success') {
-            this.btn=false;
-            this.$store.commit('setReg', false);
-            this.$store.commit('setLog', true);
-            this.setErr("");
             this.loginUser();
           }
         } catch (error) {
@@ -98,37 +111,23 @@
           if (response.ret === 'success') {
             this.$router.push('/'); 
             this.setLoginButtonEnabled(true);
+            localStorage.setItem('LBE',true);
             this.setLog(true);
             this.setReg(false);
             this.setUsername(response.data.username);
-            document.cookie = `username=${response.data.username}; path=/`;
+            localStorage.setItem('username', response.data.username);
             this.setTeamname(response.data.team_name);
             if(response.data.team_name){
-              document.cookie = `teamname=${response.data.team_name}; path=/`;
+              localStorage.setItem('teamname', response.data.team_name);
             }
             this.setScore(response.data.score);
-            document.cookie = `score=${response.data.score}; path=/`;
+            localStorage.setItem('score', response.data.score);
             this.setIsLogin(true);
-            document.cookie = `isLogin=${true}; path=/`;
-            this.setErr("");          
-            if(response.data.team_name&&!response.data.is_leader) {
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(true);
-              document.cookie = `isMember=${true}; path=/`;
-            }
-            else if(response.data.is_leader){
-              this.setIsLeader(true);
-              document.cookie = `isLeader=${true}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
-            }
-            else{
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
-            }
+            localStorage.setItem('isLogin', true);
+            this.setErr("");
+            this.btn=false;
+            this.$store.commit('setReg', false);
+            this.$store.commit('setLog', true);        
           }
         } catch (error) {
           this.setErr(error.response.data.msg);
@@ -142,21 +141,62 @@
   <style>
   #registerUser {
       position: absolute;
-      top: auto;
+      top: 20%;
       left: auto;
       width: 500px;
-      height: 350px;
+      height: 550px;
       justify-content: center;
       align-items: center;
       background-color: #1e1e1e;
       padding: 20px;
       border-style: solid;
-      border-radius: 5px;
+      border-radius: 20px;
       border-color:white;
       border-width: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       text-align: center;
       color:white;
+  }
+  .uniquecontainer label{
+    float: left;
+    margin-left:10px;
+    margin-bottom: 2px;
+  }
+  .uniquecontainer input{
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    height: 25px;
+    width: 220px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .uniquecontainer input:focus{   
+    outline: none;
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    height: 25px;
+    width: 220px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .uniquecontainer {  
+    width: 250px;
+    background-color: #555;
+    margin: 0 auto;
+    margin-bottom:5px;
+    border-radius: 5px;
+    padding-top: 5px;
+  }
+  .uniquebutton{
+    width: 70px;
+    height: 35px;
+    font-size: 16px;
   }
   .close-btn {
       background: transparent; 
@@ -167,6 +207,11 @@
       top: 10px;
       right: 10px;
       cursor: pointer;
+  }
+  #er{
+    padding: 4px;
+    color:red;
+    font-size: small;
   }
   </style>
     

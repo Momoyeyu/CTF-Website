@@ -9,26 +9,16 @@ Vue.use(Vuex);
 Vue.use(VueCookies)
 
 Vue.config.productionTip = false
-const getCookie = function(name) {
-  const cookies = document.cookie.split(';');
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
-    if (cookie.startsWith(name + '=')) {
-      return cookie.substring(name.length + 1);
-    }
-  }
-  return '';
-};
 
 const store = new Vuex.Store({
   state: {
-    loginButtonEnabled: true,
-    userInfoButtonEnabled: true,
+    loginButtonEnabled: localStorage.getItem('LBE') === "false" ? false : true,
+    userInfoButtonEnabled: localStorage.getItem('UBE') === "false" ? false : true,
     isHover: false,
     modifyUser: false,
     deleteUser: false,
     infoBoard: false,
-    isLogin: getCookie('isLogin') || false, 
+    isLogin: localStorage.getItem('isLogin') || false, 
     setInfo: true,
     noTeam: false,
     createTeam: false,
@@ -39,17 +29,18 @@ const store = new Vuex.Store({
     log: true,
     reg: false,
     FoPa: false,
-    RePa: false,
-    username: getCookie('username') || '', 
-    score: getCookie('score') || '', 
-    teamname: getCookie('teamname') || '', 
-    isLeader: getCookie('isLeader') || false, 
-    isMember: getCookie('isMember') || false, 
+    username: localStorage.getItem('username') || '', 
+    score: localStorage.getItem('score') || '', 
+    teamname: localStorage.getItem('teamname') || '', 
+    isLeader: localStorage.getItem('isLeader') || false, 
     newLeader:'',
     changeLeader: false,
     kickMember: false,
     kMember:'',
     err: '',
+    acceptInvite: false,
+    inviter: '',
+    inviteMember: false,
   },
   mutations: {
     setLoginButtonEnabled(state, value) {
@@ -72,9 +63,6 @@ const store = new Vuex.Store({
     },
     setIsLeader(state, value) {
       state.isLeader = value;
-    },
-    setIsMember(state, value) {
-      state.isMember = value;
     },
     setModifyUser(state, value) {
       state.modifyUser = value;
@@ -118,9 +106,6 @@ const store = new Vuex.Store({
     setFoPa(state, value){
       state.FoPa =value;
     },
-    setRePa(state, value){
-      state.RePa =value;
-    },
     setNewLeader(state, value){
       state.newLeader =value;
     },
@@ -135,7 +120,16 @@ const store = new Vuex.Store({
     },
     setErr(state, value){
       state.err =value;
-    }
+    },
+    setAcceptInvite(state, value){
+      state.acceptInvite =value;
+    },
+    setInviter(state, value){
+      state.inviter =value;
+    },
+    setInviteMember(state, value){
+      state.inviteMember =value;
+    },
   },
 });
 
@@ -144,3 +138,4 @@ new Vue({
   render: h => h(App),
   store
 }).$mount('#app')
+

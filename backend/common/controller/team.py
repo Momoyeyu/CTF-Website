@@ -1,9 +1,14 @@
 from django.contrib.auth import authenticate
+from django.db.models import Q
+
 from utils import get_request_params
 from common.models import Team, Message, CustomUser
 from django.contrib.auth.models import User
 from utils import ExceptionEnum, error_template, success_template, send_message, SuccessEnum
 from django.contrib.auth.decorators import login_required
+# from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_http_methods
+from django.middleware.csrf import get_token, rotate_token
 
 
 def dispatcher(request):
@@ -39,12 +44,16 @@ def dispatcher(request):
         return accept(request)
     elif action == "kick_out":
         return kick_out(request)
+    elif action == "team_detail":
+        return team_detail(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
 @login_required
+# @csrf_protect
+@require_http_methods(["GET", "POST"])
 def create_team(request):
     """
     队长创建战队
@@ -57,11 +66,15 @@ def create_team(request):
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+
+    if request.method == 'GET':
+        csrf_token = get_token(request)
+        response = success_template(SuccessEnum.QUERY_SUCCESS.value)
+        response.set_cookie('csrftoken', csrf_token)
+        return response
+
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
     if uid is not None:
@@ -98,6 +111,7 @@ def create_team(request):
 
 
 @login_required
+@require_http_methods("DELETE")
 def del_team(request):
     """
     DELETE
@@ -112,9 +126,6 @@ def del_team(request):
         del team
     还需要把所有 team_id = team 的 CustomUser 的 team_id 改为 None
     """
-    if request.method != "DELETE":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -134,12 +145,17 @@ def del_team(request):
     if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
+    messages = Message.objects.filter(origin=user, msg_type=Message.MessageType.INVITATION.value)
+    for each in messages:
+        each.delete()
+
     CustomUser.objects.filter(team=team).update(team=None)
     team.delete()
     return success_template("成功删除团队", status=204)
 
 
 @login_required
+@require_http_methods("POST")
 def join_team(request):
     """
     用户加入队伍
@@ -151,9 +167,6 @@ def join_team(request):
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -192,6 +205,7 @@ def join_team(request):
 
 
 @login_required
+@require_http_methods("GET")
 def quit_team(request):
     """
     用户退出队伍
@@ -200,8 +214,6 @@ def quit_team(request):
         "action": "quit_team",
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -218,6 +230,9 @@ def quit_team(request):
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     if team.leader == user:  # 如果用户是队长
+        messages = Message.objects.filter(origin=user, msg_type=Message.MessageType.INVITATION.value)
+        for each in messages:
+            each.delete()
         teammates = CustomUser.objects.filter(team=team)
         new_leader = teammates.first()
         if new_leader is None:  # 没有队员，战队自动删除
@@ -240,6 +255,7 @@ def quit_team(request):
     return success_template("成功退出团队")
 
 
+@require_http_methods("GET")
 def search_team(request):
     """
     搜索队伍
@@ -249,9 +265,6 @@ def search_team(request):
         "keyword": "ez",
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     keyword = request.params["keyword"]
     if keyword != "":
         teams = Team.objects.filter(team_name__icontains=keyword)
@@ -264,19 +277,30 @@ def search_team(request):
     team_list = []
     for team in teams:
         leader = User.objects.get(pk=team.leader.id)
+        members = team.members.all()
+        total_score = 0
+        for member in members:
+            total_score += member.score
         team_info = {
             "team_name": team.team_name,
             "leader_name": leader.username,
             "leader_email": leader.email,
-            "member_count": team.member_count,
+            "team_points": total_score,
+            "team_member": team.member_count,
             "allow_join": team.allow_join,
         }
         team_list.append(team_info)
 
-    return success_template("查询成功", data=team_list)
+    res_data = {
+        "team_list": team_list,
+        "total": len(team_list)
+    }
+
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
 @login_required
+@require_http_methods("PUT")
 def change_team_name(request):
     """
     队长更改战队名称
@@ -288,9 +312,6 @@ def change_team_name(request):
         }
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -320,6 +341,7 @@ def change_team_name(request):
 
 
 @login_required
+@require_http_methods("PUT")
 def change_team_leader(request):
     """
     队长更改战队名称
@@ -331,9 +353,6 @@ def change_team_leader(request):
         }
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -367,6 +386,7 @@ def change_team_leader(request):
 
 
 @login_required
+@require_http_methods("POST")
 def verify_apply(request):
     """
     POST
@@ -381,14 +401,11 @@ def verify_apply(request):
     @return:
     {
         "ret": "success" / "error",
-        "msg": "审核已生效" / else
+        "msg": "审核已生效" / else,
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
-
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
@@ -397,28 +414,28 @@ def verify_apply(request):
 
     user = User.objects.get(pk=uid)
     if user is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     custom_user = CustomUser.objects.get(user=user)
     if custom_user.team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
     team = Team.objects.get(pk=custom_user.team.id)
     if team is None:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
 
     if team.leader != user:
-        return error_template(ExceptionEnum.NOT_LEADER.value, data=None, status=403)
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
     applicant = User.objects.get_by_natural_key(applicant)
 
     if applicant is None:
-        return error_template(ExceptionEnum.USER_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
     applications = Message.objects.filter(receiver_id=user.id,
                                           origin_id=applicant.id,
                                           msg_type=Message.MessageType.APPLICATION.value,
                                           is_active=True)
     if not applications:
-        return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, data=None, status=404)
+        return error_template(ExceptionEnum.MESSAGE_NOT_FOUND.value, status=404)
 
     if accept_or_not:
         custom_applicant = CustomUser.objects.get(user_id=applicant.id)
@@ -435,6 +452,7 @@ def verify_apply(request):
 
 
 @login_required
+@require_http_methods("POST")
 def invite(request):
     """
     POST
@@ -442,18 +460,17 @@ def invite(request):
         "action": "invite",
         "data": {
             "invitee": "juanboy",  # 受邀用户的用户名
+            "invite_msg": "xxx"
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
-
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
     invitee_name = data["invitee"]
+    invite_msg = data["invite_msg"]
 
     user = User.objects.get(pk=uid)
     invitee = User.objects.get_by_natural_key(invitee_name)
@@ -473,12 +490,13 @@ def invite(request):
     if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
-    msg = str(team.team_name)
+    msg = str(invite_msg)
     send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION.value)  # INVITATION.value = 4
     return success_template(SuccessEnum.POST_SUCCESS.value)
 
 
 @login_required
+@require_http_methods("POST")
 def kick_out(request):
     """
     POST
@@ -517,6 +535,7 @@ def kick_out(request):
 
 
 @login_required
+@require_http_methods("POST")
 def accept(request):
     """
     POST
@@ -524,23 +543,18 @@ def accept(request):
         "action": "accept",
         "data": {
             "inviter": "juanboy",
-            "team_name": "ezctf",
             "accept": true,
         }
     }
     """
-    if request.method != "POST":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, data=None, status=405)
-
     if not request.user.is_authenticated:
-        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, data=None, status=403)
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
     data = request.params["data"]
     uid = request.session.get('_auth_user_id')
     if uid is None:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
     inviter_name = data["inviter"]
-    team_name = data["team_name"]
     accept_or_not = data["accept"]
     # check users
     user = User.objects.get(pk=uid)
@@ -560,10 +574,17 @@ def accept(request):
     invitations.update(checked=True, is_active=False)
 
     custom_user = CustomUser.objects.get(user=user)
-    custom_origin = CustomUser.objects.get(user=inviter)
-    team = Team.objects.get(team_name=team_name)
+    if inviter.custom_user.team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+    team = Team.objects.get(team_name=inviter.custom_user.team.team_name)
     if team is None:
         return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+
+    if team.leader != inviter:
+        messages = Message.objects.filter(Q(origin=inviter) & Q(msg_type=Message.MessageType.INVITATION.value))
+        for each in messages:
+            each.delete()
+        return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
 
     if accept_or_not:
         team.member_count += 1
@@ -578,3 +599,40 @@ def accept(request):
         msg = "拒绝邀请"
         send_message(inviter.id, user.id, msg=msg, msg_type=Message.MessageType.CHAT.value)  # CHAT.value = 1
         return success_template(SuccessEnum.REQUEST_SUCCESS.value)
+
+
+@require_http_methods("GET")
+def team_detail(request):
+    """
+    /api/common/team?action=team_detail&team_name=ezctf
+    GET
+    {
+        "action": "team_detail",
+        "team_name": "ezctf",
+    """
+    team_name = request.params["team_name"]
+    if team_name == "":
+        return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
+    team = Team.objects.get(team_name=team_name)
+    if team is None:
+        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
+    members = CustomUser.objects.filter(team=team)
+    member_list = []
+    total_score = 0
+    for member in members:
+        total_score += member.score
+        member_info = {
+            "username": member.user.username,
+            "score": member.score,
+        }
+        member_list.append(member_info)
+
+    res_data = {
+        "team_name": team_name,
+        "team_points": total_score,
+        "leader": team.leader.username,
+        "leader_score": team.leader.custom_user.score,
+        "team_member": team.member_count,
+        "members": member_list,
+    }
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)

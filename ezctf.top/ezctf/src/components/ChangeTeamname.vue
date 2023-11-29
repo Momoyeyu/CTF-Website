@@ -20,11 +20,19 @@
     },
     computed: {
     ...mapState(['teamname','changeTeamname','manageTeam','err']),
+    isValid(string) {
+          const Regex = /^[a-zA-Z0-9_]+$/;
+          return (string) => Regex.test(string);
+    },
     },
     methods: {
       ...mapMutations(['setTeamname','setChangeTeamname','setManageTeam','setErr']),
       async change_Team() {
         try {
+          if (!this.isValid(this.team.team_name)) {
+              this.setErr("战队名只能包含数字、字母和下划线");
+              return;
+          }
           const response = await changeTeamName(this.newTeamname);
           console.log('修改信息响应:', response);
           if (response.ret === 'success') {
@@ -32,7 +40,7 @@
             this.setChangeTeamname(false);
             this.setManageTeam(true);
             this.setTeamname(response.data.team_name);
-            document.cookie = `teamname=${response.data.team_name}; path=/`;
+            localStorage.setItem('teamname', response.data.team_name);
             this.setErr("");
           }
         } catch (error) {
@@ -49,8 +57,8 @@
 </script>
 <style>
 #changeTeam {
-    margin-top:200px;
-    margin-left:660px;
+    top: auto;
+    left: auto;
     position: absolute;
     top: auto;
     left: auto;

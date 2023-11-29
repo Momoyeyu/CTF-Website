@@ -1,8 +1,8 @@
 <template>
-  <div id="bkg">
-    <div id="teaminfo">
+    <div class="AcIn">
       <button @click="close()" class="close-btn">&#10006;</button>
-      <h1>战队信息</h1>
+      <h1>邀请信息</h1>
+          <p v-if="err" class="er">{{ err }}</p>
           <p>战队名称:{{ team.name }}&nbsp;&nbsp;&nbsp;成员数:{{team.membernum}}/{{ team.maxnum }}</p>
           <p>战队总积分:{{ team.team_score }}</p>
           <div class="scrollable-table-container">
@@ -13,7 +13,7 @@
                   <th>积分</th>
                 </tr>
                 <tr>
-                  <td>{{team.leader}}</td>
+                  <td>{{ team.leader}}</td>
                   <td>{{ team.leader_score }}</td>
                 </tr>
                 <tr>
@@ -29,20 +29,23 @@
               </tbody>
             </table>
           </div>
-        <button id="Ret" @click="quit()">退出战队</button>
+          <div id="btnSet">
+            <button  @click="accept(team.inviter,true)" class="btn">接受</button> |
+            <button  @click="accept(team.inviter,false)" class="btn">拒绝</button>
+          </div>
     </div>
-  </div> 
 </template>
     
 <script>
   import { mapState, mapMutations } from 'vuex';
-  import { teamDetail,quitTeam } from '@/UserSystemApi/TeamApi';
+  import { teamDetail,accept } from '@/UserSystemApi/TeamApi';
+  import { profile } from '@/UserSystemApi/UserApi';
   export default {
     data() {
       return {
         team: {
-          member_name: this.$store.state.username,
-          name: this.$store.state.teamname,
+          name: '',
+          inviter: this.$store.state.inviter,
           leader: '',
           leader_score: '',
           membernum: '',
@@ -55,17 +58,18 @@
       };
     },
     computed: {
-      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader',]),
+      ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','inviter','acceptInvite','infoBoard','err']),
     },
     mounted() {
-      this.team_detail(this.team.name);
+      this.profile(this.inviter);
     },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader',]),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsMember','setInviter','setAcceptInvite','setInfoBoard','setErr']),
       close() {
-        this.setUserInfoButtonEnabled(true);
-        localStorage.setItem('UBE',true);
-        this.$router.push('/');
+        this.setInfoBoard(true);
+        this.setAcceptInvite(false);
+        this.setInviter("");
+        this.setErr("");
       },
       async team_detail(name) {
         try {
@@ -82,23 +86,34 @@
           console.error('错误:', error);
         }
       },
-      async quit() {
+      async accept(name,state) {
         try {
-          const response = await quitTeam();
-          console.log('退出战队响应', response);
+          const response = await accept(name,state);
+          console.log('接受邀请响应', response);
           if(response.ret==='success'){
             alert(response.msg);
-            this.setTeamname('');
-            this.setIsLeader(false);
             this.setUserInfoButtonEnabled(true);
-            localStorage.setItem('UBE',true);
-            localStorage.removeItem('teamname');
-            localStorage.removeItem('isLeader');
-            this.$router.push("/");
+            this.setInviter("");
+            this.setAcceptInvite(false);
+            this.setInfoBoard(true);
+            this.setErr("");
+            this.setAcceptInvite(false);
+          }
+        } catch (error) {
+          this.setErr(error.response.data.msg);
+        }
+      },
+      async profile(name) {
+        try {
+          const response = await profile(name);
+          console.log('响应', response);
+          if(response.ret==='success'){
+            this.team.name=response.data.team;
+            this.team_detail(this.team.name);
             console.log(response.data);
           }
         } catch (error) {
-          console.log(error.response.data.msg);
+          console.error('错误:', error);
         }
       },
       checkLeader(name){
@@ -111,13 +126,13 @@
   };
 </script>
     
-<style>
-#teaminfo {
-  width: 600px;
+<style scoped>
+.AcIn {
+  width: 400px;
   height: 400px;
   position: absolute;
-  top: auto;
-  left: auto;
+  top: 220px;
+  left: 460px;
   justify-content: center;
   align-items: center;
   background-color: #1e1e1e;
@@ -161,16 +176,30 @@
   text-align: center;
 }
 
-#Ret{
-  left:287px;
-  bottom:20px;
-  position: absolute;
-}
+.btn{
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background-color: #1e1e1e;
+    color: white;
+    width: 80px;
+    height: 30px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .btn:hover{
+    background-color: grey;
+  }
 
-#bkg{
-height:87vh;
-background-image:url("../assets/背景.png");
-background-size:cover;
-}
+  #btnSet{
+    left:133px;
+    bottom:20px;
+    position: absolute;
+  }
 
-  </style>
+  .er{
+    padding: 4px;
+    color:red;
+    font-size: small;
+  }
+</style>

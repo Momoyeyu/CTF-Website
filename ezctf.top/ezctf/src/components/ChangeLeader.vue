@@ -14,25 +14,24 @@
   import { changeTeamLeader } from '@/UserSystemApi/TeamApi';
   export default {
     computed: {
-    ...mapState(['changeLeader','manageTeam','newLeader','err','isMember','isLeader']),
+    ...mapState(['changeLeader','manageTeam','newLeader','err','isLeader','userInfoButtonEnabled']),
     },
     methods: {
-      ...mapMutations(['setChangeLeader','setManageTeam','setNewLeader','setErr','setIsMember','setIsLeader']),
+      ...mapMutations(['setChangeLeader','setManageTeam','setNewLeader','setErr','setIsLeader','setUserInfoButtonEnabled']),
       async change_leader() {
         try {
           const response = await changeTeamLeader(this.$store.state.newLeader);
           console.log('解散战队响应:', response);
           if (response.ret === "success") {
             alert("队长权限转让成功");
-            this.setIsMember(true);
             this.setIsLeader(false);
-            document.cookie = `isMember=${true}; path=/`;
-            document.cookie = `isLeader=${false}; path=/`;
+            localStorage.removeItem('isLeader');
             this.setChangeLeader(false);
             this.setNewLeader("");
             this.setManageTeam(true);
             this.$router.push('/'); 
             this.setUserInfoButtonEnabled(true);
+            localStorage.setItem('UBE',true);
             this.setErr("");
           }
         } catch (error) {
@@ -50,8 +49,8 @@
 </script>
 <style>
 #changeleader {
-    margin-top:200px;
-    margin-left:670px;
+    top: auto;
+    left: auto;
     position: absolute;
     top: auto;
     left: auto;

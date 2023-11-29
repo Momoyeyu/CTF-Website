@@ -1,15 +1,20 @@
 <template id="log">
     <div id="loginUser">
     <button @click="close()" class="close-btn">&#10006;</button>
-    <h1>用户登录</h1>
+    <h1 style="margin-bottom: -5px;">用户登录</h1>
     <p v-if="err" id="er">{{ err }}</p>
     <br v-if="!err">
+    <br v-if="!err">
     <form @submit.prevent="loginUser()">
-      <label for="usernameOrEmail">用户名/邮箱:</label>
+      <div class="uniquecontainer">
+      <label for="usernameOrEmail">用户名/邮箱:</label><br>
       <input type="text" id="usernameOrEmail" v-model="loginInfo.usernameOrEmail" required /><br><br>
-      <label for="password">密码:</label>
+      </div>
+      <div class="uniquecontainer">
+      <label  for="password">密码:</label><br>
       <input type="password" id="password" v-model="loginInfo.password" required /><br><br>
-      <button type="submit">登录</button><br><br>
+      </div>  
+      <button class="uniquebutton" type="submit">登录</button><br><br>
       <button @click="FoP()" class="btn">忘记密码</button> |
       <button @click="Reg()" class="btn">注册</button>
     </form>
@@ -35,6 +40,7 @@
       ...mapMutations(['setLoginButtonEnabled','setUsername','setIsLogin','setLog','setReg','setFoPa','setTeamname','setScore','setIsLeader','setIsMember','setErr']),
       close() {
         this.setLoginButtonEnabled(true);
+        localStorage.setItem('LBE',true);
         this.setErr("");
         this.$router.push('/');
       },
@@ -43,36 +49,28 @@
           const response = await login(this.loginInfo.usernameOrEmail, this.loginInfo.password);
           console.log('登录响应:', response);
           if (response.ret === 'success') {
-            this.$router.push('/'); 
+            this.$router.push('/');
             this.setLoginButtonEnabled(true);
+            localStorage.setItem('LBE',true);
             this.setUsername(response.data.username);
-            document.cookie = `username=${response.data.username}; path=/`;
+            localStorage.setItem('username', response.data.username);
+
             this.setTeamname(response.data.team_name);
-            if(response.data.team_name){
-              document.cookie = `teamname=${response.data.team_name}; path=/`;
+            if (response.data.team_name) {
+              localStorage.setItem('teamname', response.data.team_name);
             }
+
             this.setScore(response.data.score);
-            document.cookie = `score=${response.data.score}; path=/`;
+            localStorage.setItem('score', response.data.score);
+
             this.setIsLogin(true);
-            document.cookie = `isLogin=${true}; path=/`;
-            this.setErr("");          
-            if(response.data.team_name&&!response.data.is_leader) {
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(true);
-              document.cookie = `isMember=${true}; path=/`;
-            }
-            else if(response.data.is_leader){
-              this.setIsLeader(true);
-              document.cookie = `isLeader=${true}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
-            }
-            else{
-              this.setIsLeader(false);
-              document.cookie = `isLeader=${false}; path=/`;
-              this.setIsMember(false);
-              document.cookie = `isMember=${false}; path=/`;
+            localStorage.setItem('isLogin', 'true');
+            
+            this.setErr("");
+
+            this.setIsLeader(response.data.is_leader);
+            if(response.data.is_leader){
+              localStorage.setItem('isLeader', response.data.is_leader);
             }
           }
         } catch (error) {
@@ -100,18 +98,59 @@
     top: auto;
     left: auto;
     width: 450px;
-    height: 270px;
+    height: 360px;
     background-color: #1e1e1e;
     justify-content: center;
     align-items: center;
     padding: 20px;
     border-style: solid;
-    border-radius: 5px;
+    border-radius: 20px;
     border-color:white;
     border-width: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     text-align: center;
     color:white;
+  }
+  .uniquecontainer label{
+    float: left;
+    margin-left:10px;
+    margin-bottom: 2px;
+  }
+  .uniquecontainer input{
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    height: 25px;
+    width: 220px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .uniquecontainer input:focus{   
+    outline: none;
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    height: 25px;
+    width: 220px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .uniquecontainer {  
+    width: 250px;
+    background-color: #555;
+    margin: 0 auto;
+    margin-bottom:5px;
+    border-radius: 5px;
+    padding-top: 5px;
+  }
+  .uniquebutton{
+    width: 70px;
+    height: 35px;
+    font-size: 16px;
   }
   .btn{
     border: none;
@@ -138,7 +177,7 @@
     cursor: pointer;
   }
   #er{
-    height: 8px;
+    padding: 4px;
     color:red;
     font-size: small;
   }

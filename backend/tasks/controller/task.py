@@ -1,5 +1,8 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from utils import get_request_params, ExceptionEnum, error_template, success_template
+from django.views.decorators.http import require_http_methods
+
+from utils import get_request_params, ExceptionEnum, error_template, success_template, SuccessEnum
 from tasks.models import Task, AnswerRecord
 from django.contrib.auth.models import User
 
@@ -14,6 +17,7 @@ def dispatcher(request):
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
+@require_http_methods("GET")
 def list_tasks(request):
     """
     GET
@@ -26,44 +30,41 @@ def list_tasks(request):
     {
         "ret": "success" / "error",
         "msg": "查询成功",
-        "data": [
-            {
-                "task_id": 1,
-                "task_name": "ez web",
-                "src": "ezctf",
-                "difficulty": 0,
-                "points": 10,
-                "solve_count": 12,
-                "solved": true,
-            },
-            {
-                "task_id": 2,
-                "task_name": "ez web",
-                "src": "ezctf",
-                "difficulty": 0,
-                "points": 10,
-                "solve_count": 12,
-                "solved": false,
-            },
-        ]
+        "data": {
+            "task_list": [
+                {
+                    "task_id": 1,
+                    "task_name": "ez web",
+                    "src": "ezctf",
+                    "difficulty": 0,
+                    "points": 10,
+                    "solve_count": 12,
+                    "solved": true,
+                },
+                {
+                    "task_id": 2,
+                    "task_name": "ez web",
+                    "src": "ezctf",
+                    "difficulty": 0,
+                    "points": 10,
+                    "solve_count": 12,
+                    "solved": false,
+                },
+            ]
+        "total": 2,
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+    task_type = int(request.GET.get("type"))
+    print("task_type", task_type)
+    tasks = find_by_type_and_difficulty(task_type=task_type)
 
-    task_type = request.GET.get("type")
-    qs = Task.objects.all()
-    if not qs:
-        return error_template(ExceptionEnum.TEAM_NOT_FOUND.value, status=404)
-
-    if task_type:
-        qs = qs.filter(task_type=int(task_type))  # MISC = 0
-
-    uid = request.session.get('_auth_user_id')
-    user = User.objects.get(pk=uid)
+    user = None
+    if request.user.is_authenticated:
+        uid = request.session.get('_auth_user_id')
+        user = User.objects.get(pk=uid)
 
     dic = {}
-    for task in qs:
+    for task in tasks:
         dic[task.id] = False
 
     if user is not None:
@@ -71,9 +72,8 @@ def list_tasks(request):
         for solved_task in answered_tasks:
             dic[solved_task.task_id] = True
 
-
     task_list = []
-    for task in qs:
+    for task in tasks:
         solved = dic[task.id]
         task_list.append({
             "task_id": task.id,
@@ -86,9 +86,16 @@ def list_tasks(request):
             "solved": solved,
         })
 
-    return success_template("查询成功", data=task_list, status=200)
+    res_data = {
+        "task_list": task_list,
+        "total": len(task_list),
+    }
+
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data, status=200)
 
 
+@login_required
+@require_http_methods("GET")
 def detail(request):
     """
     GET
@@ -98,9 +105,6 @@ def detail(request):
         "task_id": 1,
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     task_id = request.GET.get("task_id")
     if not task_id:
         return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
@@ -109,10 +113,53 @@ def detail(request):
         return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
 
     # 构建返回的数据
-    task_data = {
+    res_data = task_data_format(task)
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
+
+
+#####################
+#      Service      #
+#####################
+
+def find_by_type_and_difficulty(task_type=-1, difficulty=-1):
+    """
+    class TaskType(models.IntegerChoices):
+        MISC = 0
+        CRYPTO = 1
+        WEB = 2
+        REVERSE = 3
+        PWN = 4
+
+    class Difficulty(models.IntegerChoices):
+        EAZY = 0
+        Medium = 1
+        HARD = 2
+    """
+    filter_type = False
+    filter_diff = False
+    if task_type in range(0, 5):
+        print("in range")
+        filter_type = True
+    else:
+        print("out range")
+    if int(difficulty) in range(0, 3):
+        filter_diff = True
+    if filter_type and filter_diff:
+        return Task.objects.filter(task_type=task_type, difficulty=difficulty)
+    elif filter_type:
+        return Task.objects.filter(task_type=task_type)
+    elif filter_diff:
+        return Task.objects.filter(difficulty=difficulty)
+    else:
+        return Task.objects.all()
+
+
+def task_data_format(task):
+    flag = task.annex is not None
+    return {
         "task_id": task.id,
         "task_name": task.task_name,
+        "annex": flag,
         "content": task.content,
         "task_type": task.task_type,
     }
-    return success_template("查询成功", data=task_data)

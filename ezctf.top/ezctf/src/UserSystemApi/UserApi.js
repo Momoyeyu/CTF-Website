@@ -88,7 +88,7 @@ export const resetPassword = async (valid_code,email,new_password) => {
       },
     };
 
-    const response = await api.post('/api/common/user?action=reset_password', requestData);
+    const response = await api.put('/api/common/user?action=reset_password', requestData);
     return response.data;
   } catch (error) {
     throw error;
@@ -136,6 +136,15 @@ export const deleteUserInfo = async (password) => {
 
     const response = await api.delete('/api/common/user?action=del_account', requestData);
     return response.status;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const profile = async (username) => {
+  try {
+    const response = await api.get(`/api/common/user?action=profile&username=${username}`);
+    return response.data;
   } catch (error) {
     throw error;
   }

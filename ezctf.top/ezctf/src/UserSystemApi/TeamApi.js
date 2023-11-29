@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 axios.defaults.withCredentials = true;
 const BASE_URL = 'http://localhost:80'; 
 
@@ -36,7 +37,19 @@ export const joinTeam = async (teamname) => {
       },
     };
 
-    const response = await api.put('/api/common/team?action=join_team', requestData);
+    const response = await api.post('/api/common/team?action=join_team', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const quitTeam = async () => {
+  try {
+    const requestData = {
+      action: 'quit_team',
+    };
+    const response = await api.get(`/api/common/team?action=quit_team`, requestData);
     return response.data;
   } catch (error) {
     throw error;
@@ -44,19 +57,12 @@ export const joinTeam = async (teamname) => {
 };
 
 export const searchTeam = async (key_word) => {
-    try {
-      const requestData = {
-        action: 'search_team',
-        data: {
-          keyword: key_word,
-        }
-      };
-
-      const response = await api.get('/api/common/team?action=search_team', requestData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+  try {
+    const response = await api.get(`/api/common/team?action=search_team&keyword=${key_word}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const changeTeamLeader = async (newLeaderName) => {
@@ -120,3 +126,64 @@ export const kickoutMember = async (username) => {
     throw error;
   }
 };
+
+export const teamDetail = async (teamname) => {
+  try {
+    const response = await api.get(`/api/common/team?action=team_detail&team_name=${teamname}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const accept = async (name,state) => {
+  try {
+    const requestData = {
+      action: 'accept',
+      data: {
+        inviter: name,
+        accept: state,
+      },
+    };
+
+    const response = await api.post('/api/common/team?action=accept', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const verifyApply = async (name,state) => {
+  try {
+    const requestData = {
+      action: 'verify_apply',
+      data: {
+        applicant: name,
+        accept: state,
+      },
+    };
+
+    const response = await api.post('/api/common/team?action=verify_apply', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const Invite = async (name) => {
+  try {
+    const requestData = {
+      action: 'invite',
+      data: {
+        invitee: name,
+        invite_msg: "加入我们吧",
+      },
+    };
+
+    const response = await api.post('/api/common/team?action=invite', requestData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+

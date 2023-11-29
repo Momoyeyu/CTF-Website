@@ -10,6 +10,7 @@
 <NoTeam v-if="noTeam"/>
 <CreateTeam v-if="createTeam"/>
 <JoinTeam v-if="joinTeam"/>
+<AcceptInvitation v-if="acceptInvite" />
 </div>
 </div>
 </template>
@@ -25,14 +26,15 @@ import InfoBoard from '../components/InfoBoard.vue';
 import NoTeam from '../components/NoTeam/NoTeam.vue';
 import CreateTeam from '../components/NoTeam/CreateTeam.vue';
 import JoinTeam from '../components/NoTeam/JoinTeam.vue';
+import AcceptInvitation from '../components/AcceptInvitation.vue';
 export default {
 name:'Ranking',
-components:{Banner,Showquestion,Notice,ModifyUser,DeleteUser,InfoBoard,NoTeam,CreateTeam,JoinTeam},
+components:{Banner,Showquestion,Notice,ModifyUser,DeleteUser,InfoBoard,NoTeam,CreateTeam,JoinTeam,AcceptInvitation},
 computed: {
-    ...mapState(['modifyUser','deleteUser','infoBoard','noTeam','createTeam','joinTeam']),
+    ...mapState(['modifyUser','deleteUser','infoBoard','noTeam','createTeam','joinTeam','acceptInvite']),
 },
 methods: {
-  ...mapMutations(['setModifyUser','setDeleteUser','setInfoBoard','setNoTeam','setCreateTeam','setJoinTeam']),
+  ...mapMutations(['setModifyUser','setDeleteUser','setInfoBoard','setNoTeam','setCreateTeam','setJoinTeam','setAcceptInvite']),
 }
 }
 </script>

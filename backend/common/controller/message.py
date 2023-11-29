@@ -2,6 +2,8 @@ from utils import get_request_params, error_template, success_template, Exceptio
 from common.models import Message, CustomUser
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.db.models import Q
 
 
 def dispatcher(request):
@@ -18,14 +20,19 @@ def dispatcher(request):
         return get_applications(request)
     elif action == "get_invitations":
         return get_invitations(request)
-    elif action == "check_messages":
-        return check_messages(request)
+    elif action == "check_message":
+        return check_message(request)
+    elif action == "get_unchecked_count":
+        return get_unchecked_count(request)
+    elif action == "check_all":
+        return check_all(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
 @login_required
+@require_http_methods("GET")
 def get_messages(request):
     """
     GET
@@ -44,20 +51,23 @@ def get_messages(request):
                     "origin": "xx1",
                     "message": "want to join your team"
                     "create_time": "2023-10-27T14:30:00.000Z",
+                    "msg_type": 3,
+                    "checked": false,
                 },
                 {
                     "receiver": "xx2",
                     "origin": "momoyeyu",
                     "message": "hello",
                     "create_time": "2023-10-27T14:30:00.000Z",
+                    "msg_type: 1,
+                    "checked": true,
                 },
             ],
             "total": 2,
+            "unchecked_count": 1,
         }
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -66,32 +76,44 @@ def get_messages(request):
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
-    messages = Message.objects.filter(receiver=user) | Message.objects.filter(origin=user)
+    messages = Message.objects.filter((Q(receiver=user) | Q(origin=user)) & Q(is_active=True))
     res_data = {
         "message_list": [],
         "total": 0,
+        "unchecked_count": 0,
     }
     if not messages:  # 没有查询到消息，但请求是合法的
         return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
     messages_list = []
+    unchecked_count = 0
     for message in messages:
         if message.receiver is None or message.origin is None:
             message.delete()
             continue
+        check_flag = message.checked
+        if check_flag is False:
+            unchecked_count += 1
         info = {
+            "message_id": message.id,
             "receiver": message.receiver.username,
             "origin": message.origin.username,
             "message": message.msg,
-            "create_time": message.create_time.isoformat()
+            "create_time": message.create_time.isoformat(),
+            "msg_type": message.msg_type,
+            "checked": check_flag,
         }
         messages_list.append(info)
-    res_data["message_list"] = messages_list
-    res_data["total"] = len(messages_list)
+    res_data = {
+        "message_list": messages_list,
+        "total": len(messages_list),
+        "unchecked_count": unchecked_count,
+    }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
 @login_required
+@require_http_methods("GET")
 def get_applications(request):
     """
     GET
@@ -104,13 +126,20 @@ def get_applications(request):
         "ret": "success" / "error",
         "msg": "信息查询成功" / "其他报错",
         "data": {
-            "applicant_list": ["aaa", "bbb"],
-            "total": 2,
-        }
+        "applicant_list": [
+            {
+                "username": "momoyeyu",
+                "score": 100,
+            },
+            {
+                "username": "juanboy",
+                "score": 100,
+            },
+        ],
+        "total": 2,
+    }
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -119,7 +148,9 @@ def get_applications(request):
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
     #                                                                                 # APPLICATION.value = 3
-    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.APPLICATION.value)
+    messages = Message.objects.filter(receiver_id=user.id,
+                                      msg_type=Message.MessageType.APPLICATION.value,
+                                      is_active=True)
     res_data = {
         "applicant_list": [],
         "total": 0,
@@ -132,14 +163,20 @@ def get_applications(request):
         if message.origin is None:
             message.delete()
             continue
-        applicant_list.append(message.origin.username)
-
-    res_data["applicant_list"] = applicant_list
-    res_data["total"] = len(applicant_list)
+        info = {
+            "username": message.origin.username,
+            "score": message.origin.custom_user.score,
+        }
+        applicant_list.append(info)
+    res_data = {
+        "applicant_list": applicant_list,
+        "total": len(applicant_list),
+    }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
 
 @login_required
+@require_http_methods("GET")
 def get_invitations(request):
     """
     GET
@@ -166,8 +203,6 @@ def get_invitations(request):
         }
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -175,15 +210,16 @@ def get_invitations(request):
     user = User.objects.get(pk=uid)
     if user is None:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
-    #                                                                                 # INVITATION.value = 4
-    messages = Message.objects.filter(receiver_id=user.id, msg_type=Message.MessageType.INVITATION.value)
 
+    messages = Message.objects.filter(receiver_id=user.id,
+                                      msg_type=Message.MessageType.INVITATION.value,  # INVITATION.value = 4
+                                      is_active=True)
     res_data = {
         "invitation_list": [],
         "total": 0,
     }
     if not messages:  # 没有查询到消息，但请求是合法的
-        return success_template(SuccessEnum.QUERY_SUCCESS.value, status=200)
+        return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
     invitation_list = []
     for message in messages:
@@ -207,16 +243,67 @@ def get_invitations(request):
 
 
 @login_required
-def check_messages(request):
+@require_http_methods("GET")
+def check_message(request):
     """
-    PUT
+    GET
     @param:
     {
-        "action": "check_messages",
+        "action": "check_message",
+        "message_id": 1,
     }
     """
-    if request.method != "PUT":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+    if not request.user.is_authenticated:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    message_id = request.params["message_id"]
+    if not message_id:
+        return error_template(ExceptionEnum.MISS_PARAMETER.value, status=400)
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    if user is None or user.is_active is False:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+
+    message = Message.objects.get(pk=message_id)
+    if message.receiver != user and message.origin != user:
+        return error_template(ExceptionEnum.UNAUTHORIZED.value, status=403)
+    message.checked = True
+    message.save()
+    return success_template(SuccessEnum.REQUEST_SUCCESS.value)
+
+
+@login_required
+@require_http_methods("GET")
+def get_unchecked_count(request):
+    """
+    GET
+    @param:
+    {
+        "action": "get_unchecked_count",
+    }
+    """
+    if not request.user.is_authenticated:
+        return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    if user is None or user.is_active is False:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    messages = Message.objects.filter((Q(origin=user) | Q(receiver=user)) & Q(checked=False) & Q(is_active=True))
+    res_data = {
+        "unchecked_count": len(messages),
+    }
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
+
+
+@login_required
+@require_http_methods("GET")
+def check_all(request):
+    """
+    GET
+    @param:
+    {
+        "action": "check_all",
+    }
+    """
     if not request.user.is_authenticated:
         return error_template(ExceptionEnum.USER_NOT_LOGIN.value, status=403)
 
@@ -225,5 +312,5 @@ def check_messages(request):
     if user is None or user.is_active is False:
         return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
 
-    Message.objects.filter(receiver=user).update(checked=True)
+    Message.objects.filter((Q(origin=user) | Q(receiver=user)) & Q(is_active=True)).update(checked=True)
     return success_template(SuccessEnum.REQUEST_SUCCESS.value)

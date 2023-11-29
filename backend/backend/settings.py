@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-^wh902yfpgf+p3f_rage%h%#d741nqfanx*-9xe(60a+x)m*vr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost'
+]
 
 # Application definition
 
@@ -50,13 +52,15 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # CORS跨域资源共享
     'corsheaders.middleware.CorsMiddleware',
+
+    # csrf 中间件，此处设置会在全局生效
+    # 'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -163,6 +167,7 @@ CORS_ALLOW_CREDENTIALS = True
 #     "http://localhost:8080",
 #     "http://localhost:8000",
 #     "http://localhost:80",
+#     "ezctf.top",
 #     # 允许其他需要的域名
 # ]
 
@@ -186,3 +191,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ONLINESCENE_ROOT = os.path.join(BASE_DIR,'probs')
 
 LOGIN_URL = 'http://localhost:8080/#/Login'
+
+# CSRF
+# CSRF_COOKIE_HTTPONLY = False
+# CSRF_COOKIE_AGE = 31449600
+# CSRF_COOKIE_NAME = 'csrftoken'
+# CSRF_USE_SESSIONS = False
+# CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+#
+# X_FRAME_OPTIONS = "SAMEORIGIN"
+
+

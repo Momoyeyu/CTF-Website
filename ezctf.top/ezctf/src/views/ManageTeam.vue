@@ -4,14 +4,17 @@
     <ChangeTeamname v-if="changeTeamname"/>
     <ChangeLeader v-if="changeLeader"/>
     <KickMember v-if="kickMember"/>
+    <InviteMember v-if="inviteMember"/>
     <div id="manageTeam" v-if="manageTeam">
       <button @click="close()" class="close-btn">&#10006;</button>
       <h1>战队管理</h1>
       <p>
-        战队名称：{{ teamInfo.name }}  &nbsp; 战队人数: {{ teamInfo.membernum }}/{{ teamInfo.maxnum }}
+        战队名称：{{ teamInfo.name }}  &nbsp; 战队人数: {{ team.membernum }}/{{ team.maxnum }}
         <button @click="changeteaminfo()">修改名称</button>
       </p>
       <h2>战队成员</h2>
+      <button @click="Invite()">邀请成员</button>
+      <br><br>
       <div class="scrollable-table-container">
         <table class="three-column-table">
         <thead>
@@ -22,19 +25,19 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="member in members" :key="member.id">
-            <td>{{ member.name }}</td>
+            <tr v-for="member in members" :key="member.username">
+            <td>{{ member.username }}</td>
             <td>{{ member.score }}</td>
             <td>
-                <button @click="changeTeamLeader(member.name)">队长转让</button> |
-                <button @click="kickmember(member.name)">移出战队</button>
+                <button @click="changeTeamLeader(member.username)" v-if="checkLeader(member.username)">队长转让</button> &nbsp;
+                <button @click="kickmember(member.username)" v-if="checkLeader(member.username)">移出战队</button>
             </td>
             </tr>
         </tbody>
         </table>
       </div>
       <br>
-      <h3 v-if="team.check">申请审核</h3>
+      <h2 v-if="team.check">申请列表</h2>
       <div class="scrollable-table-container">
         <table class="three-column-table" v-if="team.check">
         <thead>
@@ -45,12 +48,12 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="applicant in applicants" :key="applicant.id">
-            <td>{{ applicant.name }}</td>
+            <tr v-for="applicant in applicants" :key="applicant">
+            <td>{{ applicant.username }}</td>
             <td>{{ applicant.score }}</td>
             <td>
-                <button @click="approveApplicant(applicant.id)">通过</button> |
-                <button @click="rejectApplicant(applicant.id)">拒绝</button>
+                <button @click="verify_apply(applicant.username,true)">通过</button> &nbsp;
+                <button @click="verify_apply(applicant.username,false)">拒绝</button>
             </td>
             </tr>
         </tbody>
@@ -67,41 +70,45 @@
   import ChangeTeamname from '@/components/ChangeTeamname.vue'
   import ChangeLeader from '@/components/ChangeLeader.vue'
   import KickMember from '@/components/KickMember.vue'
+  import InviteMember from '@/components/InviteMember.vue'
   import { mapState, mapMutations } from 'vuex';
-  import { changeTeamname } from '@/UserSystemApi/TeamApi';
+  import { teamDetail,verifyApply } from '@/UserSystemApi/TeamApi';
+  import { getApply } from '@/UserSystemApi/MessageApi';
   export default {
-    components:{DeleteTeam,ChangeTeamname,ChangeLeader,KickMember},
+    components:{DeleteTeam,ChangeTeamname,ChangeLeader,KickMember,InviteMember},
     data() {
       return {
         members: [
-          { id: 1, name: "jwf", score: 100 },
-          { id: 2, name: "yyl", score: 100 },
-          { id: 3, name: "lwk", score: 100 },
-          { id: 4, name: "sjj", score: 100 },
+          { username: "-", score: "-" },
         ],
         applicants: [
-          { id: 1, name: "张三", score: 59 },
-          { id: 2, name: "李四", score: 99 },
+          { name: "-", score: "-" },
         ],
-        team: {},
+        team: {
+          membernum: '',
+          maxnum: '10',
+          check: true,
+        },
       };
     },
     computed: {
-    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam','changeTeamname','manageTeam','newLeader','changeLeader','kickMember','kMember']),
+    ...mapState(['userInfoButtonEnabled','username','teamname','isLeader','isMember','deleteTeam','changeTeamname','manageTeam','newLeader','changeLeader','kickMember','kMember','inviteMember']),
     teamInfo() {
       return{
           leader_name: this.$store.state.username,
           name: this.$store.state.teamname,
-          membernum: '4',
-          maxnum: '10',
-          check: true
       }
     },
     },
+    mounted() {
+      this.team_detail(this.teamInfo.name);
+      this.get_apply();
+    },
     methods: {
-      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember']),
+      ...mapMutations(['setUserInfoButtonEnabled','setUsername','setTeamname','setIsLeader','setIsMember','setDeleteTeam','setChangeTeamname','setManageTeam','setNewLeader','setChangeLeader','setKMember','setKickMember','setInviteMember']),
       close() {
         this.setUserInfoButtonEnabled(true);
+        localStorage.setItem('UBE',true);
         this.$router.push('/');
       },
       delete_Team(){
@@ -122,14 +129,57 @@
         this.setManageTeam(false);
         this.setKMember(name);
       },
-      approveMember(memberId) {
-        // 审核通过新成员的逻辑
-        console.log(`成员 ${memberId} 已被审核通过`);
+      invite_member(){
+        this.setInviteMember(true);
+        this.setManageTeam(false);
       },
-      rejectMember(memberId) {
-        // 拒绝新成员的逻辑
-        console.log(`成员 ${memberId} 的申请已被拒绝`);
+      Invite(){
+        this.setManageTeam(false);
+        this.setInviteMember(true);
       },
+      async team_detail(name) {
+        try {
+          const response = await teamDetail(name);
+          console.log('获取用户列表响应', response);
+          if(response.ret==='success'){
+            this.members=response.data.members;
+            this.team.membernum=response.data.team_member;
+            console.log(response.data);
+          }
+        } catch (error) {
+          console.error('错误:', error);
+        }
+      },
+      async verify_apply(name,state) {
+        try {
+          const response = await verifyApply(name,state);
+          console.log('通过审核响应', response);
+          if(response.ret==='success'){
+            alert(response.msg);
+          }
+        } catch (error) {
+          alert(error.response.data.msg);
+          console.error('错误:', error);
+        }
+      },
+      async get_apply() {
+        try {
+          const response = await getApply();
+          console.log('获取申请列表响应', response);
+          if(response.ret==='success'){
+            this.applicants=response.data.applicant_list;
+          }
+        } catch (error) {
+          alert(error.response.data.msg);
+          console.error('错误:', error);
+        }
+      },
+      checkLeader(name){
+        if(name==this.teamInfo.leader_name){
+          return false;
+        }
+        return true;
+      }
     },
   };
 </script>
@@ -141,11 +191,9 @@ background-image:url("../assets/背景.png");
 background-size:cover;
 }
 #manageTeam {
-    margin-top: 100px;
-    margin-left: 300px;
-    position: absolute;
     top: auto;
     left: auto;
+    position: absolute;
     width: 800px;
     justify-content: center;
     align-items: center;
@@ -188,5 +236,6 @@ background-size:cover;
 .three-column-table td:first-child {
   text-align: center;
 }
+
 </style>
   
