@@ -54,20 +54,15 @@
             localStorage.setItem('LBE',true);
             this.setUsername(response.data.username);
             localStorage.setItem('username', response.data.username);
-
             this.setTeamname(response.data.team_name);
             if (response.data.team_name) {
               localStorage.setItem('teamname', response.data.team_name);
             }
-
             this.setScore(response.data.score);
             localStorage.setItem('score', response.data.score);
-
             this.setIsLogin(true);
-            localStorage.setItem('isLogin', 'true');
-            
+            localStorage.setItem('isLogin', 'true'); 
             this.setErr("");
-
             this.setIsLeader(response.data.is_leader);
             if(response.data.is_leader){
               localStorage.setItem('isLeader', response.data.is_leader);
@@ -141,7 +136,7 @@
   }
   .uniquecontainer {  
     width: 250px;
-    background-color: #555;
+    background-color: #1e1e1e;
     margin: 0 auto;
     margin-bottom:5px;
     border-radius: 5px;
