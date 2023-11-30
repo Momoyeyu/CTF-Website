@@ -10,7 +10,7 @@
     <div class="scrollable-container">
       <ul>
       <li v-for="message in reversedMessages" :key="message.message_id">
-        <div @click="clickMess(message.message_id, message.msg_type,message.checked,message.origin)" class="message-item" v-if="fil(message.receiver)">
+        <div @click="clickMess(message.message_id, message.msg_type,message.checked,message.origin)" class="message-item" v-if="fil(message.receiver)||fil(message.origin)">
           <div class="message-origin">{{ message.origin }} :</div>
           <div class="sign" v-if="!message.checked"></div>
           <div class="message-text">{{ mess(message.msg_type, message.message) }}</div>
@@ -94,7 +94,7 @@ export default {
           clickedMessage.checked = 1;
         }
       }
-      if(type==4){
+      if(type==4&&inviter!=this.name){
           this.setInviter(inviter);
           this.setAcceptInvite(true);
           this.setInfoBoard(false);

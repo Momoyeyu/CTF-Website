@@ -48,7 +48,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="applicant in applicants" :key="applicant">
+            <tr v-for="applicant in applicants" :key="applicant.score">
             <td>{{ applicant.username }}</td>
             <td>{{ applicant.score }}</td>
             <td>
