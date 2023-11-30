@@ -195,8 +195,10 @@ def join_team(request):
         return success_template(SuccessEnum.REQUEST_SUCCESS.value)
 
     # 发送加入申请
-    if Message.objects.filter(receiver=team.leader, origin=user,  # APPLICATION = 3
-                              msg_type=Message.MessageType.APPLICATION.value).exists():
+    if Message.objects.filter(receiver=team.leader,
+                              origin=user,  # APPLICATION = 3
+                              msg_type=Message.MessageType.APPLICATION.value,
+                              is_active=True).exists():
         return error_template("请求已存在", status=409)
 
     msg = "希望加入你的队伍"
@@ -252,7 +254,7 @@ def quit_team(request):
     team.save()
     custom_user.save()
 
-    return success_template("成功退出团队")
+    return success_template(SuccessEnum.QUERY_SUCCESS.value)
 
 
 @require_http_methods("GET")
@@ -489,6 +491,12 @@ def invite(request):
 
     if team.leader != user:
         return error_template(ExceptionEnum.NOT_LEADER.value, status=403)
+
+    if Message.objects.filter(receiver=team.leader,
+                              origin=user,  # APPLICATION = 3
+                              msg_type=Message.MessageType.INVITATION.value,
+                              is_active=True).exists():
+        return error_template("请求已存在", status=409)
 
     msg = str(invite_msg)
     send_message(invitee.id, user.id, msg=msg, msg_type=Message.MessageType.INVITATION.value)  # INVITATION.value = 4

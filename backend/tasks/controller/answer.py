@@ -118,6 +118,8 @@ def download_attachment(request):
         return error_template(ExceptionEnum.DATA_NOT_FOUND.value, status=404)
 
 
+@login_required
+@require_http_methods("GET")
 def list_solved(request):
     """
     GET
@@ -155,6 +157,9 @@ def list_solved(request):
     }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
 
+
+@login_required
+@require_http_methods("GET")
 def create_online(request):
     """
     GET
@@ -173,9 +178,6 @@ def create_online(request):
         }
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     task_id = request.GET.get("task_id")
     task = Task.objects.get(id=int(task_id))
     print(f'success {task_id}')
@@ -186,11 +188,17 @@ def create_online(request):
     print(scene_path)
     try:
         port = start_container(task.task_name)
-        return success_template('Success!', data={'ip': 'localhost', 'port': port,}, status=200)
+        res_data = {
+            "ip" : "localhost",
+            "port": port,
+        }
+        return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data, status=200)
     except:
-        return error_template("Failed to online scene!", status=405)
+        return error_template("Failed to online scene!", status=500)
 
 
+@login_required
+@require_http_methods("GET")
 def wait_online(request):
     """
     GET
@@ -199,12 +207,8 @@ def wait_online(request):
         "task_id": 2,
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     task_id = request.GET.get("task_id")
-    task = Task.objects.get(id=int(task_id))
-    # print(f'success {task_id}')
+    task = Task.objects.get(pk=int(task_id))
     if task is None:
         return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
 
@@ -212,9 +216,13 @@ def wait_online(request):
     print(scene_path)
     try:
         asyncio.run(wait_container(task.task_name))
-        return success_template('Success!',status=200)
+        return success_template(SuccessEnum.QUERY_SUCCESS.value,status=200)
     except:
-        return error_template("Failed to online scene!", status=405)
+        return error_template("Failed to online scene!", status=500)
+
+
+@login_required
+@require_http_methods("GET")
 def stop_online(request):
     """
     GET
@@ -223,11 +231,8 @@ def stop_online(request):
         "task_id": 1,
     }
     """
-    if request.method != "GET":
-        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
-
     task_id = request.GET.get("task_id")
-    task = Task.objects.get(id=int(task_id))
+    task = Task.objects.get(pk=int(task_id))
     # print(f'success {task_id}')
     if task is None:
         return error_template(ExceptionEnum.TASK_NOT_FOUND.value, status=404)
@@ -236,6 +241,7 @@ def stop_online(request):
     # print(scene_path)
     try:
         asyncio.run(stop_container(task.task_name))
-        return success_template('Success!', status=200)
-    except: return error_template("Failed to stop online scene!", status=405)
+        return success_template(SuccessEnum.QUERY_SUCCESS.value, status=200)
+    except:
+        return error_template("Failed to stop online scene!", status=500)
 
