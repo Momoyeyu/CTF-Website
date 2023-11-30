@@ -162,6 +162,16 @@ def create_online(request):
         "action": "create_online",
         "task_id": 1,
     }
+
+    JsonResponse
+    {
+        'ret': 'success',
+        'msg': 'Success!',
+        'data':{
+            'ip': 'localhost',
+            'port': 8478,
+        }
+    }
     """
     if request.method != "GET":
         return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
