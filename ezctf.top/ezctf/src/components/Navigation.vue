@@ -24,18 +24,18 @@
           </div>
           <br>
           <button @click="message()" class="board">
-            <img src="../assets/icon/消息.png" class="icon">&nbsp;消息通知
+            <i id="message" class="iconfont icon-xiaoxi"></i>&nbsp;消息通知
             <p class="sign" v-if="num(messnum)">{{ messnum }}</p>
           </button><br><br>
           <button @click="team()" class="board">
-            <img src="../assets/icon/战队.png" class="icon">&nbsp;我的战队
+            <i id="team" class="iconfont icon-yusherenyuan"></i>&nbsp;我的战队
           </button><br><br>
-          <button @click="setinfo()" class="board" v-if="setInfo">用户设置</button>
+          <button @click="setinfo()" class="board" v-if="setInfo"><i id="usersetting" class="iconfont icon-chilun"></i>用户设置</button>
           <button @click="modify()" class="infoBtn" v-if="!setInfo">修改信息</button>
           <button @click="Delete()" class="infoBtn" v-if="!setInfo">注销账号</button>
           <button class="infoBtn" @click="setinfo()" v-if="!setInfo">返回</button>
           <br><br>
-          <button @click="quit()" class="board">退出登录</button>
+          <button @click="quit()" class="board"><i id="logout" class="iconfont icon-guanji"></i>退出登录</button>
         </div>
       </div>
       
@@ -355,6 +355,7 @@ nav {
   text-align: center;
   color: white;
   border-radius: 5px;
+  font-size: 14px;
 }
 
 .board:hover {
@@ -411,5 +412,17 @@ nav {
     text-align: center;
     top:235px;
     right:40px;
+  }
+  #message{
+    font-size: 15px;
+  }
+  #usersetting{
+    font-size: 15px;
+  }
+  #logout{
+    font-size: 15px;
+  }
+  #team{
+    font-size: 15px;
   }
 </style>
