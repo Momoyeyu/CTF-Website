@@ -9,7 +9,7 @@
             <tr v-if="this.fetchMy" class="Myrank-title">
                 <td>我的排名</td>
                 <td>姓名</td>
-                <td>得分</td>
+                <td>积分</td>
                 <td>上次提交</td>
             </tr>
             <tr v-if="this.fetchMy" class="Myrank-body">
@@ -21,7 +21,7 @@
             <tr class="table-title">
                 <td>总排名</td>
                 <td>姓名</td>
-                <td>得分</td>
+                <td>积分</td>
                 <td>上次提交</td>
             </tr>
             <tr v-for="item in sortedUsers" :key="item.rank">

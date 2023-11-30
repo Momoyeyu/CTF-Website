@@ -155,7 +155,7 @@
   }
   .uniquecontainer {  
     width: 250px;
-    background-color: #555;
+    background-color: #1e1e1e;
     margin: 0 auto;
     margin-bottom:5px;
     border-radius: 5px;

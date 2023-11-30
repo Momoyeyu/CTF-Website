@@ -18,21 +18,24 @@
                 </tr>  
               </table>  
               <p class="popup-description">题目描述：{{ Detail.content }}</p>
-              <p v-if="item.solved" class="popup-flag"></p>
+              <p v-if="item.solved"></p>
             <div v-else class="popup-flag">  
               <div>
-              <button v-if="(item.task_type===2||item.task_type===4)&&this.iscountdown" class="onlineStage" @click="GetonlineStage">创建在线场景</button>
-              <div v-if="!this.iscountdown">
-                <a href="8.130.98.1" style="text-decoration: none;">8.130.98.1:8888</a><br>
-                <span style="font-size: 14px;">倒计时:{{countdown}}S</span>
-                <button class="onlineStage" @click="DeleteonlineStage">删除场景</button>
+                <button v-if="(item.task_type===2||item.task_type===4)&&!this.iscountdown" 
+                class="onlineStage" @click="GetonlineStage(item.task_id)">
+                <i class="iconfont icon-diannao"></i>创建在线场景</button>
+              <div v-if="this.iscountdown">
+                <a :href="ipandport" style="text-decoration: none;">{{ ipandport }}</a><br>
+                <span style="font-size: 14px;">倒计时:{{countdown}}s</span>
+                <button class="onlineStage" @click="DeleteonlineStage(item.task_id)">删除场景</button>
               </div>
               </div>
               <input type="text" v-model="inputData" placeholder="请输入FLAG~~"/>  
               <button class="hangin" @click="checkInput">提交</button> 
             </div> 
             <div class="popup-download">  
-                <a v-if="Detail.annex" :href="downloadLink" @click="handleDownloadClick">点击下载附件</a>  
+                <a v-if="Detail.annex" :href="downloadLink" @click="handleDownloadClick">
+                  <i class="iconfont icon-xiazai"></i>点击下载附件</a>  
               </div>  
         </div>
     </div>
@@ -47,9 +50,10 @@ name:'Popup',
 data:function(){
   return{
     isModalVisible: false,
-    iscountdown:true,
-    countdown:7200,
+    iscountdown:false,
+    countdown:0,
     inputData: "",
+    ipandport: "",
     Flag:{
       "action": "commit_flag",
       "data": {
@@ -81,7 +85,30 @@ methods:{
       alert("前面的区域登录以后再来探索吧~~");
       this.$router.push("/Log");
     }
-    else this.isModalVisible = !this.isModalVisible;
+    else {
+      this.isModalVisible = !this.isModalVisible;
+      let storedCountdown = localStorage.getItem("countdown"+this.item.task_id); // 从 LocalStorage 中获取倒计时时间  
+    if (storedCountdown) { 
+      if(!this.intervalId){
+      this.countdown = parseInt(storedCountdown); // 将字符串转换为整数，并赋值给倒计时时间变量  
+      this.ipandport=localStorage.getItem("ipandport"+this.item.task_id);
+      if (this.countdown > 0) {  
+        this.iscountdown = true; // 设置倒计时状态为活跃状态（如果倒计时时间大于0）
+        this.intervalId = setInterval(() => {  // 定义并赋值给 this.intervalId  
+          this.countdown--;    
+          if (this.countdown <= 0) {    
+          this.DeleteonlineStage();    
+          }  
+          }, 1000);
+      } else {  
+        this.iscountdown = false; // 如果倒计时时间为0或负数，则设置倒计时状态为非活跃状态（已停止）  
+        localStorage.removeItem('countdown');
+        this.DeleteonlineStage(this.item.task_id);   
+      }}
+    } else {  
+      // 如果 LocalStorage 中不存在倒计时时间，则默认为非活跃状态（已停止）或根据需要进行其他处理  
+    } 
+    }
 
 },
   hidepopup() {  
@@ -142,30 +169,59 @@ checkInput() {
       }  
     },
     GetonlineStage() {  
-      this.iscountdown = !this.iscountdown;    
-      this.countdown = 7200;    
-      this.intervalId = setInterval(() => {  // 定义并赋值给 this.intervalId  
-        this.countdown--;    
-        if (this.countdown <= 0) {    
-          this.DeleteonlineStage();  
-          clearInterval(this.intervalId); // 清除定时器    
-        }  
-      }, 1000);            
-      // axios.get('http://localhost:80/api/task/answer?action=create_online') // 替换为你的后端API地址    
-      //   .then(response => {    
-      //     console.log(response.data);    
-      //   })    
-      //   .catch(error => {    
-      //     console.error(error);    
-      //   });    
+      axios.get('http://localhost:80/api/task/answer?action=create_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
+        .then(response => {     
+          console.log(response.data);    
+          if(response.data.ret==="success"){
+          this.ipandport=response.data.data.ip+response.data.data.port;
+          this.Waitonline();   
+          this.countdown = 7200;   
+          this.iscountdown = true;   
+          this.intervalId = setInterval(() => {  // 定义并赋值给 this.intervalId  
+          this.countdown--;    
+          if (this.countdown <= 0) {    
+          this.DeleteonlineStage();    
+          }  
+          }, 1000);}
+        })    
+        .catch(error => {    
+          console.error(error);    
+        });              
     },      
+    Waitonline(){
+      axios.get('http://localhost:80/api/task/answer?action=wait_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
+        .then(response => {    
+          console.log(response.data);    
+        })    
+        .catch(error => {    
+          console.error(error);    
+        });  
+    },
     DeleteonlineStage() {  
       clearInterval(this.intervalId); // 清除由 GetonlineStage 创建的定时器    
-      this.iscountdown = !this.iscountdown;    
-    },
+      localStorage.removeItem('countdown'+this.item.task_id);
+      localStorage.removeItem("ipandport"+this.item.task_id); 
+      this.iscountdown = false;   
+      axios.get('http://localhost:80/api/task/answer?action=stop_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
+        .then(response => {    
+          console.log(response.data);     
+        })    
+        .catch(error => {    
+          console.error(error);    
+        });    
+    }, 
   },
+  beforeDestroy() {  
+    if (this.iscountdown) {  
+      localStorage.setItem("countdown"+this.item.task_id, this.countdown); // 将倒计时时间保存到 LocalStorage  
+      localStorage.setItem("ipandport"+this.item.task_id, this.ipandport); 
+    } else {  
+      localStorage.removeItem("countdown"+this.item.task_id); // 如果倒计时已停止，则从 LocalStorage 中移除该项  
+      localStorage.removeItem("ipandport"+this.item.task_id); 
+    }  
+  }, 
   mounted() {  
-    this.getDownloadLink(); // 在组件挂载后获取下载链接  
+    this.getDownloadLink(); // 在组件挂载后获取下载链接
   },
 }
 </script>
@@ -201,11 +257,11 @@ checkInput() {
   position: relative;
 }
 .popup-content{
-  color: #000;
-  width: 652px;
-  height: 400px;
-  padding: 24px;
-  background-color: #fff;
+color: #000;
+width: 652px;
+height: 400px;
+padding: 24px;
+background-color: #fff;
 }
 .TITLE{
   color: #000;
@@ -242,6 +298,7 @@ checkInput() {
   border-bottom: 1px solid #ccc;
 } 
 .popup-flag{
+   /* 题目描述太长容易超出容器（未解决） */
   text-align: center;  
   margin-top: 120px; 
 }
