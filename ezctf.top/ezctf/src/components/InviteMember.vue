@@ -39,6 +39,7 @@
             alert(response.msg);
             this.username='';
             console.log(response.data);
+            window.location.reload();  
           }
         } catch (error) {
           alert(error.response.data.msg);

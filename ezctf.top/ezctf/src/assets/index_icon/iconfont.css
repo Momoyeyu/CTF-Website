@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id  */
-  src: url('iconfont.ttf?t=1701241433857') format('truetype');
+  src: url('iconfont.ttf?t=1701326820651') format('truetype');
 }
 
 .iconfont {
@@ -23,12 +23,28 @@
   content: "\e612";
 }
 
+.icon-chilun:before {
+  content: "\e63f";
+}
+
 .icon-diannao:before {
   content: "\e61e";
 }
 
 .icon-weiwancheng:before {
   content: "\e817";
+}
+
+.icon-yusherenyuan:before {
+  content: "\e65c";
+}
+
+.icon-xiaoxi:before {
+  content: "\e8bd";
+}
+
+.icon-guanji:before {
+  content: "\e666";
 }
 
 .icon-xE990:before {

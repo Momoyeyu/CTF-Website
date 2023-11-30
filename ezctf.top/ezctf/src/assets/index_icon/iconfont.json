@@ -27,6 +27,13 @@
       "unicode_decimal": 58898
     },
     {
+      "icon_id": "5044295",
+      "name": "齿轮",
+      "font_class": "chilun",
+      "unicode": "e63f",
+      "unicode_decimal": 58943
+    },
+    {
       "icon_id": "5203236",
       "name": "电脑",
       "font_class": "diannao",
@@ -39,6 +46,27 @@
       "font_class": "weiwancheng",
       "unicode": "e817",
       "unicode_decimal": 59415
+    },
+    {
+      "icon_id": "5809085",
+      "name": "预设人员",
+      "font_class": "yusherenyuan",
+      "unicode": "e65c",
+      "unicode_decimal": 58972
+    },
+    {
+      "icon_id": "11372722",
+      "name": "消息",
+      "font_class": "xiaoxi",
+      "unicode": "e8bd",
+      "unicode_decimal": 59581
+    },
+    {
+      "icon_id": "12661308",
+      "name": "关机",
+      "font_class": "guanji",
+      "unicode": "e666",
+      "unicode_decimal": 58982
     },
     {
       "icon_id": "24893456",
