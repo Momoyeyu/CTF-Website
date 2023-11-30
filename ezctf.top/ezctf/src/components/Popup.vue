@@ -17,7 +17,7 @@
                   <td v-else>状态：未完成</td>  
                 </tr>  
               </table>  
-              <p class="popup-description">题目描述：{{ Detail.content }}</p>
+              <div class="huadong"><p class="popup-description">题目描述：{{ Detail.content }}</p></div>
               <p v-if="item.solved"></p>
             <div v-else class="popup-flag">  
               <div>
@@ -300,7 +300,7 @@ background-color: #fff;
 .popup-flag{
    /* 题目描述太长容易超出容器（未解决） */
   text-align: center;  
-  margin-top: 120px; 
+  margin-top: 50px; 
 }
 .popup-flag input{
   border: 1px solid #000;
@@ -326,4 +326,8 @@ background-color: #fff;
   text-align: center;  
   margin-top: 10px;  
 } 
+.huadong{
+  max-height: 150px;
+  overflow-y:auto ;
+}
 </style>
