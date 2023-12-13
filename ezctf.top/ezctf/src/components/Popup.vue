@@ -126,7 +126,7 @@ checkInput() {
     }, 
     submitData() {  
       console.log(this.Flag);
-      axios.post('http://localhost:80/api/task/answer?action=commit_flag',this.Flag)  
+      axios.post('/api/task/answer?action=commit_flag',this.Flag)  
         .then(response=>{  
           console.log(response.data);
           if (response.data.data.correct){
@@ -144,7 +144,7 @@ checkInput() {
     },
     async getDownloadLink() {    
       try {    
-        const response = await axios.get('http://localhost:80/api/task/answer?action=download_attachment&task_id='+this.item.task_id,   
+        const response = await axios.get('/api/task/answer?action=download_attachment&task_id='+this.item.task_id,   
         { responseType: 'blob' }); // 发送下载请求，并指定响应类型  
         if (response) {  // 判断响应是否存在  
           this.downloadLink = window.URL.createObjectURL(response.data); // 创建下载链接    
@@ -169,7 +169,7 @@ checkInput() {
       }  
     },
     GetonlineStage() {  
-      axios.get('http://localhost:80/api/task/answer?action=create_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
+      axios.get('/api/task/answer?action=create_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
         .then(response => {     
           console.log(response.data);    
           if(response.data.ret==="success"){
@@ -189,7 +189,7 @@ checkInput() {
         });              
     },      
     Waitonline(){
-      axios.get('http://localhost:80/api/task/answer?action=wait_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
+      axios.get('/api/task/answer?action=wait_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
         .then(response => {    
           console.log(response.data);    
         })    
@@ -202,7 +202,7 @@ checkInput() {
       localStorage.removeItem('countdown'+this.item.task_id);
       localStorage.removeItem("ipandport"+this.item.task_id); 
       this.iscountdown = false;   
-      axios.get('http://localhost:80/api/task/answer?action=stop_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
+      axios.get('/api/task/answer?action=stop_online&task_id='+this.item.task_id) // 替换为你的后端API地址    
         .then(response => {    
           console.log(response.data);     
         })    

@@ -4,12 +4,12 @@ import router from './router'
 import Vuex from 'vuex';
 import VueCookies from 'vue-cookies'
 import './assets/index_icon/iconfont.css'
+import axios from 'axios';
 
 Vue.use(Vuex);
 Vue.use(VueCookies)
-
 Vue.config.productionTip = false
-
+axios.defaults.baseURL="http://8.130.98.1:8000"
 const store = new Vuex.Store({
   state: {
     loginButtonEnabled: localStorage.getItem('LBE') === "false" ? false : true,

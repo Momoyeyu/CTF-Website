@@ -82,7 +82,7 @@ data(){
 },
 methods: {  
     fetchUsersData() {  
-      axios.get('http://localhost:80/api/rank/user') 
+      axios.get('/api/rank/user') 
         .then(response => {  
           this.users = response.data.data.user_list;  
           console.log(this.users);
@@ -92,7 +92,7 @@ methods: {
         });  
     },
     fetchTeamsData() {  
-      axios.get('http://localhost:80/api/rank/team') 
+      axios.get('/api/rank/team') 
         .then(response => {  
           this.teams = response.data.data.team_list;  
           console.log(this.teams);
