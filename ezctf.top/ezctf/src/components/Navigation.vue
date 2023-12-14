@@ -2,8 +2,8 @@
 <div class="topborder">
         <div class="wrap">
         <ul class="header-left">
-            <li><a href="#/home"><i class="iconfont icon-xE990"></i>EZCTF</a><span>|</span></li>
-            <li><a href="#/ranking"><i class="iconfont icon-paixingbang"></i>Ranking</a></li>
+            <li><a href="#/home" @click="setLoginButtonEnabled(true)"><i class="iconfont icon-xE990"></i>EZCTF</a><span>|</span></li>
+            <li><a href="#/ranking" @click="setLoginButtonEnabled(true)"><i class="iconfont icon-paixingbang"></i>Ranking</a></li>
         </ul>
         <ul class="header-right">
             <li><button @click="log()" v-if="!isLogin" id="loginBtn" :disabled="!loginButtonEnabled" :class="{ 'disabled-button': !loginButtonEnabled }">登录</button></li>

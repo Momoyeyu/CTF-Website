@@ -9,7 +9,7 @@ import axios from 'axios';
 Vue.use(Vuex);
 Vue.use(VueCookies)
 Vue.config.productionTip = false
-axios.defaults.baseURL="http://8.130.98.1:8000"
+axios.defaults.baseURL="http://8.130.98.1:8080"
 const store = new Vuex.Store({
   state: {
     loginButtonEnabled: localStorage.getItem('LBE') === "false" ? false : true,
