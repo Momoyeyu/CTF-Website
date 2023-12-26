@@ -149,3 +149,12 @@ export const profile = async (username) => {
     throw error;
   }
 };
+
+export const user_profile = async () => {
+  try {
+    const response = await api.get(`/api/common/user?action=update_profile`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
