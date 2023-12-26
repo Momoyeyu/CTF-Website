@@ -40,6 +40,8 @@ def dispatcher(request):
         return user_active(request)
     elif action == "profile":
         return profile(request)
+    elif action == "update_profile":
+        return user_profile(request)
 
     else:
         return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
@@ -427,4 +429,45 @@ def profile(request):
         "is_leader": is_leader,
     }
     return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
+
+
+@require_http_methods("GET")
+def user_profile(request):
+    """
+    GET
+    @param:
+    {
+        "action": "update_profile",
+    }
+    @response:
+    {
+        "ret": "success",
+        "msg": "查询成功",
+        "data": {
+            "username": "momoyeyu",
+            "email": "momoyeyu@outlook.com",
+            "score": 100,
+            "team": "ezctf",
+        },
+    }
+    """
+    uid = request.session.get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    if user is None or user.is_active is False:
+        return error_template(ExceptionEnum.USER_NOT_FOUND.value, status=404)
+    team_name = ""
+    is_leader = False
+    if user.custom_user.team is not None:
+        team_name = user.custom_user.team.team_name
+        if user.custom_user.team.leader == user:
+            is_leader = True
+    res_data = {
+        "username": user.username,
+        "email": user.email,
+        "score": user.custom_user.score,
+        "team": team_name,
+        "is_leader": is_leader,
+    }
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)
+
 
