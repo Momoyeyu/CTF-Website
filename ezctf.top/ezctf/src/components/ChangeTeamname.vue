@@ -29,7 +29,7 @@
       ...mapMutations(['setTeamname','setChangeTeamname','setManageTeam','setErr']),
       async change_Team() {
         try {
-          if (!this.isValid(this.team.team_name)) {
+          if (!this.isValid(this.newTeamname)) {
               this.setErr("战队名只能包含数字、字母和下划线");
               return;
           }
