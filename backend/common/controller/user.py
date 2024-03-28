@@ -408,6 +408,7 @@ def profile(request):
             "email": "momoyeyu@outlook.com",
             "score": 100,
             "team": "ezctf",
+            "is_leader": true,
         },
     }
     """
@@ -448,6 +449,7 @@ def user_profile(request):
             "email": "momoyeyu@outlook.com",
             "score": 100,
             "team": "ezctf",
+            "is_leader": true,
         },
     }
     """
