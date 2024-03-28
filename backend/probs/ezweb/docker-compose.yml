@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  web_challenge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:80"
+
+#  container_scheduler:
+#    image: alpine
+#    volumes:
+#      - ./shutdown_script.sh:/shutdown_script.sh
+#    command: /bin/sh /shutdown_script.sh

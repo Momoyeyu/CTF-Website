@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>EZCTF</title>
+    <!-- 自己的样式 -->
+    <link rel="stylesheet" href="./CSS/CTFindex.css">
+    <!-- 字体图标 -->
+    <link rel="stylesheet" href="./CSS/iconfont.css">
+    <!-- axios请求 -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <!-- 题目详细页面弹窗 -->
+    <div class="popup-wrap" id="popup-wrap" onclick="hidepopup()">
+        <div class="popup">
+            <div class="popup-header">
+                <div class="TITLE">TITLE</div>
+                <button class="close" onclick="hidepopup()">X</button>
+            </div>
+            <div class="popup-content">
+                <table class="popup-table">  
+                    <tr>  
+                      <td>来源：</td>  
+                      <td>分数：</td>  
+                    </tr>  
+                    <tr>  
+                      <td>解出人数：</td>  
+                      <td>状态：</td>  
+                    </tr>  
+                  </table>  
+                  <p class="popup-description">
+                    题目描述：
+                </p>
+                <!-- <div class="popup-flag">  
+                  <input type="text" class="inputText" placeholder="请输入FLAG" /> 
+                  </div>  -->
+                  <!-- 点击关闭bug -->
+                <div class="popup-download">  
+                    <a href="#" download>附件点击这里下载</a>  
+                  </div>  
+            </div>
+        </div>
+    </div>
+    <!-- 导航栏 -->
+    <div class="topborder">
+        <div class="wrap">
+        <ul class="header-left">
+            <li><a href="#"><i class="iconfont">&#xf01ff;</i>Logo</a><span>|</span></li>
+            <li><a href="#"><i class="iconfont">&#xe64b;</i>Ranking</a></li>
+        </ul>
+        <ul class="header-right">
+            <li><a href="#"><i class="iconfont">&#xe749;</i>Login</a></li>
+        </ul>
+        </div>
+    </div>
+    <!-- 背景图 -->
+    <div class="banner">
+        <div class="wrap">
+            <div class="banner-box"></div>
+        </div>
+    </div>
+    <!-- 题目和公告栏 -->
+    <div class="container">
+        <div class="wrap">
+            <div class="container-left">
+                <div class="topbar">
+                    <div class="block current"><button id="sendRequest0">Misc</button><div class="triangle current"></div></div>
+                    <div class="block"><button id="sendRequest1">Crypto</button><div class="triangle"></div></div>
+                    <div class="block"><button id="sendRequest2">Web</button><div class="triangle"></div></div>
+                    <div class="block"><button id="sendRequest3">Reverse</button><div class="triangle"></div></div>
+                    <div class="block"><button id="sendRequest4">Pwn</button><div class="triangle"></div></div>
+                </div>
+                <div class="content">
+                    <div class="page current">
+                        <div id="question" class="question"><button id="trigger" class="trigger" onclick="showpopup()">
+                            <div class="question-left">
+                                <div id="question-name" class="question-name"></div>
+                                <div id="question-source" class="question-source">来源：</div>
+                                <div class="question-message">
+                                    <div id="question-score" class="question-score">分数：</div>
+                                    <div id="question-amount" class="question-amount">解出人数：</div>
+                                </div>
+                            </div>
+                            <div class="question-right">
+                                <i class="iconfont">&#xe817;</i></div>
+                        </button></div>
+                        <div id="question" class="question"><button id="trigger" class="trigger" onclick="showpopup()">
+                            <div class="question-left">
+                                <div id="question-name" class="question-name"></div>
+                                <div id="question-source" class="question-source">来源：</div>
+                                <div class="question-message">
+                                    <div id="question-score" class="question-score">分数：</div>
+                                    <div id="question-amount" class="question-amount">解出人数：</div>
+                                </div>
+                            </div>
+                            <div class="question-right">
+                                <i class="iconfont">&#xe817;</i></div>
+                        </button></div>
+                        <div id="question" class="question"><button id="trigger" class="trigger" onclick="showpopup()">
+                            <div class="question-left">
+                                <div id="question-name" class="question-name"></div>
+                                <div id="question-source" class="question-source">来源：</div>
+                                <div class="question-message">
+                                    <div id="question-score" class="question-score">分数：</div>
+                                    <div id="question-amount" class="question-amount">解出人数：</div>
+                                </div>
+                            </div>
+                            <div class="question-right">
+                                <i class="iconfont">&#xe817;</i></div>
+                        </button></div>
+                    </div>
+                    <div class="page">
+                        <div id="question" class="question"><button class="trigger" onclick="showpopup()">
+                            <div class="question-left">
+                                <div id="question-name1" class="question-name"></div>
+                                <div id="question-source1" class="question-source">来源：</div>
+                                <div class="question-message">
+                                    <div id="question-score1" class="question-score">分数：</div>
+                                    <div id="question-amount1" class="question-amount">解出人数：</div>
+                                </div>
+                            </div>
+                            <div class="question-right">
+                                <i class="iconfont">&#xe817;</i></div>
+                        </button></div>
+                    </div>
+                    <div class="page">
+                        <div id="question" class="question"><button class="trigger" onclick="showpopup()">
+                            <div class="question-left">
+                                <div id="question-name2" class="question-name"></div>
+                                <div id="question-source2" class="question-source">来源：</div>
+                                <div class="question-message">
+                                    <div id="question-score2" class="question-score">分数：</div>
+                                    <div id="question-amount2" class="question-amount">解出人数：</div>
+                                </div>
+                            </div>
+                            <div class="question-right">
+                                <i class="iconfont">&#xe817;</i></div>
+                        </button></div>
+                    </div>
+                    <div class="page">
+                        <div id="question" class="question"><button class="trigger" onclick="showpopup()">
+                            <div class="question-left">
+                                <div id="question-name3" class="question-name"></div>
+                                <div id="question-source3" class="question-source">来源：</div>
+                                <div class="question-message">
+                                    <div id="question-score3" class="question-score">分数：</div>
+                                    <div id="question-amount3" class="question-amount">解出人数：</div>
+                                </div>
+                            </div>
+                            <div class="question-right">
+                                <i class="iconfont">&#xe817;</i></div>
+                        </button></div>
+                    </div>
+                    <div class="page">
+                        <div id="question" class="question"><button class="trigger" onclick="showpopup()">
+                            <div class="question-left">
+                                <div id="question-name4" class="question-name"></div>
+                                <div id="question-source4" class="question-source">来源：</div>
+                                <div class="question-message">
+                                    <div id="question-score4" class="question-score">分数：</div>
+                                    <div id="question-amount4" class="question-amount">解出人数：</div>
+                                </div>
+                            </div>
+                            <div class="question-right">
+                                <i class="iconfont">&#xe817;</i></div>
+                        </button></div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-right">
+                <div class="outline">Notice</div>
+                <div class="notice">
+                    <ul>
+                        <li>1.THis</li>
+                        <li>2.is</li>
+                        <li>3.my</li>
+                        <li>4.first</li>
+                        <li>5.Web</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- JS文件 -->
+        <script src="./JS/indexJS.js"></script>
+        <script src="./JS/indexpopup.js"></script>
+        <script src="./JS/index_axios.js"></script>
+</body>
+</html>

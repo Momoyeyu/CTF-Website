@@ -4,7 +4,7 @@ from rank.controller import user, team
 
 urlpatterns = [
 
-    path('user', user.dispatcher),
-    path('team', team.dispatcher),
+    path('user', user.user_rank),
+    path('team', team.team_rank),
 
 ]

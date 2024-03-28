@@ -1,26 +1,52 @@
-from django.http import HttpResponse
-from django.http import JsonResponse
-from common.controller.util import get_request_params
-import json
-
-"""
-此文件仅处理 user表 数据
-"""
+from utils import get_request_params, error_template, success_template, ExceptionEnum, SuccessEnum
+from common.models import CustomUser
 
 
 def dispatcher(request):
-    # 将请求参数统一放入request 的 params 属性中，方便后续处理
 
-    request.params = get_request_params(request)
-
-    # 根据不同的action分派给不同的函数进行处理
-    action = request.params['action']
-    if action == 'getrank':
-        return get_rank(request)
-
+    action = request.GET.get('action')
+    if action == 'rank':
+        return user_rank(request)
     else:
-        return JsonResponse({'ret': 1, 'msg': 'Unsupported request!'})
+        return error_template(ExceptionEnum.UNSUPPORTED_REQUEST.value, status=405)
 
 
-def get_rank(request):
-    return HttpResponse()
+def user_rank(request):
+    """
+    @return:
+    {
+        "ret": "success",
+        "msg": "查询成功",
+        "data": {
+            "user_list": [
+                {
+                    "username": "aaa",
+                    "score": 100,
+                    "last_commit": xxx,
+                },
+                {
+                    "username": "bbb",
+                    "score": 100,
+                    "last_commit": xxx,
+                },
+            ],
+            "total": 2,
+        }
+    }
+    """
+    if request.method != 'GET':
+        return error_template(ExceptionEnum.INVALID_REQUEST_METHOD.value, status=405)
+
+    users = CustomUser.objects.all()
+    user_list = []
+    for user in users:
+        user_list.append({
+            'username': user.user.username,
+            'score': user.score,
+            'last_commit': user.last_answer_time,
+        })
+    res_data = {
+        "user_list": user_list,
+        "total": len(user_list),
+    }
+    return success_template(SuccessEnum.QUERY_SUCCESS.value, data=res_data)

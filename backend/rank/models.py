@@ -9,5 +9,6 @@ class FirstKill(models.Model):
     task = models.ForeignKey(Task, on_delete=models.PROTECT)
     answer_time = models.DateTimeField(auto_now_add=True)
 
+    objects = models.Manager()
     def __str__(self):
         return f"First Kill: {self.user.username} - {self.task.task_name}"
