@@ -5,10 +5,3 @@ module.exports = defineConfig({
   //   port:80
   // }
 })
-const cors = require('cors')  
-  
-module.exports = {  
-  devServer: {  
-    before: cors(),  
-  },  
-}

@@ -46,7 +46,7 @@
 <script>
 import CreateAvatar from '../components/CreateAvatar.vue';
 import { mapState, mapMutations } from 'vuex';
-import { logoutUser,profile } from '@/UserSystemApi/UserApi';
+import { logoutUser,user_profile } from '@/UserSystemApi/UserApi';
 import { messNum } from '@/UserSystemApi/MessageApi';
 export default {
 name:'Navigation',
@@ -129,7 +129,7 @@ name:'Navigation',
       this.setIsHover(!this.$store.state.isHover);
       if(this.$store.state.isHover){
         this.getMessNum();
-        this.profile(this.userInfo.name);
+        this.user_profile();
       }
     },
     setinfo() {
@@ -211,9 +211,9 @@ name:'Navigation',
       else
         return true;
     },
-    async profile(name) {
+    async user_profile() {
       try {
-        const response = await profile(name);
+        const response = await user_profile();
         console.log('响应', response);
         if (response.ret === 'success') {
           this.setUsername(response.data.username);
